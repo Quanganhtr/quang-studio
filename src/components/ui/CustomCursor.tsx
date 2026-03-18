@@ -12,15 +12,28 @@ export default function CustomCursor() {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const x = useMotionValue(-200);
   const y = useMotionValue(-200);
+  const opacity = useMotionValue(0);
 
   useEffect(() => {
+    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
+    if (isTouchDevice) return;
+
     const move = (e: MouseEvent) => {
       x.set(e.clientX + 16);
       y.set(e.clientY + 16);
     };
+    const hide = () => opacity.set(0);
+    const show = () => opacity.set(1);
+
     window.addEventListener("mousemove", move);
-    return () => window.removeEventListener("mousemove", move);
-  }, [x, y]);
+    document.addEventListener("mouseleave", hide);
+    document.addEventListener("mouseenter", show);
+    return () => {
+      window.removeEventListener("mousemove", move);
+      document.removeEventListener("mouseleave", hide);
+      document.removeEventListener("mouseenter", show);
+    };
+  }, [x, y, opacity]);
 
   return (
     <motion.div
@@ -35,6 +48,7 @@ export default function CustomCursor() {
         height: 32,
         pointerEvents: "none",
         zIndex: 99999,
+        opacity,
       }}
     >
       <Lottie
