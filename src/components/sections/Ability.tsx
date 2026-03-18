@@ -41,7 +41,7 @@ export default function Ability() {
           tickerLength={16}
           tickerWeight={1}
           cards={[
-            { targetImg: "/Images/Target-PT.png", dragImg: "/Images/Drag-PT.png", imgSizePercent: 40, media: "/Images/Product Thinking.gif" },
+            { targetImg: "/images/Target-PT.png", dragImg: "/images/Drag-PT.png", imgSizePercent: 40, media: "/images/Product Thinking.gif" },
             { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
             { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
             { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
