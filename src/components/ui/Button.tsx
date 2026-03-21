@@ -69,13 +69,11 @@ export default function Button({ label, hoverLabel, href, onClick, variant = "pr
     display: "inline-block",
     borderRadius: 0,
     padding: "12px 24px",
-    fontFamily: "'Geist Mono', monospace",
-    fontSize: 16,
-    fontWeight: 500,
+    fontFamily: "'Boldonse', cursive",
+    fontSize: 14,
     lineHeight: "24px",
     textDecoration: "none",
     cursor: "pointer",
-    letterSpacing: "0.05em",
     ...variantStyles[variant],
   };
 
