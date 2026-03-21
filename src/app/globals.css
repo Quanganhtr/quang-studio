@@ -158,6 +158,12 @@ body > * {
   }
 }
 
+/* MyWork floating animation */
+@keyframes floatUpDown {
+  from { translate: 0px 0px; }
+  to   { translate: 0px calc(-1 * var(--float-offset, 10px)); }
+}
+
 /* DragMatchGrid responsive grid */
 .drag-match-grid { display: grid; gap: 8px; width: 100%; }
 @media (max-width: 767px)                    { .drag-match-grid { grid-template-columns: 1fr; } }
