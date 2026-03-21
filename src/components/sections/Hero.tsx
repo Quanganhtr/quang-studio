@@ -226,6 +226,7 @@ export default function Hero() {
         display:        "flex",
         flexDirection:  "column",
         justifyContent: "flex-end",
+        overflow:       "hidden",
         padding:        isMobile ? "0 8px 32px" : "0 56px 56px",
       }}
     >
