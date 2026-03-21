@@ -64,7 +64,7 @@ function MaskedColumn({
   const exitedDownRef = useRef(false);
 
   const gap        = mobile ? MOBILE_GAP : DESKTOP_GAP;
-  const fontSize   = mobile ? "clamp(22px, 9vw, 42px)" : "clamp(24px, 4.5vw, 96px)";
+  const fontSize   = mobile ? "clamp(22px, 10vw, 42px)" : "clamp(24px, 4.5vw, 96px)";
   const lineHeight = mobile ? 1.5 : 1.05;
 
   // Spans inherit font from container; only layout/color props needed here
@@ -209,7 +209,8 @@ function MaskedColumn({
 
 export default function Hero() {
   const isMobile = useIsMobile();
-  const seqLength = 6; // mobile items only cover seq 0-3; steps 4-5 act as gap for exit/re-entry
+  // Mobile: 1 gap step (seq 4) for exit-down; Desktop: 2 gap steps for left col (seq 4-5)
+  const seqLength = isMobile ? mobileItems.length + 1 : 6;
   const [active, setActive] = useState(0);
 
   useEffect(() => {
@@ -225,7 +226,7 @@ export default function Hero() {
         display:        "flex",
         flexDirection:  "column",
         justifyContent: "flex-end",
-        padding:        isMobile ? "0 8px 8px" : "0 56px 56px",
+        padding:        isMobile ? "0 8px 32px" : "0 56px 56px",
       }}
     >
       <motion.div
