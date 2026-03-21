@@ -5,6 +5,9 @@ import {
   motion,
   useMotionValue,
   animate,
+  useScroll,
+  useTransform,
+  useMotionValueEvent,
 } from "framer-motion";
 
 const MAX_CONTAINER_WIDTH = 4800;
@@ -29,7 +32,6 @@ const CornerTicks = ({
     pointerEvents: "none",
     zIndex: 3,
   };
-
   return (
     <>
       <div style={{ ...style, top: 0, left: 0, borderRight: "0", borderBottom: "0", borderWidth: weight }} />
@@ -67,7 +69,6 @@ export function DragMatchGrid({
   tickerWeight = 1,
 }: DragMatchGridProps) {
   const gridClass = "drag-match-grid";
-
   return (
     <div style={{ width: "100%", maxWidth: `${MAX_CONTAINER_WIDTH}px`, margin: "0 auto" }}>
       <style>{`
@@ -123,7 +124,6 @@ function DraggableCard({
   const [isMatched, setIsMatched] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
-  const [inView, setInView] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
@@ -133,6 +133,21 @@ function DraggableCard({
   const y = useMotionValue(0);
   const rotate = useMotionValue(0);
 
+  // Mobile: track when the card scrolls from bottom of screen into center
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start 90%", "center center"],
+  });
+
+  // 0 = just entering screen (y=200 / pushed down), 1 = centered (y=0)
+  const mobileScrollY = useTransform(scrollYProgress, [0, 1], [200, 0]);
+
+  // Latch: once scrolled to center, stay matched — never reset on mobile
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    if (!isMobile) return;
+    if (latest >= 0.99 && !isMatched) setIsMatched(true);
+  });
+
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -140,23 +155,6 @@ function DraggableCard({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  // Mobile: observe the container entering the viewport
-  useEffect(() => {
-    if (!isMobile) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        if (entry.isIntersecting) {
-          setInView(true);
-          observer.disconnect();
-        }
-      },
-      { threshold: 0.3 }
-    );
-    if (containerRef.current) observer.observe(containerRef.current);
-    return () => observer.disconnect();
-  }, [isMobile]);
-
-  // Desktop: position drag image at bottom on mount
   useEffect(() => {
     if (isMobile) return;
     const timer = setTimeout(() => dropToBottom(), 300);
@@ -211,6 +209,21 @@ function DraggableCard({
     ? { position: "absolute", inset: 0, margin: "auto", zIndex: 1, opacity: isMatched ? 0 : 1, transition: "opacity 0.2s", width: `${imgSizePercent}%`, height: "fit-content" }
     : { position: "absolute", top: `${PADDING}px`, right: `${PADDING}px`, zIndex: 1, opacity: isMatched ? 0 : 1, transition: "opacity 0.2s", width: `${imgSizePercent}%`, height: "auto" };
 
+  const mobileDragStyle = {
+    position: "absolute" as const,
+    inset: 0,
+    margin: "auto",
+    zIndex: 10,
+    width: `${imgSizePercent}%`,
+    height: "fit-content",
+    y: isMatched ? 0 : mobileScrollY,
+    x: 0,
+    rotate: 0,
+    cursor: "default",
+    // pan-y allows vertical scroll to pass through on mobile
+    touchAction: "pan-y" as const,
+  };
+
   const desktopDragStyle = {
     x,
     y,
@@ -261,40 +274,21 @@ function DraggableCard({
         )}
       </div>
 
-      {isMobile ? (
-        /* Mobile: CSS transition driven by IntersectionObserver */
-        <div
-          style={{
-            position: "absolute",
-            inset: 0,
-            margin: "auto",
-            zIndex: 10,
-            width: `${imgSizePercent}%`,
-            height: "fit-content",
-            transform: inView ? "translateY(0px)" : "translateY(200px)",
-            transition: inView ? "transform 0.8s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
-            pointerEvents: "none",
-          }}
-          onTransitionEnd={() => { if (inView && !isMatched) setIsMatched(true); }}
-        >
-          {dragImg && <img src={dragImg} style={{ width: "100%", display: "block" }} draggable={false} alt="" />}
-        </div>
-      ) : (
-        /* Desktop: Framer Motion drag */
-        <motion.div
-          ref={dragRef}
-          drag={!isMobile}
-          dragConstraints={containerRef}
-          dragElastic={0}
-          dragMomentum={false}
-          onDragStart={() => { if (isMobile) return; setIsMatched(false); setIsDragging(true); }}
-          onDragEnd={handleDragEnd}
-          style={desktopDragStyle}
-          whileTap={!isMobile ? { scale: 1.1 } : {}}
-        >
-          {dragImg && <img src={dragImg} style={{ width: "100%", display: "block" }} draggable={false} alt="" />}
-        </motion.div>
-      )}
+      <motion.div
+        ref={dragRef}
+        drag={!isMobile}
+        dragConstraints={containerRef}
+        dragElastic={0}
+        dragMomentum={false}
+        onDragStart={() => { if (isMobile) return; setIsMatched(false); setIsDragging(true); }}
+        onDragEnd={handleDragEnd}
+        style={isMobile ? mobileDragStyle : desktopDragStyle}
+        whileTap={!isMobile ? { scale: 1.1 } : {}}
+      >
+        {dragImg && (
+          <img src={dragImg} style={{ width: "100%", display: "block" }} draggable={false} alt="" />
+        )}
+      </motion.div>
     </div>
   );
 }
