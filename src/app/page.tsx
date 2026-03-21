@@ -8,8 +8,10 @@ import MyWork from "@/components/sections/MyWork";
 export default function Home() {
   return (
     <>
-      <Navbar />
-      <Hero />
+      <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+        <Navbar />
+        <Hero />
+      </div>
       <OverviewVideo />
       <AboutMe />
       <Ability />
