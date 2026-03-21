@@ -11,7 +11,6 @@ import {
 } from "framer-motion";
 
 const MAX_CONTAINER_WIDTH = 4800;
-const CARD_GAP = 8;
 const PADDING = 20;
 
 const CornerTicks = ({
@@ -68,16 +67,9 @@ export function DragMatchGrid({
   tickerLength = 16,
   tickerWeight = 1,
 }: DragMatchGridProps) {
-  const gridClass = "drag-match-grid";
   return (
     <div style={{ width: "100%", maxWidth: `${MAX_CONTAINER_WIDTH}px`, margin: "0 auto" }}>
-      <style>{`
-        .${gridClass} { display: grid; gap: ${CARD_GAP}px; width: 100%; }
-        @media (max-width: 767px) { .${gridClass} { grid-template-columns: 1fr; } }
-        @media (min-width: 768px) and (max-width: 1199px) { .${gridClass} { grid-template-columns: repeat(2, 1fr); } }
-        @media (min-width: 1200px) { .${gridClass} { grid-template-columns: repeat(3, 1fr); } }
-      `}</style>
-      <div className={gridClass}>
+      <div className="drag-match-grid">
         {cards.map((card, index) => (
           <DraggableCard
             key={index}
