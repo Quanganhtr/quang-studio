@@ -158,6 +158,12 @@ body > * {
   }
 }
 
+/* DragMatchGrid responsive grid */
+.drag-match-grid { display: grid; gap: 8px; width: 100%; }
+@media (max-width: 767px)                    { .drag-match-grid { grid-template-columns: 1fr; } }
+@media (min-width: 768px) and (max-width: 1199px) { .drag-match-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1200px)                   { .drag-match-grid { grid-template-columns: repeat(3, 1fr); } }
+
 @layer base {
   .label-lg {
     font-family: 'Boldonse', cursive !important;
