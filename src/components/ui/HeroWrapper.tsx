@@ -14,7 +14,7 @@ export default function HeroWrapper({ children }: { children: React.ReactNode })
   }, []);
 
   return (
-    <div style={{ height: isMobile ? "100vh" : "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
+    <div style={{ height: isMobile ? "100svh" : "100dvh", display: "flex", flexDirection: "column", overflow: "hidden" }}>
       {children}
     </div>
   );
