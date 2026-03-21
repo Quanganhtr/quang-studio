@@ -219,7 +219,8 @@ function DraggableCard({
     x: 0,
     rotate: 0,
     cursor: "default",
-    touchAction: "none" as const,
+    touchAction: "auto" as const,
+    pointerEvents: "none" as const,
   };
 
   const desktopDragStyle = {
