@@ -209,7 +209,7 @@ function MaskedColumn({
 
 export default function Hero() {
   const isMobile = useIsMobile();
-  const seqLength = isMobile ? mobileItems.length : 6;
+  const seqLength = 6; // mobile items only cover seq 0-3; steps 4-5 act as gap for exit/re-entry
   const [active, setActive] = useState(0);
 
   useEffect(() => {

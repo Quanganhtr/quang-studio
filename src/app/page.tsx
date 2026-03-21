@@ -8,7 +8,7 @@ import MyWork from "@/components/sections/MyWork";
 export default function Home() {
   return (
     <>
-      <div style={{ height: "100dvh", display: "flex", flexDirection: "column" }}>
+      <div className="hero-wrapper" style={{ display: "flex", flexDirection: "column" }}>
         <Navbar />
         <Hero />
       </div>
