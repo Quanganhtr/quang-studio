@@ -1,7 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
-import { motion, useMotionValue } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useTheme } from "@/lib/ThemeContext";
 import lightAnimation from "../../../public/Light-Loading.json";
@@ -10,22 +9,29 @@ import darkAnimation from "../../../public/Dark-Loading.json";
 export default function CustomCursor() {
   const { theme } = useTheme();
   const lottieRef = useRef<LottieRefCurrentProps>(null);
-  const x = useMotionValue(-200);
-  const y = useMotionValue(-200);
-  const opacity = useMotionValue(0);
+  const cursorRef = useRef<HTMLDivElement>(null);
+  const [active, setActive] = useState(false);
 
   useEffect(() => {
-    const isTouchDevice = window.matchMedia("(pointer: coarse)").matches;
-    if (isTouchDevice) return;
+    if (window.matchMedia("(pointer: coarse)").matches) return;
 
     const move = (e: MouseEvent) => {
-      x.set(e.clientX + 16);
-      y.set(e.clientY + 16);
-      opacity.set(1);
-      document.body.classList.add("custom-cursor-active");
+      const el = cursorRef.current;
+      if (!el) return;
+      el.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
+      el.style.opacity = "1";
+      if (!document.body.classList.contains("custom-cursor-active")) {
+        document.body.classList.add("custom-cursor-active");
+        setActive(true);
+      }
     };
-    const hide = () => opacity.set(0);
-    const show = () => opacity.set(1);
+
+    const hide = () => {
+      if (cursorRef.current) cursorRef.current.style.opacity = "0";
+    };
+    const show = () => {
+      if (cursorRef.current) cursorRef.current.style.opacity = "1";
+    };
 
     window.addEventListener("mousemove", move);
     document.addEventListener("mouseleave", hide);
@@ -36,30 +42,33 @@ export default function CustomCursor() {
       document.removeEventListener("mouseenter", show);
       document.body.classList.remove("custom-cursor-active");
     };
-  }, [x, y, opacity]);
+  }, []);
 
   return (
-    <motion.div
+    <div
+      ref={cursorRef}
       style={{
         position: "fixed",
         left: 0,
         top: 0,
-        x,
-        y,
-        translateX: "-50%",
         width: 32,
         height: 32,
+        transform: "translate(-200px, -200px)",
+        opacity: 0,
         pointerEvents: "none",
         zIndex: 99999,
-        opacity,
+        // Promote to own layer for smooth Safari rendering
+        willChange: "transform",
       }}
     >
-      <Lottie
-        lottieRef={lottieRef}
-        animationData={theme === "dark" ? darkAnimation : lightAnimation}
-        loop
-        autoplay
-      />
-    </motion.div>
+      {active && (
+        <Lottie
+          lottieRef={lottieRef}
+          animationData={theme === "dark" ? darkAnimation : lightAnimation}
+          loop
+          autoplay
+        />
+      )}
+    </div>
   );
 }
