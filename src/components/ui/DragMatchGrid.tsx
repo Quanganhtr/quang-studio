@@ -5,9 +5,6 @@ import {
   motion,
   useMotionValue,
   animate,
-  useScroll,
-  useTransform,
-  useMotionValueEvent,
 } from "framer-motion";
 
 const MAX_CONTAINER_WIDTH = 4800;
@@ -135,24 +132,33 @@ function DraggableCard({
   const y = useMotionValue(0);
   const rotate = useMotionValue(0);
 
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ["start 90%", "center center"],
-  });
-
-  const mobileScrollY = useTransform(scrollYProgress, [0, 1], [200, 0]);
-
-  useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    if (!isMobile || isMatched) return;
-    if (latest >= 0.99) setIsMatched(true);
-  });
-
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
+
+  // Mobile: slide drag image from below into center when card enters viewport
+  useEffect(() => {
+    if (!isMobile || isMatched) return;
+    y.set(200);
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting) return;
+        animate(y, 0, {
+          type: "spring",
+          stiffness: 80,
+          damping: 18,
+          onComplete: () => setIsMatched(true),
+        });
+        observer.disconnect();
+      },
+      { threshold: 0.5 }
+    );
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isMobile, isMatched]);
 
   useEffect(() => {
     if (isMobile) return;
@@ -215,7 +221,7 @@ function DraggableCard({
     zIndex: 10,
     width: `${imgSizePercent}%`,
     height: "fit-content",
-    y: isMatched ? 0 : mobileScrollY,
+    y,
     x: 0,
     rotate: 0,
     cursor: "default",
