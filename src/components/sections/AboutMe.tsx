@@ -50,7 +50,7 @@ export default function AboutMe() {
   const rotateY = isMobile ? rotateYMob : rotateYDesk;
 
   // Knife transforms (from left, slightly delayed)
-  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 2.0 : 1.5], { ease: easeOut });
+  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 1.5], { ease: easeOut });
   const knifeXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [-1500, -300], { ease: easeOut });
   const knifeXMob   = useTransform(scrollYProgress, [0.15, 0.8], [-1500, 50],  { ease: easeOut });
   const knifeYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [800, -150],   { ease: easeOut });
@@ -60,7 +60,7 @@ export default function AboutMe() {
   const knifeY = isMobile ? knifeYMob : knifeYDesk;
 
   // Pencil transforms (from right, slightly delayed)
-  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 2.0 : 1.5], { ease: easeOut });
+  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 1.5], { ease: easeOut });
   const pencilXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1000, 500],  { ease: easeOut });
   const pencilXMob   = useTransform(scrollYProgress, [0.15, 0.8], [1000, -90],   { ease: easeOut });
   const pencilYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1500, 150],  { ease: easeOut });
@@ -125,7 +125,6 @@ export default function AboutMe() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          overflow: "hidden",
           perspective: "600px",
           padding: isMobile ? "0 8px" : 0,
         }}
@@ -224,7 +223,7 @@ export default function AboutMe() {
             y: knifeY,
             rotate: knifeRotate,
             position: "absolute",
-            width: "min(28vw, 320px)",
+            width: isMobile ? "56vw" : "min(28vw, 320px)",
             height: "auto",
             pointerEvents: "none",
             zIndex: 9,
@@ -242,7 +241,7 @@ export default function AboutMe() {
             y: pencilY,
             rotate: pencilRotate,
             position: "absolute",
-            width: "min(28vw, 320px)",
+            width: isMobile ? "56vw" : "min(28vw, 320px)",
             height: "auto",
             pointerEvents: "none",
             zIndex: 9,
