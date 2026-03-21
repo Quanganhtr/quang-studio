@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, easeOut } from "framer-motion";
 
 const KNIFE_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
@@ -11,7 +11,20 @@ const PENCIL_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
   `/images-sequence/Pencil/${String(i + 1).padStart(4, "0")}.png`
 );
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    setIsMobile(mq.matches);
+    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
+  return isMobile;
+}
+
 export default function AboutMe() {
+  const isMobile = useIsMobile();
   const sectionRef = useRef<HTMLElement>(null);
   const knifeCanvasRef = useRef<HTMLCanvasElement>(null);
   const knifeImagesRef = useRef<HTMLImageElement[]>([]);
@@ -130,7 +143,7 @@ export default function AboutMe() {
             skewX,
             position: "relative",
             zIndex: 10,
-            width: "30%",
+            width: isMobile ? "100vw" : "30%",
             display: "flex",
             flexDirection: "column",
             gap: 0,
