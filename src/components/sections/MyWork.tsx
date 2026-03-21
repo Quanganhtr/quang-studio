@@ -46,13 +46,6 @@ function FloatingLabel({
 export default function MyWork() {
   return (
     <section style={{ display: "flex", flexDirection: "column" }}>
-      <style>{`
-        @keyframes floatUpDown {
-          from { translate: 0px 0px; }
-          to   { translate: 0px calc(-1 * var(--float-offset, 10px)); }
-        }
-      `}</style>
-
       {/* 100dvh title container */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
