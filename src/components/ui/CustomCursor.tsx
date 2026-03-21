@@ -21,6 +21,8 @@ export default function CustomCursor() {
     const move = (e: MouseEvent) => {
       x.set(e.clientX + 16);
       y.set(e.clientY + 16);
+      opacity.set(1);
+      document.body.classList.add("custom-cursor-active");
     };
     const hide = () => opacity.set(0);
     const show = () => opacity.set(1);
@@ -32,6 +34,7 @@ export default function CustomCursor() {
       window.removeEventListener("mousemove", move);
       document.removeEventListener("mouseleave", hide);
       document.removeEventListener("mouseenter", show);
+      document.body.classList.remove("custom-cursor-active");
     };
   }, [x, y, opacity]);
 
