@@ -37,25 +37,37 @@ export default function AboutMe() {
   });
 
   // Letter transforms (from right)
-  const scale   = useTransform(scrollYProgress, [0, 0.75], [3.0, 1],  { ease: easeOut });
-  const x       = useTransform(scrollYProgress, [0, 0.75], [2000, 0], { ease: easeOut });
-  const y       = useTransform(scrollYProgress, [0, 0.75], [-60, 0],  { ease: easeOut });
-  const rotate  = useTransform(scrollYProgress, [0, 0.75], [-25, -2],  { ease: easeOut });
-  const rotateY = useTransform(scrollYProgress, [0, 0.75], [60, 2],   { ease: easeOut });
-  const rotateX = useTransform(scrollYProgress, [0, 0.75], [30, 0],   { ease: easeOut });
-  const skewX   = useTransform(scrollYProgress, [0, 0.75], [14, 0],   { ease: easeOut });
+  const scale        = useTransform(scrollYProgress, [0, 0.75], [3.0, 1],  { ease: easeOut });
+  const x            = useTransform(scrollYProgress, [0, 0.75], [2000, 0], { ease: easeOut });
+  const y            = useTransform(scrollYProgress, [0, 0.75], [-60, 0],  { ease: easeOut });
+  const rotateDesk   = useTransform(scrollYProgress, [0, 0.75], [-25, -2], { ease: easeOut });
+  const rotateMob    = useTransform(scrollYProgress, [0, 0.75], [-25, 0],  { ease: easeOut });
+  const rotateYDesk  = useTransform(scrollYProgress, [0, 0.75], [60, 2],   { ease: easeOut });
+  const rotateYMob   = useTransform(scrollYProgress, [0, 0.75], [60, 0],   { ease: easeOut });
+  const rotateX      = useTransform(scrollYProgress, [0, 0.75], [30, 0],   { ease: easeOut });
+  const skewX        = useTransform(scrollYProgress, [0, 0.75], [14, 0],   { ease: easeOut });
+  const rotate  = isMobile ? rotateMob  : rotateDesk;
+  const rotateY = isMobile ? rotateYMob : rotateYDesk;
 
   // Knife transforms (from left, slightly delayed)
-  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, 1.5],      { ease: easeOut });
-  const knifeX      = useTransform(scrollYProgress, [0.15, 0.8], [-1500, -300], { ease: easeOut });
-  const knifeY      = useTransform(scrollYProgress, [0.15, 0.8], [800, -150],   { ease: easeOut });
+  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 5.0 : 1.5], { ease: easeOut });
+  const knifeXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [-1500, -300], { ease: easeOut });
+  const knifeXMob   = useTransform(scrollYProgress, [0.15, 0.8], [-1500, 0],  { ease: easeOut });
+  const knifeYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [800, -150],   { ease: easeOut });
+  const knifeYMob   = useTransform(scrollYProgress, [0.15, 0.8], [800, -300],    { ease: easeOut });
   const knifeRotate = useTransform(scrollYProgress, [0.15, 0.8], [200, 0],       { ease: easeOut });
+  const knifeX = isMobile ? knifeXMob : knifeXDesk;
+  const knifeY = isMobile ? knifeYMob : knifeYDesk;
 
   // Pencil transforms (from right, slightly delayed)
-  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, 1.5],      { ease: easeOut });
-  const pencilX      = useTransform(scrollYProgress, [0.15, 0.8], [1000, 500], { ease: easeOut });
-  const pencilY      = useTransform(scrollYProgress, [0.15, 0.8], [1500, 150],   { ease: easeOut });
-  const pencilRotate = useTransform(scrollYProgress, [0.15, 0.8], [-200, 0],       { ease: easeOut });
+  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 5.0 : 1.5], { ease: easeOut });
+  const pencilXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1000, 500],  { ease: easeOut });
+  const pencilXMob   = useTransform(scrollYProgress, [0.15, 0.8], [1000, 80],   { ease: easeOut });
+  const pencilYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1500, 150],  { ease: easeOut });
+  const pencilYMob   = useTransform(scrollYProgress, [0.15, 0.8], [800, 100],   { ease: easeOut });
+  const pencilRotate = useTransform(scrollYProgress, [0.15, 0.8], [-200, 0],    { ease: easeOut });
+  const pencilX = isMobile ? pencilXMob : pencilXDesk;
+  const pencilY = isMobile ? pencilYMob : pencilYDesk;
 
   const drawFrame = (canvas: HTMLCanvasElement | null, images: HTMLImageElement[], index: number) => {
     if (!canvas || !images[index]) return;
@@ -115,6 +127,7 @@ export default function AboutMe() {
           justifyContent: "center",
           overflow: "hidden",
           perspective: "600px",
+          padding: isMobile ? "0 8px" : 0,
         }}
       >
         {/* Headline — stays behind */}
@@ -143,7 +156,7 @@ export default function AboutMe() {
             skewX,
             position: "relative",
             zIndex: 10,
-            width: isMobile ? "100vw" : "30%",
+            width: isMobile ? "100%" : "30%",
             display: "flex",
             flexDirection: "column",
             gap: 0,
