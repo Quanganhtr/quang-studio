@@ -136,7 +136,9 @@ function MaskedColumn({
         requestAnimationFrame(() => moveTo(winTop, winH, false))
       );
     } else {
-      moveTo(winTop, winH, false);
+      // Snap on first load so mask doesn't animate in from off-screen
+      const isFirstLoad = prevIndexRef.current === -1;
+      moveTo(winTop, winH, isFirstLoad);
     }
 
     prevIndexRef.current = activeIndex;
