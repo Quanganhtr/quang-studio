@@ -69,6 +69,43 @@ export default function AboutMe() {
   const pencilX = isMobile ? pencilXMob : pencilXDesk;
   const pencilY = isMobile ? pencilYMob : pencilYDesk;
 
+  const knifePlayingRef  = useRef(false);
+  const pencilPlayingRef = useRef(false);
+
+  const playAnimation = (
+    canvasRef: React.RefObject<HTMLCanvasElement | null>,
+    imagesRef: React.RefObject<HTMLImageElement[]>,
+    playingRef: React.RefObject<boolean>
+  ) => {
+    if (playingRef.current) return;
+    playingRef.current = true;
+
+    const progress = scrollYProgress.get();
+    const startFrame = Math.min(Math.floor(Math.max(0, (progress - 0.5) / 0.5) * 30), 29);
+
+    const FPS = 24;
+    const frameTime = 1000 / FPS;
+    let frame = startFrame;
+    let dir = -1;
+    let last = 0;
+
+    const tick = (now: number) => {
+      if (now - last >= frameTime) {
+        drawFrame(canvasRef.current, imagesRef.current, frame);
+        frame += dir;
+        if (frame < 0) { frame = 0; dir = 1; }
+        else if (frame > startFrame) {
+          drawFrame(canvasRef.current, imagesRef.current, startFrame);
+          playingRef.current = false;
+          return;
+        }
+        last = now;
+      }
+      requestAnimationFrame(tick);
+    };
+    requestAnimationFrame(tick);
+  };
+
   const drawFrame = (canvas: HTMLCanvasElement | null, images: HTMLImageElement[], index: number) => {
     if (!canvas || !images[index]) return;
     const ctx = canvas.getContext("2d");
@@ -107,8 +144,8 @@ export default function AboutMe() {
       const start = 0.5;
       const clamped = Math.max(0, (progress - start) / (1 - start));
       const index = Math.min(Math.floor(clamped * 30), 29);
-      drawFrame(knifeCanvasRef.current, knifeImagesRef.current, index);
-      drawFrame(pencilCanvasRef.current, pencilImagesRef.current, index);
+      if (!knifePlayingRef.current)  drawFrame(knifeCanvasRef.current, knifeImagesRef.current, index);
+      if (!pencilPlayingRef.current) drawFrame(pencilCanvasRef.current, pencilImagesRef.current, index);
     });
   }, [scrollYProgress]);
 
@@ -217,6 +254,7 @@ export default function AboutMe() {
           ref={knifeCanvasRef}
           width={800}
           height={800}
+          onClick={() => playAnimation(knifeCanvasRef, knifeImagesRef, knifePlayingRef)}
           style={{
             scale: knifeScale,
             x: knifeX,
@@ -225,7 +263,6 @@ export default function AboutMe() {
             position: "absolute",
             width: isMobile ? "56vw" : "min(28vw, 320px)",
             height: "auto",
-            pointerEvents: "none",
             zIndex: 9,
           }}
         />
@@ -235,6 +272,7 @@ export default function AboutMe() {
           ref={pencilCanvasRef}
           width={800}
           height={800}
+          onClick={() => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef)}
           style={{
             scale: pencilScale,
             x: pencilX,
@@ -243,7 +281,6 @@ export default function AboutMe() {
             position: "absolute",
             width: isMobile ? "56vw" : "min(28vw, 320px)",
             height: "auto",
-            pointerEvents: "none",
             zIndex: 9,
           }}
         />
