@@ -149,6 +149,24 @@ export default function AboutMe() {
     });
   }, [scrollYProgress]);
 
+  // Attach interaction events imperatively (reliable across SSR/hydration)
+  useEffect(() => {
+    const knifeEl  = knifeCanvasRef.current;
+    const pencilEl = pencilCanvasRef.current;
+    if (!knifeEl || !pencilEl) return;
+
+    const playKnife  = () => playAnimation(knifeCanvasRef,  knifeImagesRef,  knifePlayingRef);
+    const playPencil = () => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef);
+
+    const eventType = isMobile ? "click" : "mouseenter";
+    knifeEl.addEventListener(eventType,  playKnife);
+    pencilEl.addEventListener(eventType, playPencil);
+    return () => {
+      knifeEl.removeEventListener(eventType,  playKnife);
+      pencilEl.removeEventListener(eventType, playPencil);
+    };
+  }, [isMobile]);
+
   return (
     <section
       ref={sectionRef}
@@ -254,8 +272,6 @@ export default function AboutMe() {
           ref={knifeCanvasRef}
           width={800}
           height={800}
-          onClick={isMobile ? () => playAnimation(knifeCanvasRef, knifeImagesRef, knifePlayingRef) : undefined}
-          onMouseEnter={!isMobile ? () => playAnimation(knifeCanvasRef, knifeImagesRef, knifePlayingRef) : undefined}
           style={{
             scale: knifeScale,
             x: knifeX,
@@ -273,8 +289,6 @@ export default function AboutMe() {
           ref={pencilCanvasRef}
           width={800}
           height={800}
-          onClick={isMobile ? () => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef) : undefined}
-          onMouseEnter={!isMobile ? () => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef) : undefined}
           style={{
             scale: pencilScale,
             x: pencilX,
