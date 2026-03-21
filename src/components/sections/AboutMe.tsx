@@ -254,7 +254,8 @@ export default function AboutMe() {
           ref={knifeCanvasRef}
           width={800}
           height={800}
-          onClick={() => playAnimation(knifeCanvasRef, knifeImagesRef, knifePlayingRef)}
+          onClick={isMobile ? () => playAnimation(knifeCanvasRef, knifeImagesRef, knifePlayingRef) : undefined}
+          onMouseEnter={!isMobile ? () => playAnimation(knifeCanvasRef, knifeImagesRef, knifePlayingRef) : undefined}
           style={{
             scale: knifeScale,
             x: knifeX,
@@ -272,7 +273,8 @@ export default function AboutMe() {
           ref={pencilCanvasRef}
           width={800}
           height={800}
-          onClick={() => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef)}
+          onClick={isMobile ? () => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef) : undefined}
+          onMouseEnter={!isMobile ? () => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef) : undefined}
           style={{
             scale: pencilScale,
             x: pencilX,
