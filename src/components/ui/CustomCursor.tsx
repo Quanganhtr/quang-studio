@@ -20,10 +20,7 @@ export default function CustomCursor() {
       if (!el) return;
       el.style.transform = `translate(${e.clientX}px, ${e.clientY}px)`;
       el.style.opacity = "1";
-      if (!document.body.classList.contains("custom-cursor-active")) {
-        document.body.classList.add("custom-cursor-active");
-        setActive(true);
-      }
+      if (!active) setActive(true);
     };
 
     const hide = () => {
@@ -40,7 +37,6 @@ export default function CustomCursor() {
       window.removeEventListener("mousemove", move);
       document.removeEventListener("mouseleave", hide);
       document.removeEventListener("mouseenter", show);
-      document.body.classList.remove("custom-cursor-active");
     };
   }, []);
 
