@@ -39,15 +39,6 @@
   * { cursor: none !important; }
 }
 
-.hero-wrapper {
-  height: 100dvh;
-}
-
-@media (max-width: 768px) {
-  .hero-wrapper {
-    height: 100vh;
-  }
-}
 
 html {
   transition: background 0.3s ease, color 0.3s ease;
