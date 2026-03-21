@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import {
   motion,
   useMotionValue,
-  useInView,
   animate,
 } from "framer-motion";
 
@@ -124,6 +123,7 @@ function DraggableCard({
   const [isMatched, setIsMatched] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [inView, setInView] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
@@ -133,9 +133,6 @@ function DraggableCard({
   const y = useMotionValue(0);
   const rotate = useMotionValue(0);
 
-  // Watch the card container entering the viewport (works on Safari)
-  const inView = useInView(containerRef, { once: true, amount: 0.3 });
-
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
@@ -143,6 +140,23 @@ function DraggableCard({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
+  // Mobile: observe the container entering the viewport
+  useEffect(() => {
+    if (!isMobile) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          setInView(true);
+          observer.disconnect();
+        }
+      },
+      { threshold: 0.3 }
+    );
+    if (containerRef.current) observer.observe(containerRef.current);
+    return () => observer.disconnect();
+  }, [isMobile]);
+
+  // Desktop: position drag image at bottom on mount
   useEffect(() => {
     if (isMobile) return;
     const timer = setTimeout(() => dropToBottom(), 300);
@@ -197,17 +211,6 @@ function DraggableCard({
     ? { position: "absolute", inset: 0, margin: "auto", zIndex: 1, opacity: isMatched ? 0 : 1, transition: "opacity 0.2s", width: `${imgSizePercent}%`, height: "fit-content" }
     : { position: "absolute", top: `${PADDING}px`, right: `${PADDING}px`, zIndex: 1, opacity: isMatched ? 0 : 1, transition: "opacity 0.2s", width: `${imgSizePercent}%`, height: "auto" };
 
-  const mobileDragStyle: React.CSSProperties = {
-    position: "absolute",
-    inset: 0,
-    margin: "auto",
-    zIndex: 10,
-    width: `${imgSizePercent}%`,
-    height: "fit-content",
-    cursor: "default",
-    pointerEvents: "none",
-  };
-
   const desktopDragStyle = {
     x,
     y,
@@ -219,7 +222,6 @@ function DraggableCard({
     position: "relative" as const,
   };
 
-  // suppress unused warning
   void isDragging;
 
   return (
@@ -260,27 +262,35 @@ function DraggableCard({
       </div>
 
       {isMobile ? (
-        <motion.div
-          ref={dragRef}
-          initial={{ y: 200 }}
-          animate={{ y: inView ? 0 : 200 }}
-          transition={{ type: "spring", stiffness: 80, damping: 18 }}
-          onAnimationComplete={() => { if (inView) setIsMatched(true); }}
-          style={mobileDragStyle}
+        /* Mobile: CSS transition driven by IntersectionObserver */
+        <div
+          style={{
+            position: "absolute",
+            inset: 0,
+            margin: "auto",
+            zIndex: 10,
+            width: `${imgSizePercent}%`,
+            height: "fit-content",
+            transform: inView ? "translateY(0px)" : "translateY(200px)",
+            transition: inView ? "transform 0.8s cubic-bezier(0.22, 1, 0.36, 1)" : "none",
+            pointerEvents: "none",
+          }}
+          onTransitionEnd={() => { if (inView && !isMatched) setIsMatched(true); }}
         >
           {dragImg && <img src={dragImg} style={{ width: "100%", display: "block" }} draggable={false} alt="" />}
-        </motion.div>
+        </div>
       ) : (
+        /* Desktop: Framer Motion drag */
         <motion.div
           ref={dragRef}
-          drag
+          drag={!isMobile}
           dragConstraints={containerRef}
           dragElastic={0}
           dragMomentum={false}
-          onDragStart={() => { setIsMatched(false); setIsDragging(true); }}
+          onDragStart={() => { if (isMobile) return; setIsMatched(false); setIsDragging(true); }}
           onDragEnd={handleDragEnd}
           style={desktopDragStyle}
-          whileTap={{ scale: 1.1 }}
+          whileTap={!isMobile ? { scale: 1.1 } : {}}
         >
           {dragImg && <img src={dragImg} style={{ width: "100%", display: "block" }} draggable={false} alt="" />}
         </motion.div>
