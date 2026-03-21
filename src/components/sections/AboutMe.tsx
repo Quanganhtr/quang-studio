@@ -8,7 +8,7 @@ const KNIFE_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
 );
 
 const PENCIL_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
-  `/images-sequence/pencil/${String(i + 1).padStart(4, "0")}.png`
+  `/images-sequence/Pencil/${String(i + 1).padStart(4, "0")}.png`
 );
 
 export default function AboutMe() {
@@ -48,8 +48,12 @@ export default function AboutMe() {
     if (!canvas || !images[index]) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(images[index], 0, 0, canvas.width, canvas.height);
+    try {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(images[index], 0, 0, canvas.width, canvas.height);
+    } catch {
+      // image not yet loaded or broken — skip frame
+    }
   };
 
   // Preload knife frames
