@@ -155,26 +155,27 @@ function DraggableCard({
     return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
-  useEffect(() => {
-    if (isMobile) return;
-    const timer = setTimeout(() => dropToBottom(), 300);
-    window.addEventListener("resize", dropToBottom);
-    return () => {
-      clearTimeout(timer);
-      window.removeEventListener("resize", dropToBottom);
-    };
-  }, [imgSizePercent, isMobile]);
-
   const dropToBottom = () => {
-    if (isMobile) return;
     if (!containerRef.current || !dragRef.current) return;
     const containerRect = containerRef.current.getBoundingClientRect();
     const dragRect = dragRef.current.getBoundingClientRect();
+    // If layout not ready yet, retry next frame
+    if (containerRect.height === 0 || dragRect.height === 0) {
+      requestAnimationFrame(dropToBottom);
+      return;
+    }
     const targetY = containerRect.height / 2 - dragRect.height / 2 - PADDING;
     const randomRotation = (Math.random() - 0.5) * 20;
     animate(y, targetY, { type: "spring", stiffness: 200, damping: 15 });
     animate(rotate, randomRotation, { type: "spring", stiffness: 150, damping: 10 });
   };
+
+  useEffect(() => {
+    if (isMobile) return;
+    requestAnimationFrame(dropToBottom);
+    window.addEventListener("resize", dropToBottom);
+    return () => window.removeEventListener("resize", dropToBottom);
+  }, [imgSizePercent, isMobile]);
 
   const handleDragEnd = (_event: MouseEvent | TouchEvent | PointerEvent, _info: { offset: { x: number; y: number } }) => {
     if (isMobile) return;
