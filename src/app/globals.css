@@ -35,9 +35,8 @@
   padding: 0;
 }
 
-@media (pointer: fine) {
-  * { cursor: none !important; }
-}
+/* cursor: none is applied via JS in CustomCursor.tsx after first mousemove */
+.custom-cursor-active * { cursor: none !important; }
 
 
 html {
