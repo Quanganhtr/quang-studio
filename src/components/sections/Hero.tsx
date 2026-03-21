@@ -227,7 +227,7 @@ export default function Hero() {
         flexDirection:  "column",
         justifyContent: isMobile ? "flex-start" : "flex-end",
         overflow:       "hidden",
-        padding:        isMobile ? "32px 8px 0" : "0 56px 56px",
+        padding:        isMobile ? "56px 8px 0px" : "0 56px 56px",
       }}
     >
       <motion.div
