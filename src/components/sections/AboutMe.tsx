@@ -50,21 +50,21 @@ export default function AboutMe() {
   const rotateY = isMobile ? rotateYMob : rotateYDesk;
 
   // Knife transforms (from left, slightly delayed)
-  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 5.0 : 1.5], { ease: easeOut });
+  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 2.0 : 1.5], { ease: easeOut });
   const knifeXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [-1500, -300], { ease: easeOut });
-  const knifeXMob   = useTransform(scrollYProgress, [0.15, 0.8], [-1500, 0],  { ease: easeOut });
+  const knifeXMob   = useTransform(scrollYProgress, [0.15, 0.8], [-1500, 50],  { ease: easeOut });
   const knifeYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [800, -150],   { ease: easeOut });
-  const knifeYMob   = useTransform(scrollYProgress, [0.15, 0.8], [800, -300],    { ease: easeOut });
+  const knifeYMob   = useTransform(scrollYProgress, [0.15, 0.8], [800, -240],    { ease: easeOut });
   const knifeRotate = useTransform(scrollYProgress, [0.15, 0.8], [200, 0],       { ease: easeOut });
   const knifeX = isMobile ? knifeXMob : knifeXDesk;
   const knifeY = isMobile ? knifeYMob : knifeYDesk;
 
   // Pencil transforms (from right, slightly delayed)
-  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 5.0 : 1.5], { ease: easeOut });
+  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 2.0 : 1.5], { ease: easeOut });
   const pencilXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1000, 500],  { ease: easeOut });
-  const pencilXMob   = useTransform(scrollYProgress, [0.15, 0.8], [1000, 80],   { ease: easeOut });
+  const pencilXMob   = useTransform(scrollYProgress, [0.15, 0.8], [1000, -90],   { ease: easeOut });
   const pencilYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1500, 150],  { ease: easeOut });
-  const pencilYMob   = useTransform(scrollYProgress, [0.15, 0.8], [800, 100],   { ease: easeOut });
+  const pencilYMob   = useTransform(scrollYProgress, [0.15, 0.8], [800, 240],   { ease: easeOut });
   const pencilRotate = useTransform(scrollYProgress, [0.15, 0.8], [-200, 0],    { ease: easeOut });
   const pencilX = isMobile ? pencilXMob : pencilXDesk;
   const pencilY = isMobile ? pencilYMob : pencilYDesk;
