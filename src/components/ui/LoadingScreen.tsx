@@ -21,36 +21,51 @@ export default function LoadingScreen() {
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
-    let pageReady = document.readyState === "complete";
-    let imagesReady = false;
+    const isMobile = window.innerWidth <= 768;
 
-    const tryFinish = () => {
+    const finish = () => {
       if (doneRef.current) return;
-      if (pageReady && imagesReady) {
-        doneRef.current = true;
-        setTimeout(() => {
-          document.body.style.overflow = "";
-          setVisible(false);
-        }, 500);
-      }
+      doneRef.current = true;
+      setProgress(100);
+      setTimeout(() => {
+        document.body.style.overflow = "";
+        setVisible(false);
+      }, 500);
     };
 
-    if (!pageReady) {
-      window.addEventListener("load", () => { pageReady = true; tryFinish(); }, { once: true });
-    }
+    if (isMobile) {
+      // Mobile: skip image preloading — just wait for page resources
+      if (document.readyState === "complete") {
+        finish();
+      } else {
+        window.addEventListener("load", finish, { once: true });
+      }
+    } else {
+      // Desktop: preload all image frames + wait for window.onload
+      let pageReady = document.readyState === "complete";
+      let imagesReady = false;
 
-    ALL_FRAMES.forEach((src) => {
-      const img = new Image();
-      img.onload = img.onerror = () => {
-        loadedRef.current += 1;
-        setProgress(Math.round((loadedRef.current / TOTAL) * 100));
-        if (loadedRef.current === TOTAL) {
-          imagesReady = true;
-          tryFinish();
-        }
+      const tryFinish = () => {
+        if (pageReady && imagesReady) finish();
       };
-      img.src = src;
-    });
+
+      if (!pageReady) {
+        window.addEventListener("load", () => { pageReady = true; tryFinish(); }, { once: true });
+      }
+
+      ALL_FRAMES.forEach((src) => {
+        const img = new Image();
+        img.onload = img.onerror = () => {
+          loadedRef.current += 1;
+          setProgress(Math.round((loadedRef.current / TOTAL) * 100));
+          if (loadedRef.current === TOTAL) {
+            imagesReady = true;
+            tryFinish();
+          }
+        };
+        img.src = src;
+      });
+    }
 
     return () => { document.body.style.overflow = ""; };
   }, []);
