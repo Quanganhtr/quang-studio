@@ -4,11 +4,19 @@ import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, easeOut } from "framer-motion";
 
 const KNIFE_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
-  `/images-sequence/knife/${String(i + 1).padStart(4, "0")}.png`
+  `/images-sequence/knife/${String(i + 1).padStart(4, "0")}.webp`
 );
 
 const PENCIL_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
-  `/images-sequence/Pencil/${String(i + 1).padStart(4, "0")}.png`
+  `/images-sequence/pencil/${String(i + 1).padStart(4, "0")}.webp`
+);
+
+const CUP_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
+  `/images-sequence/cup/${String(i + 1).padStart(4, "0")}.webp`
+);
+
+const SPRAY_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
+  `/images-sequence/spray/${String(i + 1).padStart(4, "0")}.webp`
 );
 
 function useIsMobile() {
@@ -30,6 +38,10 @@ export default function AboutMe() {
   const knifeImagesRef = useRef<HTMLImageElement[]>([]);
   const pencilCanvasRef = useRef<HTMLCanvasElement>(null);
   const pencilImagesRef = useRef<HTMLImageElement[]>([]);
+  const cupCanvasRef = useRef<HTMLCanvasElement>(null);
+  const cupImagesRef = useRef<HTMLImageElement[]>([]);
+  const sprayCanvasRef = useRef<HTMLCanvasElement>(null);
+  const sprayImagesRef = useRef<HTMLImageElement[]>([]);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -50,7 +62,7 @@ export default function AboutMe() {
   const rotateY = isMobile ? rotateYMob : rotateYDesk;
 
   // Knife transforms (from left, slightly delayed)
-  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 1.5], { ease: easeOut });
+  const knifeScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 2.0], { ease: easeOut });
   const knifeXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [-1500, -300], { ease: easeOut });
   const knifeXMob   = useTransform(scrollYProgress, [0.15, 0.8], [-1500, 50],  { ease: easeOut });
   const knifeYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [800, -150],   { ease: easeOut });
@@ -60,7 +72,7 @@ export default function AboutMe() {
   const knifeY = isMobile ? knifeYMob : knifeYDesk;
 
   // Pencil transforms (from right, slightly delayed)
-  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 1.5], { ease: easeOut });
+  const pencilScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 2.0], { ease: easeOut });
   const pencilXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1000, 500],  { ease: easeOut });
   const pencilXMob   = useTransform(scrollYProgress, [0.15, 0.8], [1000, -90],   { ease: easeOut });
   const pencilYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1500, 150],  { ease: easeOut });
@@ -69,8 +81,30 @@ export default function AboutMe() {
   const pencilX = isMobile ? pencilXMob : pencilXDesk;
   const pencilY = isMobile ? pencilYMob : pencilYDesk;
 
+  // Cup transforms (from right, similar to pencil)
+  const cupScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 2.0], { ease: easeOut });
+  const cupXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [0, -100],  { ease: easeOut });
+  const cupXMob   = useTransform(scrollYProgress, [0.15, 0.8], [800, 90],   { ease: easeOut });
+  const cupYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [-1500, 240], { ease: easeOut });
+  const cupYMob   = useTransform(scrollYProgress, [0.15, 0.8], [-800, 240],  { ease: easeOut });
+  const cupRotate = useTransform(scrollYProgress, [0.15, 0.8], [200, 0],     { ease: easeOut });
+  const cupX = isMobile ? cupXMob : cupXDesk;
+  const cupY = isMobile ? cupYMob : cupYDesk;
+
+  // Spray transforms (from left)
+  const sprayScale  = useTransform(scrollYProgress, [0.15, 0.8], [5.0, isMobile ? 1.0 : 2.0], { ease: easeOut });
+  const sprayXDesk  = useTransform(scrollYProgress, [0.15, 0.8], [0, 300], { ease: easeOut });
+  const sprayXMob   = useTransform(scrollYProgress, [0.15, 0.8], [-1000, -90],  { ease: easeOut });
+  const sprayYDesk  = useTransform(scrollYProgress, [0.15, 0.8], [1500, -240],  { ease: easeOut });
+  const sprayYMob   = useTransform(scrollYProgress, [0.15, 0.8], [-800, 240],   { ease: easeOut });
+  const sprayRotate = useTransform(scrollYProgress, [0.15, 0.8], [-200, 0],     { ease: easeOut });
+  const sprayX = isMobile ? sprayXMob : sprayXDesk;
+  const sprayY = isMobile ? sprayYMob : sprayYDesk;
+
   const knifePlayingRef  = useRef(false);
   const pencilPlayingRef = useRef(false);
+  const cupPlayingRef    = useRef(false);
+  const sprayPlayingRef  = useRef(false);
 
   const playAnimation = (
     canvasRef: React.RefObject<HTMLCanvasElement | null>,
@@ -138,6 +172,26 @@ export default function AboutMe() {
     pencilImagesRef.current[0].onload = () => drawFrame(pencilCanvasRef.current, pencilImagesRef.current, 0);
   }, []);
 
+  // Preload cup frames
+  useEffect(() => {
+    cupImagesRef.current = CUP_FRAMES.map((src) => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+    cupImagesRef.current[0].onload = () => drawFrame(cupCanvasRef.current, cupImagesRef.current, 0);
+  }, []);
+
+  // Preload spray frames
+  useEffect(() => {
+    sprayImagesRef.current = SPRAY_FRAMES.map((src) => {
+      const img = new Image();
+      img.src = src;
+      return img;
+    });
+    sprayImagesRef.current[0].onload = () => drawFrame(sprayCanvasRef.current, sprayImagesRef.current, 0);
+  }, []);
+
   // Scrub frames on scroll
   useEffect(() => {
     return scrollYProgress.on("change", (progress) => {
@@ -146,6 +200,8 @@ export default function AboutMe() {
       const index = Math.min(Math.floor(clamped * 30), 29);
       if (!knifePlayingRef.current)  drawFrame(knifeCanvasRef.current, knifeImagesRef.current, index);
       if (!pencilPlayingRef.current) drawFrame(pencilCanvasRef.current, pencilImagesRef.current, index);
+      if (!cupPlayingRef.current)    drawFrame(cupCanvasRef.current, cupImagesRef.current, index);
+      if (!sprayPlayingRef.current)  drawFrame(sprayCanvasRef.current, sprayImagesRef.current, index);
     });
   }, [scrollYProgress]);
 
@@ -153,17 +209,25 @@ export default function AboutMe() {
   useEffect(() => {
     const knifeEl  = knifeCanvasRef.current;
     const pencilEl = pencilCanvasRef.current;
-    if (!knifeEl || !pencilEl) return;
+    const cupEl    = cupCanvasRef.current;
+    const sprayEl  = sprayCanvasRef.current;
+    if (!knifeEl || !pencilEl || !cupEl || !sprayEl) return;
 
     const playKnife  = () => playAnimation(knifeCanvasRef,  knifeImagesRef,  knifePlayingRef);
     const playPencil = () => playAnimation(pencilCanvasRef, pencilImagesRef, pencilPlayingRef);
+    const playCup    = () => playAnimation(cupCanvasRef,    cupImagesRef,    cupPlayingRef);
+    const playSpray  = () => playAnimation(sprayCanvasRef,  sprayImagesRef,  sprayPlayingRef);
 
     const eventType = isMobile ? "click" : "mouseenter";
     knifeEl.addEventListener(eventType,  playKnife);
     pencilEl.addEventListener(eventType, playPencil);
+    cupEl.addEventListener(eventType,    playCup);
+    sprayEl.addEventListener(eventType,  playSpray);
     return () => {
       knifeEl.removeEventListener(eventType,  playKnife);
       pencilEl.removeEventListener(eventType, playPencil);
+      cupEl.removeEventListener(eventType,    playCup);
+      sprayEl.removeEventListener(eventType,  playSpray);
     };
   }, [isMobile]);
 
@@ -177,6 +241,7 @@ export default function AboutMe() {
           position: "sticky",
           top: 0,
           height: "100dvh",
+          overflow: "hidden",
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -270,8 +335,8 @@ export default function AboutMe() {
         {/* Knife animation — flies in from left, slightly after letter */}
         <motion.canvas
           ref={knifeCanvasRef}
-          width={800}
-          height={800}
+          width={960}
+          height={960}
           style={{
             scale: knifeScale,
             x: knifeX,
@@ -281,14 +346,15 @@ export default function AboutMe() {
             width: isMobile ? "56vw" : "min(28vw, 320px)",
             height: "auto",
             zIndex: 9,
+            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
           }}
         />
 
         {/* Pencil animation — same transforms as knife */}
         <motion.canvas
           ref={pencilCanvasRef}
-          width={800}
-          height={800}
+          width={960}
+          height={960}
           style={{
             scale: pencilScale,
             x: pencilX,
@@ -298,6 +364,43 @@ export default function AboutMe() {
             width: isMobile ? "56vw" : "min(28vw, 320px)",
             height: "auto",
             zIndex: 9,
+            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
+          }}
+        />
+
+        {/* Cup animation — flies in from right */}
+        <motion.canvas
+          ref={cupCanvasRef}
+          width={960}
+          height={960}
+          style={{
+            scale: cupScale,
+            x: cupX,
+            y: cupY,
+            rotate: cupRotate,
+            position: "absolute",
+            width: isMobile ? "56vw" : "min(28vw, 320px)",
+            height: "auto",
+            zIndex: 9,
+            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
+          }}
+        />
+
+        {/* Spray animation — flies in from left */}
+        <motion.canvas
+          ref={sprayCanvasRef}
+          width={960}
+          height={960}
+          style={{
+            scale: sprayScale,
+            x: sprayX,
+            y: sprayY,
+            rotate: sprayRotate,
+            position: "absolute",
+            width: isMobile ? "56vw" : "min(28vw, 320px)",
+            height: "auto",
+            zIndex: 9,
+            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
           }}
         />
       </div>
