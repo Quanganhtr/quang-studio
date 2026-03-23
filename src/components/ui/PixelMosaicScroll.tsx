@@ -35,6 +35,9 @@ export default function PixelMosaicScroll({ image }: { image: string }) {
     let isMobile = false;
     let lastMouseX: number | null = null;
     let lastMouseY: number | null = null;
+    let cachedRect = canvas.getBoundingClientRect();
+    let isVisible = false;
+    let rafId: number;
 
     const resize = () => {
       if (!img.naturalWidth) return;
@@ -43,24 +46,24 @@ export default function PixelMosaicScroll({ image }: { image: string }) {
       currentBlockSize = isMobile ? PHONE_BLOCK : DESKTOP_BLOCK;
 
       const dpr = window.devicePixelRatio || 1;
-      const rect = canvas.getBoundingClientRect();
+      cachedRect = canvas.getBoundingClientRect();
 
-      canvas.width = rect.width * dpr;
-      canvas.height = rect.height * dpr;
+      canvas.width = cachedRect.width * dpr;
+      canvas.height = cachedRect.height * dpr;
       ctx.scale(dpr, dpr);
 
-      imageCanvas.width = rect.width;
-      imageCanvas.height = rect.height;
+      imageCanvas.width = cachedRect.width;
+      imageCanvas.height = cachedRect.height;
 
       const scale = Math.max(
-        rect.width / img.naturalWidth,
-        rect.height / img.naturalHeight
+        cachedRect.width / img.naturalWidth,
+        cachedRect.height / img.naturalHeight
       );
 
       const w = img.naturalWidth * scale;
       const h = img.naturalHeight * scale;
-      const x = (rect.width - w) / 2;
-      const y = (rect.height - h) / 2;
+      const x = (cachedRect.width - w) / 2;
+      const y = (cachedRect.height - h) / 2;
 
       drawDims = { x, y, w, h };
 
@@ -137,14 +140,14 @@ export default function PixelMosaicScroll({ image }: { image: string }) {
     let lastSpawnY = 0;
 
     const onScroll = () => {
+      if (!isVisible) return; // skip if off-screen
       const currentScroll = window.scrollY;
       const delta = Math.abs(currentScroll - lastSpawnY);
       const threshold = isMobile ? 5 : 20;
       if (delta < threshold) return;
       if (!isMobile && Math.random() > 0.7) return;
 
-      const rect = canvas.getBoundingClientRect();
-      const scanLineY = window.innerHeight / 2 - rect.top;
+      const scanLineY = window.innerHeight / 2 - cachedRect.top; // use cached rect
 
       if (scanLineY > -100 && scanLineY < drawDims.h + 100) {
         lastSpawnY = currentScroll;
@@ -163,8 +166,7 @@ export default function PixelMosaicScroll({ image }: { image: string }) {
     window.addEventListener("scroll", onScroll, { passive: true });
 
     const draw = () => {
-      const rect = canvas.getBoundingClientRect();
-      ctx.clearRect(0, 0, rect.width, rect.height);
+      ctx.clearRect(0, 0, cachedRect.width, cachedRect.height);
 
       if (img.naturalWidth) {
         ctx.drawImage(img, 0, 0, img.naturalWidth, img.naturalHeight, drawDims.x, drawDims.y, drawDims.w, drawDims.h);
@@ -187,12 +189,25 @@ export default function PixelMosaicScroll({ image }: { image: string }) {
       }
 
       ctx.globalAlpha = 1;
-      requestAnimationFrame(draw);
+      rafId = requestAnimationFrame(draw); // only continues while visible
     };
 
-    draw();
+    // Only run the rAF loop while the canvas is in the viewport
+    const observer = new IntersectionObserver((entries) => {
+      isVisible = entries[0].isIntersecting;
+      if (isVisible) {
+        cachedRect = canvas.getBoundingClientRect(); // refresh rect on re-entry
+        rafId = requestAnimationFrame(draw);
+      } else {
+        cancelAnimationFrame(rafId);
+      }
+    }, { threshold: 0 });
+
+    observer.observe(canvas);
 
     return () => {
+      observer.disconnect();
+      cancelAnimationFrame(rafId);
       window.removeEventListener("resize", resize);
       window.removeEventListener("scroll", onScroll);
       canvas.removeEventListener("mousemove", onMouseMove);
