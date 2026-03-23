@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect, useState } from "react";
-import { motion, useScroll, useTransform, easeOut } from "framer-motion";
+import { motion, useScroll, useTransform, easeOut, type MotionValue } from "framer-motion";
 
 const KNIFE_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
   `/images-sequence/knife/${String(i + 1).padStart(4, "0")}.webp`
@@ -42,6 +42,7 @@ export default function AboutMe() {
   const cupImagesRef = useRef<HTMLImageElement[]>([]);
   const sprayCanvasRef = useRef<HTMLCanvasElement>(null);
   const sprayImagesRef = useRef<HTMLImageElement[]>([]);
+  const rafRef = useRef<number | null>(null);
 
   const { scrollYProgress } = useScroll({
     target: sectionRef,
@@ -152,6 +153,14 @@ export default function AboutMe() {
     }
   };
 
+  // Reduce canvas buffer to 480×480 on mobile (56vw display doesn't need 960)
+  useEffect(() => {
+    const size = isMobile ? 480 : 960;
+    [knifeCanvasRef, pencilCanvasRef, cupCanvasRef, sprayCanvasRef].forEach((ref) => {
+      if (ref.current) ref.current.width = ref.current.height = size;
+    });
+  }, [isMobile]);
+
   // Preload knife frames
   useEffect(() => {
     knifeImagesRef.current = KNIFE_FRAMES.map((src) => {
@@ -192,17 +201,26 @@ export default function AboutMe() {
     sprayImagesRef.current[0].onload = () => drawFrame(sprayCanvasRef.current, sprayImagesRef.current, 0);
   }, []);
 
-  // Scrub frames on scroll
+  // Scrub frames on scroll — RAF-throttled so we draw at most once per frame
   useEffect(() => {
-    return scrollYProgress.on("change", (progress) => {
-      const start = 0.5;
-      const clamped = Math.max(0, (progress - start) / (1 - start));
-      const index = Math.min(Math.floor(clamped * 30), 29);
-      if (!knifePlayingRef.current)  drawFrame(knifeCanvasRef.current, knifeImagesRef.current, index);
-      if (!pencilPlayingRef.current) drawFrame(pencilCanvasRef.current, pencilImagesRef.current, index);
-      if (!cupPlayingRef.current)    drawFrame(cupCanvasRef.current, cupImagesRef.current, index);
-      if (!sprayPlayingRef.current)  drawFrame(sprayCanvasRef.current, sprayImagesRef.current, index);
+    const unsub = scrollYProgress.on("change", () => {
+      if (rafRef.current !== null) return;
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        const progress = scrollYProgress.get();
+        const start = 0.5;
+        const clamped = Math.max(0, (progress - start) / (1 - start));
+        const index = Math.min(Math.floor(clamped * 30), 29);
+        if (!knifePlayingRef.current)  drawFrame(knifeCanvasRef.current, knifeImagesRef.current, index);
+        if (!pencilPlayingRef.current) drawFrame(pencilCanvasRef.current, pencilImagesRef.current, index);
+        if (!cupPlayingRef.current)    drawFrame(cupCanvasRef.current, cupImagesRef.current, index);
+        if (!sprayPlayingRef.current)  drawFrame(sprayCanvasRef.current, sprayImagesRef.current, index);
+      });
     });
+    return () => {
+      unsub();
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
   }, [scrollYProgress]);
 
   // Attach interaction events imperatively (reliable across SSR/hydration)
@@ -231,6 +249,19 @@ export default function AboutMe() {
     };
   }, [isMobile]);
 
+  const canvasStyle = (scale: MotionValue<number>, x: MotionValue<number>, y: MotionValue<number>, rotate: MotionValue<number>) => ({
+    scale,
+    x,
+    y,
+    rotate,
+    position: "absolute" as const,
+    width: isMobile ? "56vw" : "min(28vw, 320px)",
+    height: "auto",
+    zIndex: 9,
+    // Drop shadow is expensive on mobile — skip it
+    ...(isMobile ? {} : { filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))" }),
+  });
+
   return (
     <section
       ref={sectionRef}
@@ -245,7 +276,8 @@ export default function AboutMe() {
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
-          perspective: "600px",
+          // Perspective creates expensive compositing on mobile
+          perspective: isMobile ? undefined : "600px",
           padding: isMobile ? "0 8px" : 0,
         }}
       >
@@ -337,17 +369,7 @@ export default function AboutMe() {
           ref={knifeCanvasRef}
           width={960}
           height={960}
-          style={{
-            scale: knifeScale,
-            x: knifeX,
-            y: knifeY,
-            rotate: knifeRotate,
-            position: "absolute",
-            width: isMobile ? "56vw" : "min(28vw, 320px)",
-            height: "auto",
-            zIndex: 9,
-            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
-          }}
+          style={canvasStyle(knifeScale, knifeX, knifeY, knifeRotate)}
         />
 
         {/* Pencil animation — same transforms as knife */}
@@ -355,17 +377,7 @@ export default function AboutMe() {
           ref={pencilCanvasRef}
           width={960}
           height={960}
-          style={{
-            scale: pencilScale,
-            x: pencilX,
-            y: pencilY,
-            rotate: pencilRotate,
-            position: "absolute",
-            width: isMobile ? "56vw" : "min(28vw, 320px)",
-            height: "auto",
-            zIndex: 9,
-            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
-          }}
+          style={canvasStyle(pencilScale, pencilX, pencilY, pencilRotate)}
         />
 
         {/* Cup animation — flies in from right */}
@@ -373,17 +385,7 @@ export default function AboutMe() {
           ref={cupCanvasRef}
           width={960}
           height={960}
-          style={{
-            scale: cupScale,
-            x: cupX,
-            y: cupY,
-            rotate: cupRotate,
-            position: "absolute",
-            width: isMobile ? "56vw" : "min(28vw, 320px)",
-            height: "auto",
-            zIndex: 9,
-            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
-          }}
+          style={canvasStyle(cupScale, cupX, cupY, cupRotate)}
         />
 
         {/* Spray animation — flies in from left */}
@@ -391,17 +393,7 @@ export default function AboutMe() {
           ref={sprayCanvasRef}
           width={960}
           height={960}
-          style={{
-            scale: sprayScale,
-            x: sprayX,
-            y: sprayY,
-            rotate: sprayRotate,
-            position: "absolute",
-            width: isMobile ? "56vw" : "min(28vw, 320px)",
-            height: "auto",
-            zIndex: 9,
-            filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))",
-          }}
+          style={canvasStyle(sprayScale, sprayX, sprayY, sprayRotate)}
         />
       </div>
     </section>
