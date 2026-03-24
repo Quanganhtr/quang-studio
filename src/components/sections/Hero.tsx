@@ -26,12 +26,24 @@ const mobileItems = [
 ];
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const DURATION = 0.5;
+const DURATION = 1;
 const MAX_PAD = 24; // absolute cap — PAD is always clamped below actual gap
 
 // Gap expressed as a fraction of line-height (1lh = fontSize × lineHeight)
 const DESKTOP_GAP = "0.65lh";
 const MOBILE_GAP  = "0.2lh";
+
+function useIsDark() {
+  const [isDark, setIsDark] = useState(false);
+  useEffect(() => {
+    const check = () => setIsDark(document.documentElement.classList.contains("dark"));
+    check();
+    const observer = new MutationObserver(check);
+    observer.observe(document.documentElement, { attributeFilter: ["class"] });
+    return () => observer.disconnect();
+  }, []);
+  return isDark;
+}
 
 function useIsMobile() {
   const [isMobile, setIsMobile] = useState(false);
@@ -50,11 +62,13 @@ function MaskedColumn({
   active,
   align = "left",
   mobile = false,
+  video,
 }: {
   items: { text: string; seq: number }[];
   active: number;
   align?: "left" | "right";
   mobile?: boolean;
+  video?: string;
 }) {
   const containerRef  = useRef<HTMLDivElement>(null);
   const grayItemRefs  = useRef<(HTMLSpanElement | null)[]>([]);
@@ -62,6 +76,8 @@ function MaskedColumn({
   const innerRef      = useRef<HTMLDivElement>(null);
   const prevIndexRef  = useRef<number>(-1);
   const exitedDownRef = useRef(false);
+  const isDark        = useIsDark();
+  const blendMode     = isDark ? "multiply" : "screen";
 
   const gap        = mobile ? MOBILE_GAP : DESKTOP_GAP;
   const fontSize   = mobile ? "clamp(22px, 10vw, 42px)" : "clamp(24px, 4.5vw, 96px)";
@@ -173,7 +189,7 @@ function MaskedColumn({
       <div
         ref={windowRef}
         style={{
-          position: "absolute",
+          position:      "absolute",
           left:          align === "right" ? "auto" : 0,
           right:         align === "right" ? 0 : "auto",
           top:           -9999,
@@ -181,6 +197,8 @@ function MaskedColumn({
           height:        80,
           overflow:      "hidden",
           pointerEvents: "none",
+          isolation:     video ? "isolate" : "auto",
+          background:    video ? "var(--background)" : undefined,
         }}
       >
         <div
@@ -202,6 +220,28 @@ function MaskedColumn({
             </span>
           ))}
         </div>
+        {video && (
+          <>
+            <video
+              autoPlay
+              loop
+              muted
+              playsInline
+              preload="auto"
+              style={{
+                position:     "absolute",
+                inset:        0,
+                width:        "100%",
+                height:       "100%",
+                objectFit:    "cover",
+                mixBlendMode: blendMode,
+                filter:       isDark ? "none" : "brightness(0.3)",
+              }}
+            >
+              <source src={video} type="video/mp4" />
+            </video>
+          </>
+        )}
       </div>
     </div>
   );
@@ -215,7 +255,7 @@ export default function Hero() {
 
   useEffect(() => {
     setActive(0);
-    const id = setInterval(() => setActive((p) => (p + 1) % seqLength), 1000);
+    const id = setInterval(() => setActive((p) => (p + 1) % seqLength), 2000);
     return () => clearInterval(id);
   }, [seqLength]);
 
@@ -241,11 +281,11 @@ export default function Hero() {
         }
       >
         {isMobile ? (
-          <MaskedColumn items={mobileItems} active={active} align="left" mobile />
+          <MaskedColumn items={mobileItems} active={active} align="left" mobile video="/overview-video.mp4" />
         ) : (
           <>
-            <MaskedColumn items={leftItems}  active={active} align="left"  />
-            <MaskedColumn items={rightItems} active={active} align="right" />
+            <MaskedColumn items={leftItems}  active={active} align="left"  video="/overview-video.mp4" />
+            <MaskedColumn items={rightItems} active={active} align="right" video="/overview-video.mp4" />
           </>
         )}
       </motion.div>
