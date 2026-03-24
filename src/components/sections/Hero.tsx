@@ -96,8 +96,14 @@ function MaskedColumn({
     vid.src = video;
     vid.load();
     vid.play().catch(() => {});
+    const unlock = () => vid.play().catch(() => {});
+    window.addEventListener("safari-video-unlock", unlock, { once: true });
     vidRef.current = vid;
-    return () => { vid.pause(); vid.src = ""; };
+    return () => {
+      window.removeEventListener("safari-video-unlock", unlock);
+      vid.pause();
+      vid.src = "";
+    };
   }, [video]);
 
   // Draw video frames onto the canvas each rAF tick
