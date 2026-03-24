@@ -1,11 +1,11 @@
 "use client";
 
-import PixelMosaicScroll from "@/components/ui/PixelMosaicScroll";
+import PixelMosaicVideo from "@/components/ui/PixelMosaicVideo";
 
 export default function OverviewVideo() {
   return (
     <section style={{ position: "relative", height: "100dvh", width: "100%" }}>
-      <PixelMosaicScroll image="/images/Hero-img.png" />
+      <PixelMosaicVideo video="/overview-video.mp4" />
     </section>
   );
 }
