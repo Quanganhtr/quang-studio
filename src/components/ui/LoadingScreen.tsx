@@ -20,11 +20,13 @@ export default function LoadingScreen() {
   const doneRef = useRef(false);
 
   const handleEnter = () => {
-    // Unlock autoplay for all videos (required by Safari)
+    // Unlock autoplay for DOM videos
     document.querySelectorAll("video").forEach((v) => {
       v.muted = true;
       v.play().catch(() => {});
     });
+    // Unlock imperative video elements (e.g. Hero canvas videos)
+    window.dispatchEvent(new Event("safari-video-unlock"));
     document.body.style.overflow = "";
     setVisible(false);
   };
