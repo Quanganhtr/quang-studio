@@ -78,6 +78,45 @@ function MaskedColumn({
   const exitedDownRef = useRef(false);
   const isDark        = useIsDark();
   const blendMode     = isDark ? "multiply" : "screen";
+  const vidRef        = useRef<HTMLVideoElement | null>(null);
+  const canvasRef     = useRef<HTMLCanvasElement>(null);
+  const rafRef        = useRef<number>(0);
+
+  // Create video element imperatively so Safari sees it as a real in-DOM element
+  useEffect(() => {
+    if (!video) return;
+    const vid = document.createElement("video");
+    vid.muted = true;
+    vid.loop = true;
+    vid.playsInline = true;
+    vid.setAttribute("playsinline", "");
+    vid.setAttribute("muted", "");
+    vid.autoplay = true;
+    vid.preload = "auto";
+    vid.src = video;
+    vid.load();
+    vid.play().catch(() => {});
+    vidRef.current = vid;
+    return () => { vid.pause(); vid.src = ""; };
+  }, [video]);
+
+  // Draw video frames onto the canvas each rAF tick
+  useEffect(() => {
+    if (!video) return;
+    const draw = () => {
+      const canvas = canvasRef.current;
+      const vid = vidRef.current;
+      if (canvas && vid && vid.readyState >= 2) {
+        canvas.width  = canvas.offsetWidth;
+        canvas.height = canvas.offsetHeight;
+        const ctx = canvas.getContext("2d");
+        ctx?.drawImage(vid, 0, 0, canvas.width, canvas.height);
+      }
+      rafRef.current = requestAnimationFrame(draw);
+    };
+    rafRef.current = requestAnimationFrame(draw);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [video]);
 
   const gap        = mobile ? MOBILE_GAP : DESKTOP_GAP;
   const fontSize   = mobile ? "clamp(22px, 10vw, 42px)" : "clamp(24px, 4.5vw, 96px)";
@@ -221,26 +260,17 @@ function MaskedColumn({
           ))}
         </div>
         {video && (
-          <>
-            <video
-              autoPlay
-              loop
-              muted
-              playsInline
-              preload="auto"
-              style={{
-                position:     "absolute",
-                inset:        0,
-                width:        "100%",
-                height:       "100%",
-                objectFit:    "cover",
-                mixBlendMode: blendMode,
-                filter:       isDark ? "none" : "brightness(0.3)",
-              }}
-            >
-              <source src={video} type="video/mp4" />
-            </video>
-          </>
+          <canvas
+            ref={canvasRef}
+            style={{
+              position:     "absolute",
+              inset:        0,
+              width:        "100%",
+              height:       "100%",
+              mixBlendMode: blendMode,
+              filter:       isDark ? "none" : "brightness(0.3)",
+            }}
+          />
         )}
       </div>
     </div>
