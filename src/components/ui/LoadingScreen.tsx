@@ -15,8 +15,19 @@ const TOTAL = ALL_FRAMES.length;
 export default function LoadingScreen() {
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(true);
+  const [ready, setReady] = useState(false);
   const loadedRef = useRef(0);
   const doneRef = useRef(false);
+
+  const handleEnter = () => {
+    // Unlock autoplay for all videos (required by Safari)
+    document.querySelectorAll("video").forEach((v) => {
+      v.muted = true;
+      v.play().catch(() => {});
+    });
+    document.body.style.overflow = "";
+    setVisible(false);
+  };
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
@@ -27,10 +38,7 @@ export default function LoadingScreen() {
       if (doneRef.current) return;
       doneRef.current = true;
       setProgress(100);
-      setTimeout(() => {
-        document.body.style.overflow = "";
-        setVisible(false);
-      }, 500);
+      setTimeout(() => setReady(true), 500);
     };
 
     if (isMobile) {
@@ -91,16 +99,33 @@ export default function LoadingScreen() {
           <span className="label-h2" style={{ color: "var(--background)" }}>
             QUANG STUDIO
           </span>
-          <span
-            className="label-sm"
-            style={{
-              color: "var(--gray-5)",
-              fontVariantNumeric: "tabular-nums",
-              letterSpacing: "0.1em",
-            }}
-          >
-            {String(progress).padStart(3, "0")}%
-          </span>
+          {ready ? (
+            <button
+              onClick={handleEnter}
+              className="label-sm"
+              style={{
+                color: "var(--background)",
+                background: "transparent",
+                border: "1px solid var(--background)",
+                padding: "10px 28px",
+                cursor: "pointer",
+                letterSpacing: "0.15em",
+              }}
+            >
+              TAP TO ENTER
+            </button>
+          ) : (
+            <span
+              className="label-sm"
+              style={{
+                color: "var(--gray-5)",
+                fontVariantNumeric: "tabular-nums",
+                letterSpacing: "0.1em",
+              }}
+            >
+              {String(progress).padStart(3, "0")}%
+            </span>
+          )}
         </motion.div>
       )}
     </AnimatePresence>
