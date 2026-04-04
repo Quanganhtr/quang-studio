@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import ScrollReset from "@/components/ui/ScrollReset";
 import LoadingScreen from "@/components/ui/LoadingScreen";
@@ -20,6 +21,7 @@ export default function RootLayout({
         <LoadingScreen />
         <ScrollReset />
         <ThemeProvider>{children}</ThemeProvider>
+        <SpeedInsights />
       </body>
     </html>
   );
