@@ -110,13 +110,7 @@ const PixelTransition = forwardRef<PixelTransitionHandle>((_, ref) => {
   return (
     <canvas
       ref={canvasRef}
-      style={{
-        position: "fixed",
-        inset: 0,
-        zIndex: 9999,
-        display: "none",
-        pointerEvents: "none",
-      }}
+      className="fixed inset-0 z-[9999] hidden pointer-events-none"
     />
   );
 });

@@ -68,7 +68,7 @@ export function DragMatchGrid({
   tickerWeight = 1,
 }: DragMatchGridProps) {
   return (
-    <div style={{ width: "100%", maxWidth: `${MAX_CONTAINER_WIDTH}px`, margin: "0 auto" }}>
+    <div className="w-full mx-auto" style={{ maxWidth: MAX_CONTAINER_WIDTH }}>
       <div className="drag-match-grid">
         {cards.map((card, index) => (
           <DraggableCard
@@ -257,13 +257,13 @@ function DraggableCard({
         style={{ position: "absolute", inset: 0, zIndex: isMatched ? 5 : 0, backgroundColor: bg }}
       >
         {media && (
-          <img src={media} style={{ width: "100%", height: "100%", objectFit: "cover" }} draggable={false} alt="" />
+          <img src={media} className="w-full h-full object-cover" draggable={false} alt="" />
         )}
       </motion.div>
 
       <div ref={targetRef} style={targetStyle}>
         {targetImg && (
-          <img src={targetImg} style={{ width: "100%", display: "block" }} draggable={false} alt="" />
+          <img src={targetImg} className="w-full block" draggable={false} alt="" />
         )}
       </div>
 
@@ -279,7 +279,7 @@ function DraggableCard({
         whileTap={!isMobile ? { scale: 1.1 } : {}}
       >
         {dragImg && (
-          <img src={dragImg} style={{ width: "100%", display: "block" }} draggable={false} alt="" />
+          <img src={dragImg} className="w-full block" draggable={false} alt="" />
         )}
       </motion.div>
     </div>

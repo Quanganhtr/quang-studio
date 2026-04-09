@@ -234,9 +234,6 @@ export default function PixelMosaicVideo({ video }: { video: string }) {
   }, [video]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{ width: "100%", height: "100%", display: "block" }}
-    />
+    <canvas ref={canvasRef} className="block w-full h-full" />
   );
 }

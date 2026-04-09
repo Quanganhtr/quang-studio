@@ -4,15 +4,11 @@ import { motion } from "framer-motion";
 import { DragMatchGrid } from "@/components/ui/DragMatchGrid";
 
 export default function Ability() {
+
   return (
     <section
+      className="flex flex-col items-center justify-center min-h-dvh section-container pt-60"
       style={{
-        minHeight: "100dvh",
-        display: "flex",
-        flexDirection: "column",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: "80px 32px",
         gap: 240,
       }}
     >
@@ -21,18 +17,18 @@ export default function Ability() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         viewport={{ once: true, margin: "-100px" }}
-        style={{ display: "flex", flexDirection: "column", gap: 16, width: "100%", maxWidth: 1440, alignItems: "center", textAlign: "center" }}
+        className="flex flex-col gap-4 w-full max-w-360 items-center text-center"
       >
-        <span className="label-sm" style={{ color: "var(--foreground)" }}>
+        <span className="label-sm text-foreground">
           ABILITY TO MESS THINGS UP
         </span>
 
-        <h2 className="label-h2 text-center">
+        <h2 className="type-h2 text-center">
           LET ME BUILD A MAGICAL BRIDGE CONNECTING YOUR BUSINESS → END-USERS.
         </h2>
       </motion.div>
 
-      <div style={{ width: "100%" }}>
+      <div className="w-full">
         <DragMatchGrid
           cardBg="var(--background)"
           borderColor="var(--gray-3)"

@@ -265,34 +265,26 @@ export default function AboutMe() {
   return (
     <section
       ref={sectionRef}
-      style={{ height: "200dvh", position: "relative" }}
+      className="relative h-[200dvh]"
     >
       <div
+        className="sticky top-0 h-dvh overflow-hidden flex items-center justify-center"
         style={{
-          position: "sticky",
-          top: 0,
-          height: "100dvh",
-          overflow: "hidden",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          // Perspective creates expensive compositing on mobile
           perspective: isMobile ? undefined : "600px",
           padding: isMobile ? "0 8px" : 0,
         }}
       >
         {/* Headline — stays behind */}
         <motion.h2
-          className="label-h2 text-center"
+          className="type-h2 text-center"
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
           viewport={{ once: true, margin: "-100px" }}
           style={{ position: "absolute" }}
         >
-          WHO KNEW MY CAREER
-          <br />
-          WOULD TAKE A PLOT TWIST?
+          <span className="lg:hidden">WHO KNEW<br />MY CAREER<br />WOULD TAKE<br />A PLOT TWIST?</span>
+          <span className="hidden lg:inline">WHO KNEW MY CAREER<br />WOULD TAKE A PLOT TWIST?</span>
         </motion.h2>
 
         {/* About me letter — flies in from right */}
@@ -326,26 +318,14 @@ export default function AboutMe() {
           />
 
           {/* Card */}
-          <div
-            style={{
-              width: "100%",
-              padding: 24,
-              display: "flex",
-              flexDirection: "column",
-              gap: 16,
-              background: "var(--foreground)",
-              borderRadius: 0,
-            }}
-          >
-            <span className="label-sm" style={{ color: "var(--background)" }}>
-              ABOUT ME
-            </span>
+          <div className="w-full p-6 flex flex-col gap-4 bg-foreground rounded-none">
+            <span className="text-base-bold text-background">ABOUT ME</span>
 
-            <p className="body-text" style={{ color: "var(--background)" }}>
+            <p className="text-base-regular text-background">
               I completed my studies at Hanoi Architectural University with the intention of pursuing a career as an architect. However, I ended up starting my professional journey as a product designer. While the nature of the job is distinct, I find that I apply a significant amount of the knowledge acquired during my university education to my current role.
             </p>
 
-            <p className="body-text" style={{ color: "var(--background)" }}>
+            <p className="text-base-regular text-background">
               Ultimately, my mission remains nearly the same - prioritizing understanding and meeting the needs of our users, ensuring that my designs not only reflect aesthetic considerations but also deliver an impeccable user experience.
             </p>
           </div>

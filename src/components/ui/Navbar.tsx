@@ -30,15 +30,18 @@ export default function Navbar() {
       transition={{ duration: 0.4, ease: "easeInOut" }}
       style={{ padding: `${pad}px ${pad}px 0` }}
     >
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+      <div className="flex items-center justify-between">
         {/* Logo */}
         <a href="/" className="flex items-center">
           <Image src="/Logo.svg" alt="Quang" width={48} height={48} priority className="theme-icon" />
         </a>
 
         {/* Moon + CTA */}
-        <div className="flex items-center" style={{ gap: 8 }}>
-          <button onClick={toggle} style={{ background: "none", border: "1px solid var(--gray-5)", borderRadius: 999, cursor: "pointer", padding: 12, display: "flex" }}>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={toggle}
+            className="flex cursor-pointer rounded-full border border-gray-5 p-3 bg-transparent"
+          >
             <Image src={theme === "dark" ? "/Dark.svg" : "/Light.svg"} alt="Toggle theme" width={24} height={24} />
           </button>
           <Button href="#contact" label="Beat a mook" hoverLabel="Book a meet" />

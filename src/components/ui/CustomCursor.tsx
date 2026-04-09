@@ -43,19 +43,8 @@ export default function CustomCursor() {
   return (
     <div
       ref={cursorRef}
-      style={{
-        position: "fixed",
-        left: 0,
-        top: 0,
-        width: 32,
-        height: 32,
-        transform: "translate(-200px, -200px)",
-        opacity: 0,
-        pointerEvents: "none",
-        zIndex: 99999,
-        // Promote to own layer for smooth Safari rendering
-        willChange: "transform",
-      }}
+      className="fixed left-0 top-0 size-8 pointer-events-none z-99999 will-change-transform"
+      style={{ transform: "translate(-200px, -200px)", opacity: 0 }}
     >
       {active && (
         <Lottie

@@ -4,7 +4,7 @@ import PixelMosaicVideo from "@/components/ui/PixelMosaicVideo";
 
 export default function OverviewVideo() {
   return (
-    <section style={{ position: "relative", height: "100dvh", width: "100%" }}>
+    <section className="relative h-dvh w-full">
       <PixelMosaicVideo video="/overview-video.mp4" />
     </section>
   );
