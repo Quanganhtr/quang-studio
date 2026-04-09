@@ -216,9 +216,6 @@ export default function PixelMosaicScroll({ image }: { image: string }) {
   }, [image]);
 
   return (
-    <canvas
-      ref={canvasRef}
-      style={{ width: "100%", height: "100%", display: "block" }}
-    />
+    <canvas ref={canvasRef} className="block w-full h-full" />
   );
 }

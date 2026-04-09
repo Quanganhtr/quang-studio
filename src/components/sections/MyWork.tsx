@@ -5,31 +5,22 @@ import Image from "next/image";
 
 export default function MyWork() {
   return (
-    <section style={{ display: "flex", flexDirection: "column" }}>
+    <section className="flex flex-col">
       {/* 100dvh title container */}
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         viewport={{ once: true, margin: "-100px" }}
-        style={{
-          position: "sticky",
-          top: 0,
-          height: "100dvh",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          padding: "0 32px",
-          zIndex: 0,
-        }}
+        className="sticky top-0 h-dvh flex items-center justify-center px-8 z-0"
       >
-        <h2 className="label-h2 text-center">
+        <h2 className="type-h2 text-center">
           MY CTRL+Z LIFE
         </h2>
       </motion.div>
 
       {/* Studio image */}
-      <div style={{ width: "100%", position: "relative", zIndex: 1 }}>
+      <div className="relative w-full z-1">
         <Image
           src="/Studio BG.png"
           alt="Studio"
@@ -37,7 +28,7 @@ export default function MyWork() {
           height={0}
           sizes="100vw"
           unoptimized
-          style={{ width: "100%", height: "auto", display: "block" }}
+          className="w-full h-auto block"
         />
       </div>
     </section>

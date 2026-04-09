@@ -86,45 +86,20 @@ export default function LoadingScreen() {
         <motion.div
           exit={{ y: "-100%" }}
           transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-          style={{
-            position: "fixed",
-            inset: 0,
-            zIndex: 9999,
-            background: "var(--foreground)",
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            gap: 16,
-          }}
+          className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-foreground"
         >
-          <span className="label-h2" style={{ color: "var(--background)" }}>
+          <span className="label-h2 text-background">
             QUANG STUDIO
           </span>
           {ready ? (
             <button
               onClick={handleEnter}
-              className="label-sm"
-              style={{
-                color: "var(--background)",
-                background: "transparent",
-                border: "1px solid var(--background)",
-                padding: "10px 28px",
-                cursor: "pointer",
-                letterSpacing: "0.15em",
-              }}
+              className="label-sm text-background bg-transparent border border-background px-7 py-2.5 cursor-pointer tracking-[0.15em]"
             >
               TAP TO ENTER
             </button>
           ) : (
-            <span
-              className="label-sm"
-              style={{
-                color: "var(--gray-5)",
-                fontVariantNumeric: "tabular-nums",
-                letterSpacing: "0.1em",
-              }}
-            >
+            <span className="label-sm text-gray-5 tabular-nums tracking-widest">
               {String(progress).padStart(3, "0")}%
             </span>
           )}

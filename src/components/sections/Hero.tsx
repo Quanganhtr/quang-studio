@@ -1,37 +1,92 @@
 "use client";
 
-import { motion, animate } from "framer-motion";
+import { motion } from "framer-motion";
 import { useState, useEffect, useRef } from "react";
 
 const leftItems = [
-  { text: "ARCHITECT BY ROOTS.",  seq: 0 },
-  { text: "PRODUCT DESIGNER",     seq: 1 },
-  { text: "BY CHOICE.",           seq: 2 },
-  { text: "VIBE-CODER BY FORCE.", seq: 3 },
+  { text: "ARCHITECT BY ROOTS."  },
+  { text: "PRODUCT DESIGNER"     },
+  { text: "BY CHOICE."           },
+  { text: "VIBE-CODER BY FORCE." },
 ];
 
 const rightItems = [
-  { text: "",         seq: -1 },
-  { text: "",         seq: -1 },
-  { text: "QUANG",    seq: 4  },
-  { text: "ANH TRAN", seq: 5  },
+  { text: ""         },
+  { text: ""         },
+  { text: "QUANG"    },
+  { text: "ANH TRAN" },
 ];
 
-// Mobile: 4 combined items with their own 0-3 sequence
 const mobileItems = [
-  { text: "ARCHITECT BY ROOTS.",         seq: 0 },
-  { text: "PRODUCT DESIGNER BY CHOICE.", seq: 1 },
-  { text: "VIBE-CODER BY FORCE.",        seq: 2 },
-  { text: "QUANG ANH TRAN",              seq: 3 },
+  { text: "ARCHITECT BY ROOTS."         },
+  { text: "PRODUCT DESIGNER BY CHOICE." },
+  { text: "VIBE-CODER BY FORCE."        },
+  { text: "QUANG ANH TRAN"              },
 ];
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const DURATION = 1;
-const MAX_PAD = 24; // absolute cap — PAD is always clamped below actual gap
 
-// Gap expressed as a fraction of line-height (1lh = fontSize × lineHeight)
 const DESKTOP_GAP = "0.65lh";
 const MOBILE_GAP  = "0.2lh";
+
+function useBreakpoint() {
+  const getQuery = (token: string) => {
+    const bp = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
+    return `(min-width: ${bp})`;
+  };
+  const [isTablet,  setIsTablet]  = useState(() => typeof window !== "undefined" && window.matchMedia(getQuery("--breakpoint-md")).matches);
+  const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" && window.matchMedia(getQuery("--breakpoint-lg")).matches);
+
+  useEffect(() => {
+    const mqMd = window.matchMedia(getQuery("--breakpoint-md"));
+    const mqLg = window.matchMedia(getQuery("--breakpoint-lg"));
+    setIsTablet(mqMd.matches);
+    setIsDesktop(mqLg.matches);
+    const onMd = (e: MediaQueryListEvent) => setIsTablet(e.matches);
+    const onLg = (e: MediaQueryListEvent) => setIsDesktop(e.matches);
+    mqMd.addEventListener("change", onMd);
+    mqLg.addEventListener("change", onLg);
+    return () => {
+      mqMd.removeEventListener("change", onMd);
+      mqLg.removeEventListener("change", onLg);
+    };
+  }, []);
+
+  return { isTablet, isDesktop };
+}
+
+function TextColumn({
+  items,
+  align = "left",
+  mobile = false,
+}: {
+  items: { text: string }[];
+  align?: "left" | "right";
+  mobile?: boolean;
+}) {
+  const gap = mobile ? MOBILE_GAP : DESKTOP_GAP;
+
+  return (
+    <div
+      className="type-h1"
+      style={{ display: "flex", flexDirection: "column", gap, textAlign: align, paddingBlock: "0.15em" }}
+    >
+      {items.map(({ text }, i) => (
+        <span
+          key={i}
+          style={{
+            display:    "block",
+            whiteSpace: mobile ? "normal" : "nowrap",
+            color:      "var(--foreground)",
+            visibility: text ? "visible" : "hidden",
+          }}
+        >
+          {text || "\u00A0"}
+        </span>
+      ))}
+    </div>
+  );
+}
 
 function useIsDark() {
   const [isDark, setIsDark] = useState(false);
@@ -45,285 +100,75 @@ function useIsDark() {
   return isDark;
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const mq = window.matchMedia("(max-width: 768px)");
-    setIsMobile(mq.matches);
-    const handler = (e: MediaQueryListEvent) => setIsMobile(e.matches);
-    mq.addEventListener("change", handler);
-    return () => mq.removeEventListener("change", handler);
-  }, []);
-  return isMobile;
-}
+function VideoMask({ darkSrc, lightSrc }: { darkSrc: string; lightSrc: string }) {
+  const isDark    = useIsDark();
+  const blendMode = isDark ? "multiply" : "screen";
+  const src       = isDark ? darkSrc : lightSrc;
+  const vidRef    = useRef<HTMLVideoElement>(null);
 
-function MaskedColumn({
-  items,
-  active,
-  align = "left",
-  mobile = false,
-  video,
-}: {
-  items: { text: string; seq: number }[];
-  active: number;
-  align?: "left" | "right";
-  mobile?: boolean;
-  video?: string;
-}) {
-  const containerRef  = useRef<HTMLDivElement>(null);
-  const grayItemRefs  = useRef<(HTMLSpanElement | null)[]>([]);
-  const windowRef     = useRef<HTMLDivElement>(null);
-  const innerRef      = useRef<HTMLDivElement>(null);
-  const prevIndexRef  = useRef<number>(-1);
-  const exitedDownRef = useRef(false);
-  const isDark        = useIsDark();
-  const blendMode     = isDark ? "multiply" : "screen";
-  const vidRef        = useRef<HTMLVideoElement | null>(null);
-  const canvasRef     = useRef<HTMLCanvasElement>(null);
-  const rafRef        = useRef<number>(0);
-
-  // Create video element imperatively so Safari sees it as a real in-DOM element
   useEffect(() => {
-    if (!video) return;
-    const vid = document.createElement("video");
-    vid.muted = true;
-    vid.loop = true;
-    vid.playsInline = true;
-    vid.setAttribute("playsinline", "");
-    vid.setAttribute("muted", "");
-    vid.autoplay = true;
-    vid.preload = "auto";
-    vid.src = video;
-    vid.load();
+    const vid = vidRef.current;
+    if (!vid) return;
     vid.play().catch(() => {});
     const unlock = () => vid.play().catch(() => {});
     window.addEventListener("safari-video-unlock", unlock, { once: true });
-    vidRef.current = vid;
-    return () => {
-      window.removeEventListener("safari-video-unlock", unlock);
-      vid.pause();
-      vid.src = "";
-    };
-  }, [video]);
-
-  // Draw video frames onto the canvas each rAF tick
-  useEffect(() => {
-    if (!video) return;
-    const draw = () => {
-      const canvas = canvasRef.current;
-      const vid = vidRef.current;
-      if (canvas && vid && vid.readyState >= 2) {
-        canvas.width  = canvas.offsetWidth;
-        canvas.height = canvas.offsetHeight;
-        const ctx = canvas.getContext("2d");
-        ctx?.drawImage(vid, 0, 0, canvas.width, canvas.height);
-      }
-      rafRef.current = requestAnimationFrame(draw);
-    };
-    rafRef.current = requestAnimationFrame(draw);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [video]);
-
-  const gap        = mobile ? MOBILE_GAP : DESKTOP_GAP;
-  const fontSize   = mobile ? "clamp(22px, 10vw, 42px)" : "clamp(24px, 4.5vw, 96px)";
-  const lineHeight = mobile ? 1.5 : 1.05;
-
-  // Spans inherit font from container; only layout/color props needed here
-  const spanStyle: React.CSSProperties = {
-    whiteSpace: mobile ? "normal" : "nowrap",
-    display:    "block",
-  };
-
-  const maxSeq      = Math.max(...items.map((i) => i.seq));
-  const activeIndex = items.findIndex((i) => i.seq === active && i.text);
-
-  const measureRow = (idx: number) => {
-    const container = containerRef.current;
-    const item      = grayItemRefs.current[idx];
-    if (!container || !item) return null;
-    const cRect  = container.getBoundingClientRect();
-    const iRect  = item.getBoundingClientRect();
-    const top    = iRect.top - cRect.top;
-    const height = iRect.height;
-
-    // Measure actual rendered gap to a neighbor so PAD never exceeds it
-    const prev = grayItemRefs.current[idx - 1];
-    const next = grayItemRefs.current[idx + 1];
-    let gapPx = 999;
-    if (next) gapPx = Math.min(gapPx, next.getBoundingClientRect().top  - iRect.bottom);
-    if (prev) gapPx = Math.min(gapPx, iRect.top - prev.getBoundingClientRect().bottom);
-    const pad = Math.min(gapPx * 0.6, MAX_PAD);
-
-    return { top, height, pad };
-  };
-
-  const containerH = () => containerRef.current?.getBoundingClientRect().height ?? 9999;
-
-  const moveTo = (windowTop: number, windowH: number, instant: boolean) => {
-    const win   = windowRef.current;
-    const inner = innerRef.current;
-    if (!win || !inner) return;
-    const innerTop = -windowTop;
-    const opts = instant ? { duration: 0 } : { duration: DURATION, ease: EASE };
-    animate(win,   { top: windowTop, height: windowH }, opts);
-    animate(inner, { top: innerTop },                   { ...opts });
-  };
-
-  useEffect(() => {
-    const prevIndex = prevIndexRef.current;
-
-    if (activeIndex === -1) {
-      const wasLast = prevIndex !== -1 && items[prevIndex]?.seq === maxSeq;
-      if (wasLast) {
-        const prev = measureRow(prevIndex);
-        const prevH = prev ? prev.height + prev.pad * 2 : 80;
-        moveTo(containerH() + 50, prevH, false);
-        exitedDownRef.current = true;
-      }
-      prevIndexRef.current = -1;
-      return;
-    }
-
-    const row = measureRow(activeIndex);
-    if (!row) return;
-    const { pad } = row;
-    const winTop = row.top - pad;
-    const winH   = row.height + pad * 2;
-
-    if (exitedDownRef.current) {
-      moveTo(-(winH + 50), winH, true);
-      exitedDownRef.current = false;
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => moveTo(winTop, winH, false))
-      );
-    } else {
-      // Snap on first load so mask doesn't animate in from off-screen
-      const isFirstLoad = prevIndexRef.current === -1;
-      moveTo(winTop, winH, isFirstLoad);
-    }
-
-    prevIndexRef.current = activeIndex;
-  }, [active, activeIndex]);
-
-  useEffect(() => {
-    const onResize = () => {
-      if (activeIndex === -1) return;
-      const row = measureRow(activeIndex);
-      if (!row) return;
-      moveTo(row.top - row.pad, row.height + row.pad * 2, true);
-    };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
-  }, [activeIndex]);
+    return () => window.removeEventListener("safari-video-unlock", unlock);
+  }, []);
 
   return (
-    <div
-      ref={containerRef}
-      style={{ position: "relative", display: "flex", flexDirection: "column", gap, textAlign: align, fontFamily: "'Boldonse', cursive", fontSize, lineHeight }}
-    >
-      {items.map(({ text }, i) => (
-        <span
-          key={i}
-          ref={(el) => { grayItemRefs.current[i] = el; }}
-          style={{ ...spanStyle, color: "var(--gray-4)", visibility: text ? "visible" : "hidden" }}
-        >
-          {text || "\u00A0"}
-        </span>
-      ))}
-
-      <div
-        ref={windowRef}
-        style={{
-          position:      "absolute",
-          left:          align === "right" ? "auto" : 0,
-          right:         align === "right" ? 0 : "auto",
-          top:           -9999,
-          width:         "100%",
-          height:        80,
-          overflow:      "hidden",
-          pointerEvents: "none",
-          isolation:     video ? "isolate" : "auto",
-          background:    video ? "var(--background)" : undefined,
-        }}
-      >
-        <div
-          ref={innerRef}
-          style={{
-            position:       "absolute",
-            left:           0,
-            right:          0,
-            top:            0,
-            textAlign:      align,
-            display:        "flex",
-            flexDirection:  "column",
-            gap,
-          }}
-        >
-          {items.map(({ text }, i) => (
-            <span key={i} style={{ ...spanStyle, color: "var(--foreground)" }}>
-              {text || "\u00A0"}
-            </span>
-          ))}
-        </div>
-        {video && (
-          <canvas
-            ref={canvasRef}
-            style={{
-              position:     "absolute",
-              inset:        0,
-              width:        "100%",
-              height:       "100%",
-              mixBlendMode: blendMode,
-              filter:       isDark ? "none" : "brightness(0.3)",
-            }}
-          />
-        )}
-      </div>
-    </div>
+    <video
+      ref={vidRef}
+      src={src}
+      autoPlay
+      muted
+      loop
+      playsInline
+      style={{
+        position:      "absolute",
+        inset:         0,
+        width:         "100%",
+        height:        "100%",
+        objectFit:     "cover",
+        mixBlendMode:  blendMode,
+        pointerEvents: "none",
+      }}
+    />
   );
 }
 
 export default function Hero() {
-  const isMobile = useIsMobile();
-  // Mobile: 1 gap step (seq 4) for exit-down; Desktop: 2 gap steps for left col (seq 4-5)
-  const seqLength = isMobile ? mobileItems.length + 1 : 6;
-  const [active, setActive] = useState(0);
-
-  useEffect(() => {
-    setActive(0);
-    const id = setInterval(() => setActive((p) => (p + 1) % seqLength), 2000);
-    return () => clearInterval(id);
-  }, [seqLength]);
+  const { isTablet, isDesktop } = useBreakpoint();
+  const isBottomAligned = isTablet;
 
   return (
     <section
+      className="flex-1 flex flex-col overflow-hidden"
       style={{
-        flex:           1,
-        display:        "flex",
-        flexDirection:  "column",
-        justifyContent: isMobile ? "flex-start" : "flex-end",
-        overflow:       "hidden",
-        padding:        isMobile ? "56px 8px 0px" : "0 56px 56px",
+        justifyContent: isBottomAligned ? "flex-end" : "flex-start",
+        padding:        isBottomAligned ? "0 var(--section-padding) var(--section-padding)" : "56px var(--section-padding) 0",
       }}
     >
       <motion.div
         initial={{ opacity: 0, y: 30 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.6, ease: EASE }}
-        style={
-          isMobile
-            ? { width: "100%" }
-            : { display: "flex", justifyContent: "space-between", alignItems: "flex-end", width: "100%" }
-        }
+        className="w-full"
+        style={{
+          position:   "relative",
+          isolation:  "isolate",
+          background: "var(--background)",
+          ...(isDesktop ? { display: "flex", justifyContent: "space-between", alignItems: "flex-end" } : {}),
+        }}
       >
-        {isMobile ? (
-          <MaskedColumn items={mobileItems} active={active} align="left" mobile video="/overview-video.mp4" />
-        ) : (
+        {isDesktop ? (
           <>
-            <MaskedColumn items={leftItems}  active={active} align="left"  video="/overview-video.mp4" />
-            <MaskedColumn items={rightItems} active={active} align="right" video="/overview-video.mp4" />
+            <TextColumn items={leftItems}  align="left"  />
+            <TextColumn items={rightItems} align="right" />
           </>
+        ) : (
+          <TextColumn items={mobileItems} align="left" mobile />
         )}
+        <VideoMask darkSrc="/text-video-dark.mp4" lightSrc="/text-video-light.mp4" />
       </motion.div>
     </section>
   );
