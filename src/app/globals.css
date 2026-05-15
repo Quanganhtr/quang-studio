@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Boldonse&family=Geist+Mono:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
+@import "remixicon/fonts/remixicon.css";
 @import "tailwindcss";
 @source "../../src";
 
@@ -82,7 +83,7 @@
   --primary-foreground:   var(--color-black);
   --secondary:            var(--color-honeysuckle-100);
   --secondary-foreground: var(--color-black);
-  --muted:                var(--color-honeysuckle-50);
+  --muted:                var(--color-neutral-100);
   --muted-foreground:     var(--color-neutral-500);
   --accent:               var(--color-honeysuckle-100);
   --accent-foreground:    var(--color-black);
@@ -283,11 +284,11 @@ html.dark {
 @utility text-lg-bold {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size:   16px;
-  line-height: 24px;
+  font-size:   44px;
+  line-height: 56px;
 
-  @variant md { font-size: 18px; line-height: 28px; }
-  @variant lg { font-size: 20px; line-height: 32px; }
+  @variant md { font-size: 56px; line-height: 64px; }
+  @variant lg { font-size: 56px; line-height: 64px; }
 }
 
 /* Layout utilities */

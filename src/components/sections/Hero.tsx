@@ -34,8 +34,8 @@ function useBreakpoint() {
     const bp = getComputedStyle(document.documentElement).getPropertyValue(token).trim();
     return `(min-width: ${bp})`;
   };
-  const [isTablet,  setIsTablet]  = useState(() => typeof window !== "undefined" && window.matchMedia(getQuery("--breakpoint-md")).matches);
-  const [isDesktop, setIsDesktop] = useState(() => typeof window !== "undefined" && window.matchMedia(getQuery("--breakpoint-lg")).matches);
+  const [isTablet,  setIsTablet]  = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
   useEffect(() => {
     const mqMd = window.matchMedia(getQuery("--breakpoint-md"));

@@ -8,15 +8,15 @@ const KNIFE_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
 );
 
 const PENCIL_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
-  `/images-sequence/pencil/${String(i + 1).padStart(4, "0")}.webp`
+  `/images-sequence/pencil-chalk/${String(i + 1).padStart(4, "0")}.webp`
 );
 
 const CUP_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
-  `/images-sequence/cup/${String(i + 1).padStart(4, "0")}.webp`
+  `/images-sequence/cup-chalk/${String(i + 1).padStart(4, "0")}.webp`
 );
 
 const SPRAY_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
-  `/images-sequence/spray/${String(i + 1).padStart(4, "0")}.webp`
+  `/images-sequence/paint-bucket-chalk/${String(i + 1).padStart(4, "0")}.webp`
 );
 
 function useIsMobile() {
@@ -259,7 +259,7 @@ export default function AboutMe() {
     height: "auto",
     zIndex: 9,
     // Drop shadow is expensive on mobile — skip it
-    ...(isMobile ? {} : { filter: "drop-shadow(16px -2px 2px rgba(0,0,0,0.08))" }),
+    ...(isMobile ? {} : { filter: "drop-shadow(8px 4px 1px rgba(0,0,0,0.004))" }),
   });
 
   return (

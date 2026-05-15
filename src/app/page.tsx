@@ -9,8 +9,8 @@ import MyWork from "@/components/sections/MyWork";
 export default function Home() {
   return (
     <>
+      <Navbar />
       <HeroWrapper>
-        <Navbar />
         <Hero />
       </HeroWrapper>
       <OverviewVideo />

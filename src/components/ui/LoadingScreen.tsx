@@ -14,24 +14,25 @@ const TOTAL = ALL_FRAMES.length;
 
 export default function LoadingScreen() {
   const [progress, setProgress] = useState(0);
-  const [visible, setVisible] = useState(true);
+  const [visible, setVisible] = useState(false);
   const [ready, setReady] = useState(false);
   const loadedRef = useRef(0);
   const doneRef = useRef(false);
 
   const handleEnter = () => {
-    // Unlock autoplay for DOM videos
+    sessionStorage.setItem("loaded", "1");
     document.querySelectorAll("video").forEach((v) => {
       v.muted = true;
       v.play().catch(() => {});
     });
-    // Unlock imperative video elements (e.g. Hero canvas videos)
     window.dispatchEvent(new Event("safari-video-unlock"));
     document.body.style.overflow = "";
     setVisible(false);
   };
 
   useEffect(() => {
+    if (sessionStorage.getItem("loaded")) return;
+    setVisible(true);
     document.body.style.overflow = "hidden";
 
     const isMobile = window.innerWidth <= 768;
