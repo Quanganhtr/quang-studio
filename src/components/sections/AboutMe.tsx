@@ -265,10 +265,10 @@ export default function AboutMe() {
   return (
     <section
       ref={sectionRef}
-      className="relative h-[200dvh]"
+      className="relative min-h-app md:h-[calc(var(--app-height)*2)]"
     >
       <div
-        className="sticky top-0 h-dvh overflow-hidden flex items-center justify-center"
+        className="app-sticky-screen overflow-hidden flex items-center justify-center"
         style={{
           perspective: isMobile ? undefined : "600px",
           padding: isMobile ? "0 8px" : 0,

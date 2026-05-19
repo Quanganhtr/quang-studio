@@ -1,10 +1,10 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import Button from "@/components/ui/Button";
 import MenuOverlay from "@/components/ui/MenuOverlay";
 import LogoAnimation from "@/components/ui/LogoAnimation";
+import ThemeButton from "@/components/ui/ThemeButton";
 import { useTheme } from "@/lib/ThemeContext";
 import { useRef, useState, useEffect } from "react";
 
@@ -18,6 +18,12 @@ export default function Navbar() {
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
+    const isMobile = window.matchMedia("(max-width: 767px)").matches;
+    if (isMobile) {
+      setHidden(false);
+      return;
+    }
+
     const handleScroll = () => {
       if (menuOpen) return;
       const currentY = window.scrollY;
@@ -35,6 +41,16 @@ export default function Navbar() {
   useEffect(() => {
     if (menuOpen) setHidden(false);
   }, [menuOpen]);
+
+  useEffect(() => {
+    let themeMeta = document.querySelector<HTMLMetaElement>('meta[name="theme-color"]');
+    if (!themeMeta) {
+      themeMeta = document.createElement("meta");
+      themeMeta.name = "theme-color";
+      document.head.appendChild(themeMeta);
+    }
+    themeMeta.content = "#000000";
+  }, [theme]);
 
   return (
     <>
@@ -69,12 +85,7 @@ export default function Navbar() {
             {!menuOpen && (
               <>
                 <Button href="#contact" label="Beat a mook" hoverLabel="Book a meet" />
-                <button
-                  onClick={toggle}
-                  className="h-12 w-12 flex items-center justify-center cursor-pointer rounded-none border border-border bg-transparent"
-                >
-                  <Image src={theme === "dark" ? "/Dark.svg" : "/Light.svg"} alt="Toggle theme" width={24} height={24} />
-                </button>
+                <ThemeButton isDark={theme === "dark"} onToggle={toggle} />
               </>
             )}
 
@@ -88,7 +99,7 @@ export default function Navbar() {
                 right:    menuOpen ? SP : undefined,
                 zIndex:   200,
               }}
-              className={`h-12 w-12 flex items-center justify-center cursor-pointer rounded-none border border-border group transition-colors ${
+              className={`h-8 w-8 md:h-12 md:w-12 flex items-center justify-center cursor-pointer rounded-none border border-border group ${
                 menuOpen ? "bg-foreground" : "bg-background hover:bg-foreground"
               }`}
             >
@@ -105,7 +116,7 @@ export default function Navbar() {
                 ) : (
                   <motion.i
                     key="menu"
-                    className="ri-menu-fill text-xl group-hover:text-background text-foreground transition-colors"
+                    className="ri-menu-fill text-xl group-hover:text-background text-foreground"
                     initial={{ opacity: 0, rotate: 90 }}
                     animate={{ opacity: 1, rotate: 0 }}
                     exit={{ opacity: 0, rotate: -90 }}

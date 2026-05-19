@@ -1,7 +1,6 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import PixelTransition, { PixelTransitionHandle } from "@/components/ui/PixelTransition";
+import { createContext, useContext, useEffect, useState } from "react";
 import CustomCursor from "@/components/ui/CustomCursor";
 
 type Theme = "light" | "dark";
@@ -13,7 +12,6 @@ const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setTheme] = useState<Theme>("light");
-  const transitionRef = useRef<PixelTransitionHandle>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") as Theme | null;
@@ -25,19 +23,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
   const toggle = () => {
     const next = theme === "light" ? "dark" : "light";
-    const toColor = next === "dark" ? "#000000" : "#ffffff";
-
-    transitionRef.current?.play(toColor, () => {
-      setTheme(next);
-      document.documentElement.classList.toggle("dark", next === "dark");
-      localStorage.setItem("theme", next);
-    });
+    setTheme(next);
+    document.documentElement.classList.toggle("dark", next === "dark");
+    localStorage.setItem("theme", next);
   };
 
   return (
     <ThemeContext.Provider value={{ theme, toggle }}>
       {children}
-      <PixelTransition ref={transitionRef} />
       <CustomCursor />
     </ThemeContext.Provider>
   );

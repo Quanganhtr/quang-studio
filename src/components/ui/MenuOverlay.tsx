@@ -1,8 +1,8 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
-import { RefObject, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { RefObject, useEffect, useRef, useState } from "react";
 // NavItem uses only useState — useEffect/useRef kept for MenuOverlay internals
 
 const EASE: [number, number, number, number] = [0.76, 0, 0.24, 1];
@@ -87,11 +87,10 @@ function NavItem({
   );
 }
 
-export default function MenuOverlay({ open, onClose, btnRef }: MenuOverlayProps) {
+export default function MenuOverlay({ open, onClose }: MenuOverlayProps) {
   const router      = useRouter();
   const pathname    = usePathname();
-  const [insetFrom, setInsetFrom] = useState("0px 0px 0px 0px");
-  const [clicked, setClicked]     = useState<string | null>(null);
+  const [clicked, setClicked] = useState<string | null>(null);
   const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -103,15 +102,7 @@ export default function MenuOverlay({ open, onClose, btnRef }: MenuOverlayProps)
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
-  useLayoutEffect(() => {
-    if (btnRef.current) {
-      const r      = btnRef.current.getBoundingClientRect();
-      const top    = Math.round(r.top);
-      const right  = Math.round(window.innerWidth  - r.right);
-      const bottom = Math.round(window.innerHeight - r.bottom);
-      const left   = Math.round(r.left);
-      setInsetFrom(`${top}px ${right}px ${bottom}px ${left}px`);
-    }
+  useEffect(() => {
     if (!open) setClicked(null);
   }, [open]);
 
@@ -128,49 +119,48 @@ export default function MenuOverlay({ open, onClose, btnRef }: MenuOverlayProps)
   };
 
   return (
-    <AnimatePresence>
-      {open && (
-        <motion.div
-          key="menu-overlay"
-          initial={{ clipPath: `inset(${insetFrom})`, filter: "blur(320px)" }}
-          animate={{ clipPath: "inset(0px 0px 0px 0px)", filter: "blur(0px)" }}
-          exit={{ clipPath: `inset(${insetFrom})`, filter: "blur(16px)" }}
-          transition={{ duration: 0.6, ease: EASE }}
-          style={{
-            position:   "fixed",
-            inset:      0,
-            width:      "100vw",
-            height:     "100vh",
-            zIndex:     50,
-            background: "var(--foreground)",
-          }}
-        >
-          <motion.div
-            layout
-            className="flex flex-col w-full h-full justify-end"
-            style={{ paddingInline: "var(--section-padding)", paddingBottom: "var(--section-padding)", gap: "1px" }}
-          >
-            {NAV_ITEMS.map(({ label, href, icon }) => {
-              const isActive  = pathname === href;
-              const isClicked = clicked === href;
-              const isSlid    = isActive || isClicked;
-              const color     = isSlid ? "var(--foreground)" : "var(--muted-foreground)";
+    <motion.div
+      initial={false}
+      animate={{ y: open ? "0%" : "-100%" }}
+      transition={{ duration: 0.6, ease: EASE }}
+      style={{
+        position:      "fixed",
+        inset:         0,
+        width:         "100vw",
+        height:        "var(--app-height)",
+        zIndex:        50,
+        background:    "var(--foreground)",
+        pointerEvents: open ? "auto" : "none",
+      }}
+    >
+      <motion.div
+        layout
+        className="flex flex-col w-full h-full justify-end"
+        style={{
+          paddingInline: "var(--section-padding)",
+          paddingBottom: "var(--section-padding)",
+          gap: "1px",
+        }}
+      >
+        {NAV_ITEMS.map(({ label, href, icon }) => {
+          const isActive  = pathname === href;
+          const isClicked = clicked === href;
+          const isSlid    = isActive || isClicked;
+          const color     = isSlid ? "var(--background)" : "var(--muted-foreground)";
 
-              return (
-                <NavItem
-                  key={label}
-                  label={label}
-                  href={href}
-                  icon={icon}
-                  isSlid={isSlid}
-                  color={color}
-                  onNav={handleNav}
-                />
-              );
-            })}
-          </motion.div>
-        </motion.div>
-      )}
-    </AnimatePresence>
+          return (
+            <NavItem
+              key={label}
+              label={label}
+              href={href}
+              icon={icon}
+              isSlid={isSlid}
+              color={color}
+              onNav={handleNav}
+            />
+          );
+        })}
+      </motion.div>
+    </motion.div>
   );
 }

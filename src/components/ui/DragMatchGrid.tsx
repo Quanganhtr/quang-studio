@@ -60,15 +60,20 @@ interface DragMatchGridProps {
 
 export function DragMatchGrid({
   cards = [],
-  cardBg = "#000000",
-  borderColor = "#333333",
-  borderWidth = 1,
-  tickerColor = "#FFFFFF",
+  cardBg = "var(--background)",
+  borderColor = "var(--border)",
+  borderWidth = 2,
+  tickerColor = "var(--muted-foreground)",
   tickerLength = 16,
   tickerWeight = 1,
 }: DragMatchGridProps) {
   return (
-    <div className="w-full mx-auto" style={{ maxWidth: MAX_CONTAINER_WIDTH }}>
+    <div
+      className="w-full mx-auto"
+      style={{ maxWidth: MAX_CONTAINER_WIDTH }}
+      onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "DRAG AND DROP" } }))}
+      onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
+    >
       <div className="drag-match-grid">
         {cards.map((card, index) => (
           <DraggableCard

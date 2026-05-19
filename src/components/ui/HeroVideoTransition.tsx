@@ -27,8 +27,8 @@ export default function HeroVideoTransition({
   const videoX = useTransform(smooth, [0, 1], ["100%", "0%"]);
 
   return (
-    <div ref={containerRef} className="h-[200vh]">
-      <div className="sticky top-0 h-screen overflow-hidden">
+    <div ref={containerRef} className="min-h-app md:h-[calc(var(--app-height)*2)]">
+      <div className="app-sticky-screen overflow-hidden">
         <motion.div className="absolute inset-0" style={{ x: heroX }}>
           {hero}
         </motion.div>

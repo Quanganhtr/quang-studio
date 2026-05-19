@@ -69,7 +69,8 @@ export default function LogoAnimation({ isDark, menuOpen }: LogoAnimationProps) 
     <div
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      style={{ width: 96, height: 48, cursor: "pointer" }}
+      className="h-8 md:h-12 cursor-pointer"
+      style={{ aspectRatio: "96/48" }}
     >
       <Lottie
         lottieRef={lottieRef}
@@ -78,8 +79,8 @@ export default function LogoAnimation({ isDark, menuOpen }: LogoAnimationProps) 
         loop={false}
         onComplete={handleComplete}
         style={{
-          width:      96,
-          height:     48,
+          width:      "100%",
+          height:     "100%",
           filter:     shouldInvert ? "invert(1)" : undefined,
           transition: "filter 0.3s ease",
         }}

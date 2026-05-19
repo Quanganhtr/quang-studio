@@ -5,6 +5,8 @@ import OverviewVideo from "@/components/sections/OverviewVideo";
 import AboutMe from "@/components/sections/AboutMe";
 import Ability from "@/components/sections/Ability";
 import MyWork from "@/components/sections/MyWork";
+import MyExperiences from "@/components/sections/MyExperiences";
+import Footer from "@/components/sections/Footer";
 
 export default function Home() {
   return (
@@ -17,6 +19,8 @@ export default function Home() {
       <AboutMe />
       <Ability />
       <MyWork />
+      <MyExperiences />
+      <Footer />
     </>
   );
 }

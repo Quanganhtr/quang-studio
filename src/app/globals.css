@@ -1,6 +1,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Boldonse&family=Geist+Mono:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
 @import "remixicon/fonts/remixicon.css";
 @import "tailwindcss";
+@import "tailwindcss/theme.css";
 @source "../../src";
 
 /* ── Design tokens ─────────────────────────────────────────────────── */
@@ -61,6 +62,12 @@
 
 /* ── CSS custom properties ──────────────────────────────────────────── */
 :root {
+  --screen-height: 100vh;
+  --app-height: 100vh;
+  --app-top: 0px;
+  --chrome-top: env(safe-area-inset-top, 0px);
+  --app-bottom: 0px;
+
   /* Typography — re-declared so var() resolves at runtime in @utility */
   --font-display: 'Boldonse', cursive;
   --font-mono:    'Geist Mono', monospace;
@@ -88,7 +95,7 @@
   --accent:               var(--color-honeysuckle-100);
   --accent-foreground:    var(--color-black);
   --destructive:          var(--color-red-600);
-  --border:               var(--color-neutral-200);
+  --border:               var(--color-neutral-300);
   --input:                var(--color-neutral-200);
   --ring:                 var(--color-honeysuckle-500);
   --navbar-bg:            rgba(255, 255, 255, 0.85); /* alpha composite — no palette ref */
@@ -110,8 +117,8 @@ html.dark {
   --muted-foreground:     var(--color-neutral-400);
   --accent:               var(--color-neutral-900);
   --accent-foreground:    var(--color-white);
-  --destructive:          var(--color-red-500);
-  --border:               var(--color-neutral-900);
+  --destructive:          var(--color-red-400);
+  --border:               var(--color-neutral-800);
   --input:                var(--color-neutral-900);
   --ring:                 var(--color-honeysuckle-300);
   --navbar-bg:            var(--color-black);
@@ -120,11 +127,18 @@ html.dark {
 /* ── Base styles ────────────────────────────────────────────────────── */
 @layer base {
   html {
-    transition: background 0.3s ease, color 0.3s ease;
+    min-height:  100%;
+    background:  var(--background);
+    transition:  background 0.3s ease, color 0.3s ease;
+  }
+
+  html,
+  body {
+    min-height:  100%;
+    background:  var(--background);
   }
 
   body {
-    background:  var(--background);
     color:       var(--foreground);
     font-family: var(--font-sans);
   }
@@ -254,11 +268,11 @@ html.dark {
 @utility text-base-bold {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size:   14px;
-  line-height: 24px;
+  font-size:   12px;
+  line-height: 20px;
 
   @variant md { font-size: 14px; line-height: 24px; }
-  @variant lg { font-size: 14px; line-height: 24px; }
+  @variant lg { font-size: 16px; line-height: 24px; }
 }
 
 @utility text-lg-regular {
@@ -272,13 +286,13 @@ html.dark {
 }
 
 @utility text-lg-medium {
-  font-family: var(--font-display);
-  font-weight: 500;
+  font-family: var(--font-mono);
+  font-weight: 600;
   font-size:   16px;
   line-height: 24px;
 
   @variant md { font-size: 18px; line-height: 28px; }
-  @variant lg { font-size: 20px; line-height: 32px; }
+  @variant lg { font-size: 32px; line-height: 48px; }
 }
 
 @utility text-lg-bold {
@@ -297,6 +311,35 @@ html.dark {
   max-width: 1440px;
   margin-inline: auto;
   padding-inline: var(--section-padding);
+}
+
+@utility h-app {
+  height: var(--app-height);
+}
+
+@utility min-h-app {
+  min-height: var(--app-height);
+}
+
+@utility app-sticky-screen {
+  position: relative;
+  min-height: var(--app-height);
+
+  @variant md {
+    position: sticky;
+    top: 0;
+    height: var(--app-height);
+    min-height: 0;
+  }
+}
+
+@utility app-visible-screen {
+  box-sizing: border-box;
+  min-height: var(--app-height);
+}
+
+@utility chrome-safe-top {
+  padding-top: var(--chrome-top);
 }
 
 @utility drag-match-grid {

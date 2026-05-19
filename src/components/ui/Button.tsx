@@ -23,7 +23,7 @@ export interface ButtonProps extends Omit<BaseButtonProps, 'className'> {
 
 const sizeClasses: Record<ButtonSize, string> = {
   sm: 'h-10 px-4 text-base-bold',
-  md: 'h-12 px-5 text-base-bold',
+  md: 'h-8 md:h-12 px-3 md:px-5 text-base-bold',
   lg: 'h-14 px-6 text-base-bold',
 };
 const variantClasses: Record<ButtonVariant, string> = {

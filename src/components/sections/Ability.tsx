@@ -7,7 +7,7 @@ export default function Ability() {
 
   return (
     <section
-      className="flex flex-col items-center justify-center min-h-dvh section-container pt-60"
+      className="app-visible-screen flex flex-col items-center justify-center w-full pt-60"
       style={{
         gap: 240,
       }}
@@ -17,7 +17,7 @@ export default function Ability() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         viewport={{ once: true, margin: "-100px" }}
-        className="flex flex-col gap-4 w-full max-w-360 items-center text-center"
+        className="flex flex-col gap-4 section-container items-center text-center"
       >
         <span className="label-sm text-foreground">
           ABILITY TO MESS THINGS UP
@@ -28,18 +28,18 @@ export default function Ability() {
         </h2>
       </motion.div>
 
-      <div className="w-full">
+      <div className="w-full px-(--section-padding)">
         <DragMatchGrid
           cardBg="var(--background)"
-          borderColor="var(--gray-3)"
+          borderColor="var(--border)"
           borderWidth={1}
-          tickerColor="var(--foreground)"
-          tickerLength={16}
+          tickerColor="var(--muted-foreground)"
+          tickerLength={8}
           tickerWeight={1}
           cards={[
             { targetImg: "/images/Target-PT.png", dragImg: "/images/Drag-PT.png", imgSizePercent: 40, media: "/images/Product Thinking.gif" },
-            { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
-            { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
+            { targetImg: "/images/Target-IU.png", dragImg: "/images/Drag-IU.png", imgSizePercent: 50, media: "/images/Product Thinking.gif" },
+            { targetImg: "/images/Target-AAD.png", dragImg: "/images/Drag-AAD.png", imgSizePercent: 50, media: "" },
             { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
             { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
             { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
