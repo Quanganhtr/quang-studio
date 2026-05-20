@@ -346,8 +346,7 @@ html.dark {
   display:               grid;
   gap:                   8px;
   width:                 100%;
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(2, 1fr);
 
-  @variant md { grid-template-columns: repeat(2, 1fr); }
   @variant lg { grid-template-columns: repeat(3, 1fr); }
 }
