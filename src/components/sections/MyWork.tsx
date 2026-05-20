@@ -27,7 +27,7 @@ function WaveCard({
   return (
     <motion.div
       style={{ y, rotate, scale }}
-      className="shrink-0 w-[22vw] aspect-square border border-border flex flex-col justify-between p-6 cursor-pointer relative overflow-hidden"
+      className="shrink-0 w-[22vw] aspect-square border-4 border-background flex flex-col justify-between p-6 cursor-pointer relative overflow-hidden"
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
@@ -100,7 +100,7 @@ export default function MyWork() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         viewport={{ once: true, margin: "-100px" }}
-        className="lg:hidden flex flex-col gap-8 pt-39 md:pt-16 pb-16"
+        className="lg:hidden flex flex-col gap-30 md:gap-50 pt-39 md:pt-16 pb-0 md:pb-16"
       >
         <h2
           className="type-h2"
@@ -117,7 +117,7 @@ export default function MyWork() {
           {CARDS.map((card) => (
             <div
               key={card.index}
-              className="shrink-0 w-[80vw] aspect-square border border-border cursor-pointer relative overflow-hidden snap-center flex flex-col justify-between p-6"
+              className="shrink-0 w-[80vw] aspect-square border-4 border-border cursor-pointer relative overflow-hidden snap-center flex flex-col justify-between p-6"
             >
               {card.bg && (
                 <img

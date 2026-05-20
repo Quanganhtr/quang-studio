@@ -142,10 +142,10 @@ export default function Hero() {
 
   return (
     <section
-      className="flex-1 flex flex-col overflow-hidden"
+      className={`flex flex-col overflow-hidden${isTablet ? " flex-1" : ""}`}
       style={{
         justifyContent: isBottomAligned ? "flex-end" : "flex-start",
-        padding:        isBottomAligned ? "0 var(--section-padding) var(--section-padding)" : "56px var(--section-padding) 0",
+        padding:        isBottomAligned ? "0 var(--section-padding) var(--section-padding)" : "156px var(--section-padding) 120px",
       }}
     >
       <motion.div

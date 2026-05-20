@@ -80,7 +80,7 @@ function TypewriterTitle() {
 
 export default function MyExperiences() {
   return (
-    <section className="flex flex-col section-container max-w-none pt-60 pb-50">
+    <section className="flex flex-col section-container max-w-none pt-39 md:pt-60 pb-0 md:pb-50">
 
       {/* Title */}
       <motion.div
@@ -98,15 +98,18 @@ export default function MyExperiences() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE, delay: 0.15 }}
         viewport={{ once: true, margin: "-100px" }}
-        className="flex flex-col mt-32 border-t border-dashed border-foreground"
+        className="flex flex-col mt-30 md:mt-50 lg:mt-60 border-t border-dashed border-foreground"
       >
         {EXPERIENCES.map(({ label, groups }) => (
           <div
             key={label}
-            className="flex flex-row items-start justify-between border-b border-dashed border-foreground p-4 lg:p-6"
+            className="flex flex-row items-start justify-between border-b border-dashed border-foreground p-4 lg:p-8"
           >
             {/* Left — step label */}
-            <span className="text-base-bold text-foreground shrink-0">{label}</span>
+            <div className="flex items-center gap-4 shrink-0 self-center">
+              <div className="w-3 h-3 bg-foreground shrink-0" />
+              <span className="text-base-bold text-foreground">{label}</span>
+            </div>
 
             {/* Right — mobile: stacked groups / desktop: single row */}
             <div className="flex flex-col gap-1 items-end lg:hidden">
