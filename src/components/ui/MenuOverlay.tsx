@@ -98,7 +98,13 @@ export default function MenuOverlay({ open, onClose }: MenuOverlayProps) {
   }, [router]);
 
   useEffect(() => {
-    document.body.style.overflow = open ? "hidden" : "";
+    if (open) {
+      document.body.style.overflow = "hidden";
+    } else {
+      document.body.style.overflow = "";
+      // Safari recalculates window.innerHeight when overflow is restored — force ViewportHeight to re-measure
+      requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
+    }
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
