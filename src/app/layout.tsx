@@ -32,7 +32,11 @@ export default function RootLayout({
         <ViewportHeight />
         <LoadingScreen />
         <ScrollReset />
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <div style={{ background: "var(--background)", minHeight: "100%" }}>
+            {children}
+          </div>
+        </ThemeProvider>
       </body>
     </html>
   );
