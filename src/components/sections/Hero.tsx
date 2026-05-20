@@ -69,21 +69,26 @@ function TextColumn({
   return (
     <div
       className="type-h1"
-      style={{ display: "flex", flexDirection: "column", gap, textAlign: align, paddingBlock: "0.15em" }}
+      style={{ display: "flex", flexDirection: "column", textAlign: align, paddingBlock: "0.15em" }}
     >
-      {items.map(({ text }, i) => (
-        <span
-          key={i}
-          style={{
-            display:    "block",
-            whiteSpace: mobile ? "normal" : "nowrap",
-            color:      "var(--foreground)",
-            visibility: text ? "visible" : "hidden",
-          }}
-        >
-          {text || "\u00A0"}
-        </span>
-      ))}
+      {items.map(({ text }, i) => {
+        const isLast = i === items.length - 1;
+        const marginTop = i === 0 ? undefined : mobile && isLast ? "56px" : gap;
+        return (
+          <span
+            key={i}
+            style={{
+              display:    "block",
+              whiteSpace: mobile ? "normal" : "nowrap",
+              color:      "var(--foreground)",
+              visibility: text ? "visible" : "hidden",
+              marginTop,
+            }}
+          >
+            {text || "\u00A0"}
+          </span>
+        );
+      })}
     </div>
   );
 }
@@ -145,7 +150,7 @@ export default function Hero() {
       className={`flex flex-col overflow-hidden${isTablet ? " flex-1" : ""}`}
       style={{
         justifyContent: isBottomAligned ? "flex-end" : "flex-start",
-        padding:        isBottomAligned ? "0 var(--section-padding) var(--section-padding)" : "156px var(--section-padding) 120px",
+        padding:        isBottomAligned ? "0 var(--section-padding) var(--section-padding)" : "120px var(--section-padding) 120px",
       }}
     >
       <motion.div

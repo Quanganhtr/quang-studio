@@ -75,7 +75,7 @@ export default function Footer() {
   const { theme } = useTheme();
 
   return (
-    <footer className="flex flex-col w-full h-dvh justify-between overflow-hidden">
+    <footer className="flex flex-col w-full h-dvh justify-between overflow-hidden relative">
 
       {/* Title */}
       <motion.div
@@ -90,6 +90,34 @@ export default function Footer() {
           WHEN WILL YOU REACH ME?
         </h2>
       </motion.div>
+
+      {/* Rectangle decoration — bottom right */}
+      <img
+        src="/rectangle.svg"
+        aria-hidden
+        className="theme-icon"
+        style={{
+          position:      "absolute",
+          bottom:        0,
+          right:         0,
+          pointerEvents: "none",
+        }}
+      />
+
+      {/* Rectangle-1 decoration — full width bottom */}
+      <img
+        src="/rectangle-1.svg"
+        aria-hidden
+        className="theme-icon"
+        style={{
+          position:      "absolute",
+          bottom:        0,
+          left:          0,
+          width:         "100%",
+          height:        "auto",
+          pointerEvents: "none",
+        }}
+      />
 
       {/* Full-width logo animation */}
       <motion.div
