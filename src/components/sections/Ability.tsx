@@ -41,7 +41,7 @@ export default function Ability() {
             { targetImg: "/images/Target-IU.png", dragImg: "/images/Drag-IU.png", imgSizePercent: 50, media: "/images/interaction.gif" },
             { targetImg: "/images/Target-AAD.png", dragImg: "/images/Drag-AAD.png", imgSizePercent: 50, media: "/images/ai.gif" },
             { targetImg: "/images/Target-PD.png", dragImg: "/images/Drag-PD.png", imgSizePercent: 50, media: "/images/3d.gif" },
-            { targetImg: "/images/Target-MD.png", dragImg: "/images/Drag-MD.png", imgSizePercent: 50, media: "/images/motion.gif" },
+            { targetImg: "/images/TARGET-MD.png", dragImg: "/images/DRAG-MD.png", imgSizePercent: 50, media: "/images/motion.gif" },
             { targetImg: "/images/Target-Brand.png", dragImg: "/images/Drag-Brand.png", imgSizePercent: 40, media: "" },
           ]}
         />
