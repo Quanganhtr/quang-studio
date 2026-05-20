@@ -38,11 +38,11 @@ export default function Ability() {
           tickerWeight={1}
           cards={[
             { targetImg: "/images/Target-PT.png", dragImg: "/images/Drag-PT.png", imgSizePercent: 40, media: "/images/Product Thinking.gif" },
-            { targetImg: "/images/Target-IU.png", dragImg: "/images/Drag-IU.png", imgSizePercent: 50, media: "/images/Product Thinking.gif" },
-            { targetImg: "/images/Target-AAD.png", dragImg: "/images/Drag-AAD.png", imgSizePercent: 50, media: "" },
-            { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
-            { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
-            { targetImg: "", dragImg: "", imgSizePercent: 30, media: "" },
+            { targetImg: "/images/Target-IU.png", dragImg: "/images/Drag-IU.png", imgSizePercent: 50, media: "/images/interaction.gif" },
+            { targetImg: "/images/Target-AAD.png", dragImg: "/images/Drag-AAD.png", imgSizePercent: 50, media: "/images/ai.gif" },
+            { targetImg: "/images/Target-PD.png", dragImg: "/images/Drag-PD.png", imgSizePercent: 50, media: "/images/3d.gif" },
+            { targetImg: "/images/Target-MD.png", dragImg: "/images/Drag-MD.png", imgSizePercent: 50, media: "/images/motion.gif" },
+            { targetImg: "/images/Target-Brand.png", dragImg: "/images/Drag-Brand.png", imgSizePercent: 40, media: "" },
           ]}
         />
       </div>

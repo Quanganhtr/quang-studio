@@ -4,10 +4,11 @@ import { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
 
 const CARDS = [
-  { index: "01", title: "Project Name", category: "Product Design" },
-  { index: "02", title: "Project Name", category: "Branding" },
-  { index: "03", title: "Project Name", category: "UX Research" },
-  { index: "04", title: "Project Name", category: "Motion" },
+  { index: "00", title: "Project Name", category: "Product Design", bg: "/vietnam-thumbnail.png" },
+  { index: "01", title: "Project Name", category: "Branding", bg: "/noodles-thumbnail.gif" },
+  { index: "02", title: "Project Name", category: "Product Design", bg: "/adafun-thumbnail.png" },
+  { index: "03", title: "Project Name", category: "UX Research", bg: "/reviewnha-thumbnail.png" },
+  { index: "04", title: "Project Name", category: "Motion", bg: "/minswap-thumbnail.gif" },
 ];
 
 function WaveCard({
@@ -26,12 +27,24 @@ function WaveCard({
   return (
     <motion.div
       style={{ y, rotate, scale }}
-      className="shrink-0 w-[22vw] aspect-square bg-card border border-border flex flex-col justify-between p-6 cursor-pointer"
+      className="shrink-0 w-[22vw] aspect-square border border-border flex flex-col justify-between p-6 cursor-pointer relative overflow-hidden"
+      onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
+      onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
-      <span className="text-sm-regular text-muted-foreground">{card.index}</span>
-      <div className="flex flex-col gap-1">
-        <p className="text-base-bold text-foreground">{card.title}</p>
-        <p className="text-sm-regular text-muted-foreground">{card.category}</p>
+      {card.bg && (
+        <img
+          src={card.bg}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          aria-hidden
+        />
+      )}
+      <div className="relative z-10 contents">
+        <span className="text-sm-regular text-muted-foreground">{card.index}</span>
+        <div className="flex flex-col gap-1">
+          <p className="text-base-bold text-foreground">{card.title}</p>
+          <p className="text-sm-regular text-muted-foreground">{card.category}</p>
+        </div>
       </div>
     </motion.div>
   );
@@ -46,7 +59,7 @@ export default function MyWork() {
   });
 
   const x      = useTransform(scrollYProgress, [0, 1], ["20vw",  "-60vw"]);
-  const xCards = useTransform(scrollYProgress, [0, 1], ["-20vw", "40vw"]);
+  const xCards = useTransform(scrollYProgress, [0, 1], ["-40vw", "40vw"]);
 
   return (
     <section className="flex flex-col">

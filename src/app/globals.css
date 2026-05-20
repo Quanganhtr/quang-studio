@@ -95,7 +95,7 @@
   --accent:               var(--color-honeysuckle-100);
   --accent-foreground:    var(--color-black);
   --destructive:          var(--color-red-600);
-  --border:               var(--color-neutral-300);
+  --border:               var(--color-neutral-500);
   --input:                var(--color-neutral-200);
   --ring:                 var(--color-honeysuckle-500);
   --navbar-bg:            rgba(255, 255, 255, 0.85); /* alpha composite — no palette ref */
@@ -118,7 +118,7 @@ html.dark {
   --accent:               var(--color-neutral-900);
   --accent-foreground:    var(--color-white);
   --destructive:          var(--color-red-400);
-  --border:               var(--color-neutral-800);
+  --border:               var(--color-neutral-600);
   --input:                var(--color-neutral-900);
   --ring:                 var(--color-honeysuckle-300);
   --navbar-bg:            var(--color-black);

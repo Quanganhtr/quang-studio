@@ -103,8 +103,7 @@ export default function MyExperiences() {
         {EXPERIENCES.map(({ label, groups }) => (
           <div
             key={label}
-            className="flex flex-row items-start justify-between border-b border-dashed border-foreground"
-            style={{ padding: "16px" }}
+            className="flex flex-row items-start justify-between border-b border-dashed border-foreground p-4 lg:p-6"
           >
             {/* Left — step label */}
             <span className="text-base-bold text-foreground shrink-0">{label}</span>
