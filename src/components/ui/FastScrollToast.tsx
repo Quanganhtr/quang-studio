@@ -11,17 +11,17 @@ const MESSAGES = [
   {
     title: "Hey, slow down!",
     desc:  "You scroll too fast — I spent 100+ hours writing this content.",
-    icon:  "ri-time-line",
+    img:   "/sad.png",
   },
   {
     title: "Seriously though...",
     desc:  "There's actually good stuff here. Take a breath.",
-    icon:  "ri-emotion-unhappy-line",
+    img:   "/angry.png",
   },
   {
     title: "Ok, I give up.",
     desc:  "But come back and read it sometime, yeah?",
-    icon:  "ri-flag-line",
+    img:   "/hopeless.png",
   },
 ];
 
@@ -39,7 +39,6 @@ function ToastItem({
   onDismiss: (id: number) => void;
 }) {
   const [entered, setEntered] = useState(false);
-  const rotation = useRef((Math.random() * 8 - 4).toFixed(2));
 
   useEffect(() => {
     const raf = requestAnimationFrame(() => setEntered(true));
@@ -49,9 +48,8 @@ function ToastItem({
   const msg = MESSAGES[toast.messageIndex];
 
   return (
-    <div style={{ transform: `rotate(${rotation.current}deg)` }}>
-      <div
-        className="w-72 relative overflow-hidden bg-card text-card-foreground border border-border rounded-xl shadow-lg p-4"
+    <div
+        className="w-60 relative overflow-hidden bg-card text-card-foreground p-4"
         style={{
           fontFamily: "var(--font-mono)",
           transition: toast.leaving
@@ -65,36 +63,26 @@ function ToastItem({
           opacity: toast.leaving ? 0 : entered ? 1 : 0,
         }}
       >
-        <div className="absolute top-0 left-0 h-0.5 w-full overflow-hidden">
-          <div
-            className="h-full bg-primary"
-            style={{ animation: `shrink ${AUTO_DISMISS_MS}ms linear forwards` }}
-          />
-        </div>
+        <button
+          onClick={() => onDismiss(toast.id)}
+          className="absolute top-3 right-3 text-muted-foreground hover:text-card-foreground transition-colors"
+          aria-label="Dismiss"
+        >
+          <i className="ri-close-line text-base" />
+        </button>
 
-        <div className="flex items-start gap-3">
-          <div className="mt-0.5 shrink-0 size-7 rounded-lg bg-primary flex items-center justify-center">
-            <i className={`${msg.icon} text-sm text-primary-foreground`} />
-          </div>
+        <div className="flex flex-col gap-3">
+          <img src={msg.img} alt="" width={124} height={124} />
 
-          <div className="flex-1 min-w-0">
-            <p className="text-sm font-bold text-card-foreground leading-tight">
+          <div className="min-w-0">
+            <p className="text-sm font-bold text-background leading-tight">
               {msg.title}
             </p>
             <p className="mt-1 text-xs text-muted-foreground leading-snug">
               {msg.desc}
             </p>
           </div>
-
-          <button
-            onClick={() => onDismiss(toast.id)}
-            className="shrink-0 mt-0.5 text-muted-foreground hover:text-card-foreground transition-colors"
-            aria-label="Dismiss"
-          >
-            <i className="ri-close-line text-base" />
-          </button>
         </div>
-      </div>
     </div>
   );
 }
@@ -162,18 +150,10 @@ export default function FastScrollToast() {
   if (toasts.length === 0) return null;
 
   return (
-    <>
-      <style>{`
-        @keyframes shrink {
-          from { width: 100%; }
-          to   { width: 0%; }
-        }
-      `}</style>
-      <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
-        {toasts.map(toast => (
-          <ToastItem key={toast.id} toast={toast} onDismiss={dismissToast} />
-        ))}
-      </div>
-    </>
+    <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-2 items-end">
+      {toasts.map(toast => (
+        <ToastItem key={toast.id} toast={toast} onDismiss={dismissToast} />
+      ))}
+    </div>
   );
 }

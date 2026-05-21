@@ -1,7 +1,7 @@
 "use client";
 
-import { motion } from "framer-motion";
-import { useState, useEffect, useRef } from "react";
+import { motion, useMotionValue, useAnimationFrame } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 
 const leftItems = [
   { text: "ARCHITECT BY ROOTS."  },
@@ -10,12 +10,6 @@ const leftItems = [
   { text: "VIBE-CODER BY FORCE." },
 ];
 
-const rightItems = [
-  { text: ""         },
-  { text: ""         },
-  { text: "QUANG"    },
-  { text: "ANH TRAN" },
-];
 
 const mobileItems = [
   { text: "ARCHITECT BY ROOTS."         },
@@ -85,7 +79,7 @@ function TextColumn({
               marginTop,
             }}
           >
-            {text || "\u00A0"}
+            {text || " "}
           </span>
         );
       })}
@@ -93,50 +87,49 @@ function TextColumn({
   );
 }
 
-function useIsDark() {
-  const [isDark, setIsDark] = useState(false);
-  useEffect(() => {
-    const check = () => setIsDark(document.documentElement.classList.contains("dark"));
-    check();
-    const observer = new MutationObserver(check);
-    observer.observe(document.documentElement, { attributeFilter: ["class"] });
-    return () => observer.disconnect();
-  }, []);
-  return isDark;
-}
+const dispatchPill = (text: string | null) =>
+  window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text } }));
 
-function VideoMask({ darkSrc, lightSrc }: { darkSrc: string; lightSrc: string }) {
-  const isDark    = useIsDark();
-  const blendMode = isDark ? "multiply" : "screen";
-  const src       = isDark ? darkSrc : lightSrc;
-  const vidRef    = useRef<HTMLVideoElement>(null);
+function DiscImage({ size }: { size: string }) {
+  const rotate      = useMotionValue(0);
+  const speed       = useRef(0.4);
+  const targetSpeed = useRef(0.4);
+  const audio       = useRef<HTMLAudioElement | null>(null);
+  const playing     = useRef(false);
 
   useEffect(() => {
-    const vid = vidRef.current;
-    if (!vid) return;
-    vid.play().catch(() => {});
-    const unlock = () => vid.play().catch(() => {});
-    window.addEventListener("safari-video-unlock", unlock, { once: true });
-    return () => window.removeEventListener("safari-video-unlock", unlock);
+    audio.current = new Audio("/theme-song.mp3");
+    audio.current.loop = true;
+    return () => {
+      audio.current?.pause();
+      dispatchPill(null);
+    };
   }, []);
+
+  useAnimationFrame(() => {
+    speed.current += (targetSpeed.current - speed.current) * 0.06;
+    rotate.set(rotate.get() + speed.current);
+  });
+
+  const handleClick = () => {
+    if (!audio.current) return;
+    if (playing.current) {
+      audio.current.pause();
+      playing.current = false;
+    } else {
+      audio.current.play();
+      playing.current = true;
+    }
+  };
 
   return (
-    <video
-      ref={vidRef}
-      src={src}
-      autoPlay
-      muted
-      loop
-      playsInline
-      style={{
-        position:      "absolute",
-        inset:         0,
-        width:         "100%",
-        height:        "100%",
-        objectFit:     "cover",
-        mixBlendMode:  blendMode,
-        pointerEvents: "none",
-      }}
+    <motion.img
+      src="/disc.png"
+      alt=""
+      style={{ width: size, height: size, rotate, display: "block", cursor: "none" }}
+      onMouseEnter={() => { targetSpeed.current = 4; dispatchPill("Listen with Quang"); }}
+      onMouseLeave={() => { targetSpeed.current = 0.4; dispatchPill(null); }}
+      onClick={handleClick}
     />
   );
 }
@@ -159,21 +152,27 @@ export default function Hero() {
         transition={{ duration: 0.6, ease: EASE }}
         className="w-full"
         style={{
-          position:   "relative",
-          isolation:  "isolate",
-          background: "var(--background)",
           ...(isDesktop ? { display: "flex", justifyContent: "space-between", alignItems: "flex-end" } : {}),
         }}
       >
         {isDesktop ? (
           <>
-            <TextColumn items={leftItems}  align="left"  />
-            <TextColumn items={rightItems} align="right" />
+            <TextColumn items={leftItems} align="left" />
+            <div
+              className="type-h1"
+              style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", textAlign: "right", paddingBlock: "0.15em" }}
+            >
+              {/* hidden spacers to align with left column */}
+              <span style={{ visibility: "hidden" }}>&nbsp;</span>
+              <span style={{ visibility: "hidden", marginTop: DESKTOP_GAP }}>&nbsp;</span>
+              <div style={{ marginTop: DESKTOP_GAP }}><DiscImage size="16vw" /></div>
+              <span style={{ color: "var(--foreground)", marginTop: DESKTOP_GAP, display: "block", whiteSpace: "nowrap" }}>QUANG</span>
+              <span style={{ color: "var(--foreground)", marginTop: DESKTOP_GAP, display: "block", whiteSpace: "nowrap" }}>ANH TRAN</span>
+            </div>
           </>
         ) : (
           <TextColumn items={mobileItems} align="left" mobile />
         )}
-        <VideoMask darkSrc="/text-video-dark.mp4" lightSrc="/text-video-light.mp4" />
       </motion.div>
     </section>
   );

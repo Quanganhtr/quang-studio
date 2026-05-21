@@ -2,8 +2,7 @@
 
 import { motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
-import { RefObject, useEffect, useRef, useState } from "react";
-// NavItem uses only useState — useEffect/useRef kept for MenuOverlay internals
+import { RefObject, useEffect, useState } from "react";
 
 const EASE: [number, number, number, number] = [0.76, 0, 0.24, 1];
 
@@ -91,20 +90,13 @@ export default function MenuOverlay({ open, onClose }: MenuOverlayProps) {
   const router      = useRouter();
   const pathname    = usePathname();
   const [clicked, setClicked] = useState<string | null>(null);
-  const navTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     NAV_ITEMS.forEach(({ href }) => router.prefetch(href));
   }, [router]);
 
   useEffect(() => {
-    if (open) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-      // Safari recalculates window.innerHeight when overflow is restored — force ViewportHeight to re-measure
-      requestAnimationFrame(() => window.dispatchEvent(new Event("resize")));
-    }
+    document.body.style.overflow = open ? "hidden" : "";
     return () => { document.body.style.overflow = ""; };
   }, [open]);
 
@@ -115,13 +107,8 @@ export default function MenuOverlay({ open, onClose }: MenuOverlayProps) {
   const handleNav = (href: string) => {
     if (pathname === href) { onClose(); return; }
     setClicked(href);
-    // close first, navigate after exit animation (0.6s) completes
     onClose();
-    if (navTimerRef.current) clearTimeout(navTimerRef.current);
-    navTimerRef.current = setTimeout(() => {
-      router.push(href);
-      navTimerRef.current = null;
-    }, 620);
+    router.push(href);
   };
 
   return (

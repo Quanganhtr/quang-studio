@@ -104,21 +104,6 @@ export default function Footer() {
         }}
       />
 
-      {/* Rectangle-1 decoration — full width bottom */}
-      <img
-        src="/rectangle-1.svg"
-        aria-hidden
-        className="theme-icon"
-        style={{
-          position:      "absolute",
-          bottom:        0,
-          left:          0,
-          width:         "100%",
-          height:        "auto",
-          pointerEvents: "none",
-        }}
-      />
-
       {/* Full-width logo animation */}
       <motion.div
         initial={{ opacity: 0 }}
