@@ -82,7 +82,7 @@
   /* Semantic tokens — light */
   --background:           var(--color-white);
   --foreground:           var(--color-black);
-  --card:                 var(--color-honeysuckle-50);
+  --card:                 var(--color-black);
   --card-foreground:      var(--color-black);
   --popover:              var(--color-white);
   --popover-foreground:   var(--color-black);
@@ -105,7 +105,7 @@ html.dark {
   /* Semantic tokens — dark */
   --background:           var(--color-black);
   --foreground:           var(--color-white);
-  --card:                 var(--color-neutral-950);
+  --card:                 var(--color-white);
   --card-foreground:      var(--color-white);
   --popover:              var(--color-neutral-950);
   --popover-foreground:   var(--color-white);
@@ -127,13 +127,18 @@ html.dark {
 /* ── Base styles ────────────────────────────────────────────────────── */
 @layer base {
   html {
-    min-height: 100%;
-    transition: background 0.3s ease, color 0.3s ease;
+    min-height:  100%;
+    background:  var(--background);
+    transition:  background 0.3s ease, color 0.3s ease;
+  }
+
+  html,
+  body {
+    min-height:  100%;
+    background:  var(--background);
   }
 
   body {
-    min-height:  100%;
-    background:  var(--foreground);
     color:       var(--foreground);
     font-family: var(--font-sans);
   }

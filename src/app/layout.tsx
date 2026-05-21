@@ -3,6 +3,7 @@ import { ThemeProvider } from "@/lib/ThemeContext";
 import ScrollReset from "@/components/ui/ScrollReset";
 import LoadingScreen from "@/components/ui/LoadingScreen";
 import ViewportHeight from "@/components/ui/ViewportHeight";
+import FastScrollToast from "@/components/ui/FastScrollToast";
 import "./globals.css";
 
 export const viewport: Viewport = {
@@ -32,11 +33,8 @@ export default function RootLayout({
         <ViewportHeight />
         <LoadingScreen />
         <ScrollReset />
-        <ThemeProvider>
-          <div style={{ background: "var(--background)", minHeight: "100%" }}>
-            {children}
-          </div>
-        </ThemeProvider>
+        <FastScrollToast />
+        <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
   );
