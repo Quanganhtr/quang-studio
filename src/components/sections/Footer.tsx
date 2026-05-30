@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useCallback } from "react";
+import { useRef, useCallback, useState } from "react";
 import { motion } from "framer-motion";
 import Lottie from "lottie-react";
 import { useTheme } from "@/lib/ThemeContext";
@@ -73,9 +73,16 @@ function FooterLogo({ isDark }: { isDark: boolean }) {
 
 export default function Footer() {
   const { theme } = useTheme();
+  const [btnHovered, setBtnHovered] = useState(false);
 
   return (
-    <footer className="flex flex-col w-full h-dvh justify-between overflow-hidden relative">
+    <footer className="flex flex-col w-full justify-between overflow-hidden relative" style={{ height: "150dvh" }}>
+      <img
+        src={btnHovered ? "/footer-active.png" : "/footer.png"}
+        alt=""
+        aria-hidden
+        className="absolute inset-0 w-full h-full object-cover pointer-events-none transition-[src] duration-300"
+      />
 
       {/* Title */}
       <motion.div
@@ -83,26 +90,19 @@ export default function Footer() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE }}
         viewport={{ once: true, margin: "-100px" }}
-        className="section-container max-w-none pt-14"
+        className="relative z-10 section-container max-w-none pt-39 md:pt-60 text-center"
       >
-        <h2 className="type-h2 text-right">
+        <h2 className="type-h2">
           YOU REACHED THE FOOTER.<br />
-          WHEN WILL YOU REACH ME?
+          <button
+            onMouseEnter={() => setBtnHovered(true)}
+            onMouseLeave={() => setBtnHovered(false)}
+            className="type-h2 cursor-pointer bg-transparent border-none p-0 underline-offset-4 hover:underline"
+          >
+            WHEN WILL YOU REACH ME?
+          </button>
         </h2>
       </motion.div>
-
-      {/* Rectangle decoration — bottom right */}
-      <img
-        src="/rectangle.svg"
-        aria-hidden
-        className="theme-icon"
-        style={{
-          position:      "absolute",
-          bottom:        0,
-          right:         0,
-          pointerEvents: "none",
-        }}
-      />
 
       {/* Full-width logo animation */}
       <motion.div
@@ -110,7 +110,7 @@ export default function Footer() {
         whileInView={{ opacity: 1 }}
         transition={{ duration: 0.7, ease: EASE, delay: 0.1 }}
         viewport={{ once: true, margin: "-100px" }}
-        className="section-container max-w-none pb-2 md:pb-8 lg:pb-14"
+        className="relative z-10 section-container max-w-none pb-2 md:pb-8 lg:pb-14"
       >
         <FooterLogo isDark={theme === "dark"} />
       </motion.div>

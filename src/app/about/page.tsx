@@ -4,6 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/sections/Footer";
+import { Button } from "@/components/ui/Button";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -99,7 +100,7 @@ function OriginStorySection() {
               <motion.p
                 key="pills"
                 variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
-                className="text-lg-regular text-foreground"
+                className="text-lg-regular text-muted-foreground"
                 style={{ lineHeight: 1.85 }}
               >
                 So I decided to carry his dream and studied architecture at <span style={{ fontWeight: 600 }}>Hanoi Architectural University</span>. Partly for myself, partly for him. For a while, it looked like the plan was working. I designed{" "}
@@ -120,7 +121,7 @@ function OriginStorySection() {
               <motion.p
                 key={i}
                 variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
-                className="text-lg-regular text-foreground"
+                className="text-lg-regular text-muted-foreground"
                 style={{ lineHeight: 1.85 }}
               >
                 {para}
@@ -156,6 +157,46 @@ function OriginStorySection() {
   );
 }
 
+// ─── HOW I SURVIVE NOW SECTION ───────────────────────────────────────────
+
+const HOW_I_SURVIVE_PARAGRAPHS = [
+  "Somehow, that $60/month job didn't scare me off. It taught me. I learned Figma by Googling, shipped things by guessing, and presented designs to stakeholders while quietly hoping nobody would ask too many questions.",
+  "I left architecture school without finishing the blueprint. But I walked into product design with something most designers don't have: five years of thinking about how people move through space, how structures hold weight, and why a bad layout makes people feel lost before they even realize it.",
+  "Now I work as a product designer. I obsess over spacing, argue about 4px versus 8px, and occasionally explain to a developer why \"just move it a little to the left\" is a real design decision. The usual. It's not the career my dad dreamed of. But it's the one that somehow kept finding me — and at some point, I stopped running from it.",
+];
+
+function HowISurviveSection() {
+  return (
+    <motion.div
+      initial="hidden"
+      whileInView="visible"
+      viewport={{ once: true, margin: "-80px" }}
+      variants={{ hidden: {}, visible: { transition: { staggerChildren: 0.1 } } }}
+      className="flex flex-col gap-10 md:gap-12"
+    >
+      <motion.h3
+        variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
+        className="text-lg-medium text-foreground"
+      >
+        # How I survive now
+      </motion.h3>
+
+      <div className="flex flex-col max-w-2xl" style={{ gap: 32 }}>
+        {HOW_I_SURVIVE_PARAGRAPHS.map((para, i) => (
+          <motion.p
+            key={i}
+            variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
+            className="text-lg-regular text-muted-foreground"
+            style={{ lineHeight: 1.85 }}
+          >
+            {para}
+          </motion.p>
+        ))}
+      </div>
+    </motion.div>
+  );
+}
+
 // ─── ARCH HAUNTS SECTION ─────────────────────────────────────────────────
 
 const ARCH_HAUNTS_PARAGRAPHS = [
@@ -187,7 +228,7 @@ function ArchHauntsSection() {
             <motion.p
               key={i}
               variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
-              className="text-lg-regular text-foreground"
+              className="text-lg-regular text-muted-foreground"
               style={{ lineHeight: 1.85 }}
             >
               {para}
@@ -214,6 +255,8 @@ const stagger = {
 // ─── PAGE ────────────────────────────────────────────────────────────────
 
 export default function AboutPage() {
+  const [buttonHovered, setButtonHovered] = useState(false);
+
   return (
     <>
       <Navbar />
@@ -233,12 +276,23 @@ export default function AboutPage() {
               <span className="text-lg-bold text-muted-foreground">.md</span>
             </motion.h2>
 
-            {/* Subtitle */}
-            <motion.p variants={fadeUp} className="text-lg-regular text-foreground max-w-2xl self-end text-left" style={{ lineHeight: 1.75 }}>
-              {"A personal README file about a designer who carried his dad's architect dream, then accidentally ended up with a F"}
-              <s>oor</s>
-              {"igma Plan — $15/month."}
-            </motion.p>
+            <motion.div variants={fadeUp} className="flex flex-row items-start gap-8">
+              <img src={buttonHovered ? "/shut-up.png" : "/talking.png"} alt="" style={{ width: 256, height: 256, objectFit: "contain", flexShrink: 0 }} />
+
+              <div className="flex flex-col gap-6 ml-auto max-w-2xl">
+                {/* Subtitle */}
+                <p className="text-lg-regular text-foreground max-w-2xl text-left" style={{ lineHeight: 1.75 }}>
+                  {"A personal README file about a designer who carried his dad's architect dream, then accidentally ended up with a F"}
+                  <s>oor</s>
+                  {"igma Plan — $15/month."}
+                </p>
+
+                <div className="flex flex-col gap-3">
+                  <p className="text-lg-regular text-muted-foreground">Quang talks too much?</p>
+                  <Button variant="solid" onMouseEnter={() => setButtonHovered(true)} onMouseLeave={() => setButtonHovered(false)}>Run summary to shut him up</Button>
+                </div>
+              </div>
+            </motion.div>
 
           </motion.div>
         </section>
@@ -246,8 +300,9 @@ export default function AboutPage() {
         {/* ── Body: 2-column story sections ─────────────────────────────── */}
         <section className="section-container max-w-none border-t border-dashed border-foreground">
           <div className="grid grid-cols-1 lg:grid-cols-2">
-            <div className="relative py-12 md:py-16 lg:pr-12 lg:border-r lg:border-dashed lg:border-foreground">
+            <div className="relative py-12 md:py-16 lg:pr-12 lg:border-r lg:border-dashed lg:border-foreground flex flex-col gap-16 md:gap-96">
               <OriginStorySection />
+              <HowISurviveSection />
             </div>
             <div className="relative py-12 md:py-16 lg:pl-12 lg:pt-60 border-t border-dashed border-foreground lg:border-t-0">
               <ArchHauntsSection />

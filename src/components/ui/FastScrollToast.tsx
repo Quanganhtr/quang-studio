@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from "react";
 
-const VELOCITY_THRESHOLD  = 2400;
+const VELOCITY_THRESHOLD  = 5600;
 const BETWEEN_TRIGGERS_MS = 1000;
 const AUTO_DISMISS_MS     = 4000;
 const MAX_TRIGGERS        = 3;
