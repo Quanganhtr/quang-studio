@@ -17,7 +17,7 @@ const NAV_LINKS = [
 
 const SOCIAL_LINKS = [
   { label: "X",        href: "#" },
-  { label: "Linkedin", href: "#" },
+  { label: "Linkedin", href: "https://www.linkedin.com/in/quanganhtr" },
   { label: "Dribbble", href: "#" },
   { label: "Behance",  href: "#" },
 ];
@@ -141,7 +141,7 @@ export default function Footer() {
               {SOCIAL_LINKS.map(({ label, href }) => (
                 <React.Fragment key={label}>
                   <span className="text-base-bold hidden md:inline">·</span>
-                  <a href={href} className="text-base-bold">
+                  <a href={href} target="_blank" rel="noopener noreferrer" className="text-base-bold">
                     {label}
                   </a>
                 </React.Fragment>

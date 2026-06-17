@@ -10,16 +10,39 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const CONTACT_LINKS = [
   { label: "Email",    value: "quanganhtran2908@gmail.com", href: "mailto:quanganhtran2908@gmail.com" },
-  { label: "LinkedIn", value: "linkedin.com/in/quanganh",  href: "#" },
+  { label: "LinkedIn", value: "linkedin.com/in/quanganhtr", href: "https://www.linkedin.com/in/quanganhtr" },
   { label: "Dribbble", value: "dribbble.com/quanganh",     href: "#" },
   { label: "Behance",  value: "behance.net/quanganh",      href: "#" },
 ];
 
+type Status = "idle" | "loading" | "success" | "error";
+
 function ContactForm() {
-  const [form, setForm] = useState({ name: "", email: "", message: "" });
+  const [form, setForm]     = useState({ name: "", email: "", message: "" });
+  const [status, setStatus] = useState<Status>("idle");
+
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setStatus("loading");
+    try {
+      const res = await fetch("/api/contact", {
+        method:  "POST",
+        headers: { "Content-Type": "application/json" },
+        body:    JSON.stringify(form),
+      });
+      if (res.ok) {
+        setStatus("success");
+        setForm({ name: "", email: "", message: "" });
+      } else {
+        setStatus("error");
+      }
+    } catch {
+      setStatus("error");
+    }
+  };
 
   return (
-    <form className="flex flex-col gap-8" onSubmit={(e) => e.preventDefault()}>
+    <form className="flex flex-col gap-8" onSubmit={handleSubmit}>
       <div className="flex flex-col gap-2 border-b border-ui pb-4">
         <label className="text-sm-regular text-muted-foreground">Name</label>
         <input
@@ -27,6 +50,7 @@ function ContactForm() {
           value={form.name}
           onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
           placeholder="Your name"
+          required
           className="bg-transparent text-base-bold outline-none placeholder:text-muted-foreground"
         />
       </div>
@@ -37,6 +61,7 @@ function ContactForm() {
           value={form.email}
           onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
           placeholder="your@email.com"
+          required
           className="bg-transparent text-base-bold outline-none placeholder:text-muted-foreground"
         />
       </div>
@@ -47,10 +72,39 @@ function ContactForm() {
           onChange={(e) => setForm((f) => ({ ...f, message: e.target.value }))}
           placeholder="What's on your mind?"
           rows={6}
+          required
           className="bg-transparent text-base-bold outline-none resize-none placeholder:text-muted-foreground"
         />
       </div>
-      <Button variant="solid" size="lg" label="SEND IT →" hoverLabel="GOOD CHOICE" className="self-start" />
+      <div className="flex flex-col gap-3 items-start">
+        <Button
+          type="submit"
+          variant="solid"
+          size="lg"
+          label={status === "loading" ? "SENDING..." : "SEND IT →"}
+          hoverLabel="GOOD CHOICE"
+          disabled={status === "loading"}
+          className="self-start"
+        />
+        {status === "success" && (
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-base-bold text-muted-foreground"
+          >
+            Message sent — I'll get back to you soon.
+          </motion.p>
+        )}
+        {status === "error" && (
+          <motion.p
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="text-base-bold text-muted-foreground"
+          >
+            Something went wrong. Try emailing me directly.
+          </motion.p>
+        )}
+      </div>
     </form>
   );
 }
@@ -96,6 +150,8 @@ export default function ContactPage() {
                   <a
                     key={label}
                     href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="flex flex-row items-center justify-between border-b border-ui py-5 group"
                   >
                     <span className="text-base-bold text-muted-foreground">{label}</span>

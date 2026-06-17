@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/Button";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-type Item = { text: string; muted?: boolean; large?: boolean; largeMuted?: boolean };
+type Item = { text: string; muted?: boolean; large?: boolean; largeMuted?: boolean; href?: string };
 
 const EXPERIENCES: { label: string; groups: Item[][] }[] = [
   {
@@ -36,7 +36,7 @@ const EXPERIENCES: { label: string; groups: Item[][] }[] = [
   {
     label: "EXTRA STEP",
     groups: [
-      [{ text: "Check", muted: true }, { text: "my Linkedin", large: true }],
+      [{ text: "Check", muted: true }, { text: "my Linkedin", large: true, href: "https://www.linkedin.com/in/quanganhtr" }],
     ],
   },
   {
@@ -115,16 +115,24 @@ export default function MyExperiences() {
             <div className="flex flex-col gap-1 items-end lg:hidden">
               {groups.map((group, gi) => (
                 <div key={gi} className="flex flex-row items-baseline justify-end" style={{ gap: "12px" }}>
-                  {group.map((item, i) => (
-                    <span key={i} className={itemClass(item)}>{item.text}</span>
-                  ))}
+                  {group.map((item, i) =>
+                    item.href ? (
+                      <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" className={`${itemClass(item)} underline underline-offset-4`}>{item.text}</a>
+                    ) : (
+                      <span key={i} className={itemClass(item)}>{item.text}</span>
+                    )
+                  )}
                 </div>
               ))}
             </div>
             <div className="hidden lg:flex flex-row items-baseline" style={{ gap: "12px" }}>
-              {groups.flat().map((item, i) => (
-                <span key={i} className={itemClass(item)}>{item.text}</span>
-              ))}
+              {groups.flat().map((item, i) =>
+                item.href ? (
+                  <a key={i} href={item.href} target="_blank" rel="noopener noreferrer" className={`${itemClass(item)} underline underline-offset-4`}>{item.text}</a>
+                ) : (
+                  <span key={i} className={itemClass(item)}>{item.text}</span>
+                )
+              )}
             </div>
           </div>
         ))}

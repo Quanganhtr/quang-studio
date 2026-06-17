@@ -269,8 +269,8 @@ function StretchColumn({ title, decorType, className = "", children }: StretchCo
       </div>
       {/* decor: naturally third in source, pulled to second slot on md+ */}
       <motion.div
-        style={isDesktop ? { height: decorH } : {}}
-        className="relative overflow-hidden border-b border-ui aspect-square md:aspect-auto md:order-2"
+        style={isDesktop ? { height: decorH } : { height: 156 }}
+        className="relative overflow-hidden border-t md:border-t-0 md:border-b border-ui md:order-2"
       >
         {decorSvg}
       </motion.div>
