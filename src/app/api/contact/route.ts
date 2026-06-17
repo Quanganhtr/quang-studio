@@ -18,7 +18,8 @@ export async function POST(req: Request) {
   });
 
   if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
+    console.error("Resend error:", error);
+    return NextResponse.json({ error: error.message, detail: JSON.stringify(error) }, { status: 500 });
   }
 
   return NextResponse.json({ success: true });
