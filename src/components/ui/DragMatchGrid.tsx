@@ -69,7 +69,7 @@ export function DragMatchGrid({
 }: DragMatchGridProps) {
   return (
     <div
-      className="w-full mx-auto"
+      className="w-full mx-auto border-t border-l border-dashed border-border"
       style={{ maxWidth: MAX_CONTAINER_WIDTH }}
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "DRAG AND DROP" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
@@ -244,7 +244,8 @@ function DraggableCard({
         height: "auto",
         aspectRatio: "1 / 1",
         backgroundColor: bg,
-        border: `${borderWidth}px dashed ${borderColor}`,
+        borderRight: `${borderWidth}px dashed ${borderColor}`,
+        borderBottom: `${borderWidth}px dashed ${borderColor}`,
         boxSizing: "border-box",
         borderRadius: "0px",
         overflow: "hidden",

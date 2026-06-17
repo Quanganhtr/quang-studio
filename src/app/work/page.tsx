@@ -1,99 +1,170 @@
 "use client";
 
-import { motion } from "framer-motion";
+import React, { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
+import { Button } from "@/components/ui/Button";
 import Footer from "@/components/sections/Footer";
-
-const CARDS = [
-  { index: "00", title: "Project Name", category: "Product Design", bg: "/vietnam-thumbnail.png" },
-  { index: "01", title: "Project Name", category: "Branding",       bg: "/noodles-thumbnail.gif" },
-  { index: "02", title: "Project Name", category: "Product Design", bg: "/adafun-thumbnail.png"  },
-  { index: "03", title: "Project Name", category: "UX Research",    bg: "/reviewnha-thumbnail.png" },
-  { index: "04", title: "Project Name", category: "Motion",         bg: "/minswap-thumbnail.gif"  },
-];
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
-const fadeUp = {
-  hidden:  { opacity: 0, y: 24 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } },
-};
+const PROJECTS = [
+  { index: "01", title: "Minswap",   category: "Product Design", thumbnail: "/minswap-thumbnail.gif"   },
+  { index: "02", title: "Reviewnha", category: "UX Research",    thumbnail: "/reviewnha-thumbnail.png" },
+  { index: "03", title: "Ada.fun",   category: "Product Design", thumbnail: "/adafun-thumbnail.png"    },
+  { index: "04", title: "Noodles.fi", category: "Branding",      thumbnail: "/noodles-thumbnail.gif"   },
+  { index: "05", title: "Fruit map", category: "Motion",         thumbnail: "/vietnam-thumbnail.png"   },
+];
 
-const stagger = {
-  hidden:  {},
-  visible: { transition: { staggerChildren: 0.1 } },
-};
+type Project = typeof PROJECTS[number];
+type RowRef = React.RefObject<HTMLDivElement | null>;
+
+const COL_SMALL = (5 / 12) * 100; // 41.667…
+const COL_LARGE = (7 / 12) * 100; // 58.333…
+
+function ProjectRow({
+  project,
+  thumbLeft,
+  rowRef,
+  prevRef,
+}: {
+  project: Project;
+  thumbLeft: boolean;
+  rowRef: RowRef;
+  prevRef: RowRef | null;
+}) {
+  // Row 0: grows as it travels from viewport bottom → its own top hits screen top
+  // Row 1+: grows while the previous row's top travels across the screen (exits)
+  const entryTarget  = (prevRef ?? rowRef) as React.RefObject<HTMLElement>;
+  const { scrollYProgress: entryP } = useScroll({
+    target: entryTarget,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    offset: (prevRef ? ["start start", "end start"] : ["start end", "start start"]) as any,
+  });
+  const { scrollYProgress: exitP  } = useScroll({ target: rowRef as React.RefObject<HTMLElement>, offset: ["start start", "end start"] });
+
+  const colWidth = useTransform(
+    [entryP, exitP],
+    ([entry, exit]: number[]) => {
+      if (exit > 0.001) return `${COL_LARGE + (COL_SMALL - COL_LARGE) * exit}%`;
+      return `${COL_SMALL + (COL_LARGE - COL_SMALL) * entry}%`;
+    }
+  );
+
+  const content = (
+    <motion.div style={{ width: colWidth, flexShrink: 0, minWidth: 0 }} className="flex flex-col overflow-hidden">
+      <div className="border-b border-ui px-2 py-2 md:px-8 md:py-8 lg:px-14 lg:py-14 flex flex-row items-end justify-between">
+        <div className="flex flex-col gap-3">
+          <span className="text-base-bold text-muted-foreground">{project.index}</span>
+          <h3 className="type-h3">{project.title}</h3>
+        </div>
+        <Button variant="solid" size="lg" label="View details" hoverLabel="LET'S GO →" />
+      </div>
+      <div className="aspect-square w-full">
+        <img src={project.thumbnail} alt="" aria-hidden className="w-full h-full object-cover" />
+      </div>
+    </motion.div>
+  );
+
+  const useEllipse = parseInt(project.index) % 2 === 0;
+
+  const diagonal = (
+    <div className={`relative flex-1${thumbLeft ? " border-r border-ui" : " border-l border-ui"}`}>
+      {useEllipse ? (
+        <svg className="absolute inset-0 w-full h-full text-border">
+          <ellipse cx="50%" cy="50%" rx="50%" ry="50%" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="1 2" vectorEffect="non-scaling-stroke" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-border">
+          <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="1" strokeDasharray="1 2" vectorEffect="non-scaling-stroke" />
+          <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" strokeWidth="1" strokeDasharray="1 2" vectorEffect="non-scaling-stroke" />
+        </svg>
+      )}
+    </div>
+  );
+
+  const mobileDecorator = (
+    <div className="relative border-t border-ui" style={{ height: "156px" }}>
+      {useEllipse ? (
+        <svg className="absolute inset-0 w-full h-full text-border">
+          <ellipse cx="50%" cy="50%" rx="50%" ry="50%" fill="none" stroke="currentColor" strokeWidth="1" strokeDasharray="1 2" vectorEffect="non-scaling-stroke" />
+        </svg>
+      ) : (
+        <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-border">
+          <line x1="0" y1="0" x2="100" y2="100" stroke="currentColor" strokeWidth="1" strokeDasharray="1 2" vectorEffect="non-scaling-stroke" />
+          <line x1="100" y1="0" x2="0" y2="100" stroke="currentColor" strokeWidth="1" strokeDasharray="1 2" vectorEffect="non-scaling-stroke" />
+        </svg>
+      )}
+    </div>
+  );
+
+  return (
+    <div
+      ref={rowRef}
+      className="border-b border-ui cursor-pointer"
+      onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
+      onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
+    >
+      {/* Mobile: vertical stack */}
+      <div className="flex flex-col md:hidden">
+        <div className="border-b border-ui px-2 py-6 flex flex-row items-end justify-between">
+          <div className="flex flex-col gap-3">
+            <span className="text-base-bold text-muted-foreground">{project.index}</span>
+            <h3 className="type-h3">{project.title}</h3>
+          </div>
+          <Button variant="solid" size="lg" label="View details" hoverLabel="LET'S GO →" />
+        </div>
+        <div className="aspect-square w-full">
+          <img src={project.thumbnail} alt="" aria-hidden className="w-full h-full object-cover" />
+        </div>
+        {mobileDecorator}
+      </div>
+      {/* Desktop: horizontal layout */}
+      <div className="hidden md:flex">
+        {thumbLeft ? <>{diagonal}{content}</> : <>{content}{diagonal}</>}
+      </div>
+    </div>
+  );
+}
 
 export default function WorkPage() {
+  // Stable ref array — one per row, created once
+  const rowRefs = useRef<RowRef[]>(PROJECTS.map(() => ({ current: null }))).current;
+
   return (
     <>
       <Navbar />
       <main>
 
-        {/* ── Hero ──────────────────────────────────────────────────────── */}
-        <section className="section-container max-w-none pt-32 md:pt-44 pb-0">
-          <motion.div
-            initial="hidden"
-            animate="visible"
-            variants={stagger}
-            className="flex flex-col gap-8 md:gap-10"
+        {/* ── Title ─────────────────────────────────────────────────────── */}
+        <section className="section-container max-w-none pt-40 md:pt-80 lg:pt-120 pb-8 md:pb-12 px-2 md:px-8 lg:px-14">
+          <motion.h2
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.65, ease: EASE }}
+            className="type-h2"
           >
-            <motion.h2 variants={fadeUp} className="type-h2">
-              MY WORK
-            </motion.h2>
-
-            <motion.div variants={fadeUp} className="w-full overflow-hidden">
-              <img
-                src="/work-main.png"
-                alt="Work overview"
-                className="w-full object-cover"
-              />
-            </motion.div>
-          </motion.div>
+            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" of the day. "}</span>
+            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" of the year. "}</span>
+            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" that went live. "}</span>
+            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" that stayed shy. Just "}</span>
+            <span className="text-foreground">Work</span><span className="text-accent-foreground">{", "}</span>
+            <span className="text-foreground">Work</span><span className="text-accent-foreground">{", "}</span>
+            <span className="text-foreground">Work</span><span className="text-accent-foreground">{"."}</span>
+          </motion.h2>
         </section>
 
         {/* ── Project list ──────────────────────────────────────────────── */}
-        <section className="section-container max-w-none border-t border-dashed border-foreground py-12 md:py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-px bg-foreground border border-foreground">
-            {CARDS.map((card, i) => (
-              <motion.div
-                key={card.index}
-                initial={{ opacity: 0, y: 32 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: "-60px" }}
-                transition={{ duration: 0.6, ease: EASE, delay: i * 0.08 }}
-                className="relative aspect-square bg-background overflow-hidden cursor-pointer flex flex-col justify-between p-6 group"
-                onMouseEnter={() =>
-                  window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))
-                }
-                onMouseLeave={() =>
-                  window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))
-                }
-              >
-                {card.bg && (
-                  <img
-                    src={card.bg}
-                    alt=""
-                    className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
-                    aria-hidden
-                  />
-                )}
-                {/* Gradient overlay */}
-                <div className="absolute inset-0 bg-linear-to-t from-black/60 via-transparent to-transparent" />
-
-                <span className="relative z-10 text-sm-regular text-white/70">{card.index}</span>
-                <div className="relative z-10 flex flex-col gap-1">
-                  <p className="text-base-bold text-white">{card.title}</p>
-                  <p className="text-sm-regular text-white/70">{card.category}</p>
-                </div>
-              </motion.div>
-            ))}
-
-            {/* Fill last cell if odd count */}
-            {CARDS.length % 2 !== 0 && (
-              <div className="aspect-square bg-background" />
-            )}
-          </div>
+        <section className="section-container max-w-none border-t border-ui p-0 bg-background">
+          {PROJECTS.map((project, i) => (
+            <ProjectRow
+              key={project.index}
+              project={project}
+              thumbLeft={i % 2 === 0}
+              rowRef={rowRefs[i]}
+              prevRef={i > 0 ? rowRefs[i - 1] : null}
+            />
+          ))}
         </section>
 
         <Footer />

@@ -16,16 +16,12 @@ export default function Ability() {
         viewport={{ once: true, margin: "-100px" }}
         className="flex flex-col gap-4 section-container items-center text-center"
       >
-        <span className="label-sm text-foreground">
-          ABILITY TO MESS THINGS UP
-        </span>
-
         <h2 className="type-h2 text-center">
           LET ME BUILD A MAGICAL BRIDGE CONNECTING YOUR BUSINESS → END-USERS.
         </h2>
       </motion.div>
 
-      <div className="w-full px-(--section-padding)">
+      <div className="w-full">
         <DragMatchGrid
           cardBg="var(--background)"
           borderColor="var(--border)"

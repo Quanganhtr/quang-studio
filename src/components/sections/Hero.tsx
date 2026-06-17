@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, useMotionValue, useAnimationFrame, useAnimation, useSpring } from "framer-motion";
-import { createContext, useContext, useEffect, useRef, useState, useMemo } from "react";
+import { createContext, useContext, useEffect, useRef, useState, useMemo, Fragment } from "react";
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
@@ -64,6 +64,7 @@ function computeScatterTargets(count: number, w: number, h: number): Map<number,
 const SectionCtx  = createContext<React.RefObject<HTMLElement | null>>({ current: null });
 const MousePosCtx = createContext<{ current: { x: number; y: number } }>({ current: { x: -9999, y: -9999 } });
 const TargetCtx   = createContext<Map<number, { tx: number; ty: number }>>(new Map());
+const DesktopCtx  = createContext(false);
 
 // ── Single dancing character ──────────────────────────────────────────────────
 
@@ -71,6 +72,7 @@ function DancingChar({ char, seed, playing }: { char: string; seed: number; play
   const sectionRef  = useContext(SectionCtx);
   const mousePosRef = useContext(MousePosCtx);
   const targets     = useContext(TargetCtx);
+  const isDesktop   = useContext(DesktopCtx);
   const charRef     = useRef<HTMLSpanElement>(null);
   const controls    = useAnimation();
   const playingRef  = useRef(playing);
@@ -99,7 +101,12 @@ function DancingChar({ char, seed, playing }: { char: string; seed: number; play
 
   // Runs every frame; uses scatter target position (no per-frame DOM read)
   useAnimationFrame(() => {
-    if (!playing) return;
+    if (!playing || !isDesktop) {
+      rawPushX.set(0);
+      rawPushY.set(0);
+      rawScale.set(1);
+      return;
+    }
     const target  = targets.get(seed);
     const section = sectionRef.current;
     if (!target || !section) return;
@@ -179,11 +186,27 @@ function DancingChar({ char, seed, playing }: { char: string; seed: number; play
 }
 
 function DancingText({ text, charOffset = 0, playing }: { text: string; charOffset?: number; playing: boolean }) {
+  const words = text.split(" ");
+  let off = charOffset;
   return (
     <>
-      {text.split("").map((char, i) => (
-        <DancingChar key={i} char={char} seed={charOffset + i} playing={playing} />
-      ))}
+      {words.map((word, wi) => {
+        const wordStart = off;
+        off += word.length;
+        const spaceStart = off;
+        const hasSpace = wi < words.length - 1;
+        if (hasSpace) off += 1;
+        return (
+          <Fragment key={wi}>
+            <span style={{ whiteSpace: "nowrap" }}>
+              {word.split("").map((char, ci) => (
+                <DancingChar key={ci} char={char} seed={wordStart + ci} playing={playing} />
+              ))}
+            </span>
+            {hasSpace && <DancingChar char=" " seed={spaceStart} playing={playing} />}
+          </Fragment>
+        );
+      })}
     </>
   );
 }
@@ -289,7 +312,7 @@ function TextColumn({
   charOffset = 0,
 }: {
   items: { text: string }[];
-  align?: "left" | "right";
+  align?: "left" | "right" | "center";
   mobile?: boolean;
   playing?: boolean;
   charOffset?: number;
@@ -305,8 +328,7 @@ function TextColumn({
       {items.map(({ text }, i) => {
         const currentOffset = offset;
         offset += text.length;
-        const isLast    = i === items.length - 1;
-        const marginTop = i === 0 ? undefined : mobile && isLast ? "56px" : gap;
+        const marginTop = i === 0 ? undefined : gap;
         return (
           <span
             key={i}
@@ -415,18 +437,19 @@ export default function Hero() {
   return (
     <SectionCtx.Provider value={sectionRef}>
       <MousePosCtx.Provider value={mousePosRef}>
+        <DesktopCtx.Provider value={isDesktop}>
         <TargetCtx.Provider value={scatterTargets}>
           <section
             ref={sectionRef}
             className={`flex flex-col overflow-hidden${isTablet ? " flex-1" : ""}`}
-            style={{ justifyContent: "center", padding: "var(--section-padding)" }}
+            style={{ justifyContent: "center", padding: "var(--section-padding)", height: !isTablet ? "100dvh" : undefined }}
           >
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE }}
               className="type-h1 w-full flex flex-col items-center"
-              style={{ gap: DESKTOP_GAP, textAlign: "center" }}
+              style={{ gap: isTablet ? DESKTOP_GAP : MOBILE_GAP, textAlign: "center" }}
             >
               {isDesktop ? (
                 <>
@@ -443,11 +466,18 @@ export default function Hero() {
                   </span>
                 </>
               ) : (
-                <TextColumn items={mobileItems} align="left" mobile playing={playing} charOffset={0} />
+                <>
+                  <TextColumn items={mobileItems.slice(0, 3)} align="center" mobile playing={playing} charOffset={0} />
+                  <DancingDisc playing={playing}>
+                    <DiscButton onToggle={setPlaying} />
+                  </DancingDisc>
+                  <TextColumn items={mobileItems.slice(3)} align="center" mobile playing={playing} charOffset={66} />
+                </>
               )}
             </motion.div>
           </section>
         </TargetCtx.Provider>
+        </DesktopCtx.Provider>
       </MousePosCtx.Provider>
     </SectionCtx.Provider>
   );

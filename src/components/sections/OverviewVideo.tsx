@@ -32,6 +32,13 @@ export default function OverviewVideo() {
     startPadding.current * (1 - Math.min(p, 1))
   );
 
+  // parallax: track full travel through viewport
+  const { scrollYProgress: parallaxProgress } = useScroll({
+    target: containerRef,
+    offset: ["start end", "end start"],
+  });
+  const parallaxY = useTransform(parallaxProgress, [0, 1], ["8%", "-8%"]);
+
   return (
     // Extra height creates the scroll room for the animation
     <div ref={containerRef} className="min-h-app md:h-[calc(var(--app-height)*1.5)]">
@@ -39,13 +46,17 @@ export default function OverviewVideo() {
         <motion.div
           style={{
             position: "absolute",
-            top:    inset,
-            left:   inset,
-            right:  inset,
-            bottom: inset,
+            top:      inset,
+            left:     inset,
+            right:    inset,
+            bottom:   inset,
+            overflow: "hidden",
           }}
         >
-          <PixelMosaicVideo video={isMobile ? "/overview-video-mobile.mp4" : "/overview-video.mp4"} />
+          {/* scale-up gives room for the parallax drift without showing empty edges */}
+          <motion.div style={{ y: parallaxY, scale: 1.2, width: "100%", height: "100%" }}>
+            <PixelMosaicVideo video={isMobile ? "/overview-video-mobile.mp4" : "/overview-video.mp4"} />
+          </motion.div>
         </motion.div>
       </div>
     </div>

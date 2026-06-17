@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import { Button } from "@/components/ui/Button";
 
 const CARDS = [
   { index: "00", title: "Project Name", category: "Product Design", bg: "/vietnam-thumbnail.png" },
@@ -90,6 +91,11 @@ export default function MyWork() {
               />
             ))}
           </motion.div>
+
+          {/* Button — bottom left, overlays cards */}
+          <div className="absolute bottom-0 left-0 z-10" style={{ padding: "var(--section-padding)" }}>
+            <Button variant="solid" size="lg" label="VIEW ALL WORK" hoverLabel="LET'S GO →" href="/work" />
+          </div>
           </div>
         </div>
       </div>
@@ -100,24 +106,22 @@ export default function MyWork() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
         viewport={{ once: true, margin: "-100px" }}
-        className="lg:hidden flex flex-col gap-30 md:gap-50 pt-39 md:pt-16 pb-0 md:pb-16"
+        className="lg:hidden flex flex-col gap-18 md:gap-50 pt-39 md:pt-16 pb-0 md:pb-16"
       >
-        <h2
-          className="type-h2"
-          style={{ paddingInline: "var(--section-padding)" }}
-        >
-          MY CTRL+Z LIFE
-        </h2>
+        <div className="flex flex-col gap-6" style={{ paddingInline: "var(--section-padding)" }}>
+          <h2 className="type-h2">MY CTRL+Z LIFE</h2>
+          <Button variant="solid" size="lg" label="VIEW ALL WORK" hoverLabel="LET'S GO →" href="/work" className="self-start" />
+        </div>
 
         {/* Carousel */}
         <div
-          className="flex flex-row-reverse overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
+          className="flex flex-row overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
           style={{ paddingInline: "var(--section-padding)", gap: "16px", scrollbarWidth: "none" }}
         >
-          {CARDS.map((card) => (
+          {[...CARDS].reverse().map((card) => (
             <div
               key={card.index}
-              className="shrink-0 w-[80vw] aspect-square border-4 border-border cursor-pointer relative overflow-hidden snap-center flex flex-col justify-between p-6"
+              className="shrink-0 w-[80vw] aspect-square border-4 border-background cursor-pointer relative overflow-hidden snap-center flex flex-col justify-between p-6"
             >
               {card.bg && (
                 <img

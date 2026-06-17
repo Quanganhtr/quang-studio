@@ -278,12 +278,12 @@ export default function AboutMe() {
           WHO KNEW<br />MY CAREER<br />WOULD TAKE<br />A PLOT TWIST?
         </motion.h2>
 
-        {/* Canvas grid — static position, frames scrub on scroll */}
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "8px", width: "calc(100% - 16px)", marginTop: 80 }}>
-          <canvas ref={knifeCanvasRef}  width={960} height={960} style={{ width: "100%", height: "auto" }} />
-          <canvas ref={pencilCanvasRef} width={960} height={960} style={{ width: "100%", height: "auto" }} />
-          <canvas ref={cupCanvasRef}    width={960} height={960} style={{ width: "100%", height: "auto" }} />
-          <canvas ref={sprayCanvasRef}  width={960} height={960} style={{ width: "100%", height: "auto" }} />
+        {/* Canvas grid — scaled 2x, randomly rotated, overlapping */}
+        <div style={{ position: "relative", width: "calc(100% - 16px)", height: "60vw", marginTop: 80 }}>
+          <canvas ref={knifeCanvasRef}  width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", left: "-20%",  transform: "rotate(-15deg)", filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 4 }} />
+          <canvas ref={pencilCanvasRef} width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", right: "-20%", transform: "rotate(12deg)",  filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 3 }} />
+          <canvas ref={cupCanvasRef}    width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", left: "10%",   transform: "rotate(-6deg)",  filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 2 }} />
+          <canvas ref={sprayCanvasRef}  width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", right: "8%",   transform: "rotate(20deg)",  filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 1 }} />
         </div>
 
         {/* About me letter — static */}
@@ -291,7 +291,7 @@ export default function AboutMe() {
           style={{
             position:      "relative",
             zIndex:        10,
-            width:         "calc(100% - 64px)",
+            width:         "calc(100% - 16px)",
             marginTop:     80,
             display:       "flex",
             flexDirection: "column",

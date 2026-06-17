@@ -93,7 +93,7 @@
   --muted:                var(--color-neutral-100);
   --muted-foreground:     var(--color-neutral-500);
   --accent:               var(--color-honeysuckle-100);
-  --accent-foreground:    var(--color-black);
+  --accent-foreground:    var(--color-neutral-300);
   --destructive:          var(--color-red-600);
   --border:               var(--color-neutral-500);
   --input:                var(--color-neutral-200);
@@ -109,14 +109,14 @@ html.dark {
   --card-foreground:      var(--color-white);
   --popover:              var(--color-neutral-950);
   --popover-foreground:   var(--color-white);
-  --primary:              var(--color-honeysuckle-500);
+  --primary:              var(--color-honeysuckle-200);
   --primary-foreground:   var(--color-black);
   --secondary:            var(--color-neutral-900);
   --secondary-foreground: var(--color-white);
   --muted:                var(--color-neutral-900);
   --muted-foreground:     var(--color-neutral-400);
   --accent:               var(--color-neutral-900);
-  --accent-foreground:    var(--color-white);
+  --accent-foreground:    var(--color-neutral-600);
   --destructive:          var(--color-red-400);
   --border:               var(--color-neutral-600);
   --input:                var(--color-neutral-900);
@@ -191,7 +191,7 @@ html.dark {
   line-height: 64px;
 
   @variant md { font-size: 72px; line-height: 96px; }
-  @variant lg { font-size: 72px; line-height: 112px; }
+  @variant lg { font-size: 80px; line-height: 128px; }
 }
 
 @utility type-h3 {
@@ -201,7 +201,7 @@ html.dark {
   line-height: 32px;
 
   @variant md { font-size: 36px; line-height: 44px; }
-  @variant lg { font-size: 48px; line-height: 56px; }
+  @variant lg { font-size: 48px; line-height: 72px; }
 }
 
 @utility type-h4 {
@@ -305,6 +305,11 @@ html.dark {
   @variant lg { font-size: 56px; line-height: 64px; }
 }
 
+/* Border utilities */
+@utility border-ui {
+  @apply border-dashed border-border;
+}
+
 /* Layout utilities */
 @utility section-container {
   width: 100%;
@@ -344,7 +349,7 @@ html.dark {
 
 @utility drag-match-grid {
   display:               grid;
-  gap:                   8px;
+  gap:                   0;
   width:                 100%;
   grid-template-columns: repeat(2, 1fr);
 

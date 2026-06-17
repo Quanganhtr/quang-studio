@@ -1,7 +1,8 @@
 "use client";
 
-import { useRef, useEffect, useState } from "react";
-import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { Button } from "@/components/ui/Button";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -53,44 +54,43 @@ function itemClass(item: Item) {
   return "text-base-bold text-foreground";
 }
 
-const TITLE = `HOW I SURVIVE AFTER\nSAYING "BYE" TO\nARCHITECTURE.`;
+const TITLE_LINES = [`HOW I SURVIVE AFTER`, `SAYING "BYE" TO`, `ARCHITECTURE.`];
 
-function TypewriterTitle() {
-  const ref = useRef<HTMLHeadingElement>(null);
-  const isInView = useInView(ref, { once: true, margin: "-100px" });
-  const [displayed, setDisplayed] = useState("");
-
-  useEffect(() => {
-    if (!isInView) return;
-    let i = 0;
-    const id = setInterval(() => {
-      i++;
-      setDisplayed(TITLE.slice(0, i));
-      if (i >= TITLE.length) clearInterval(id);
-    }, 25);
-    return () => clearInterval(id);
-  }, [isInView]);
+function RevealLine({ line }: { line: string }) {
+  const ref = useRef<HTMLSpanElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 0.95", "start 0.4"],
+  });
+  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25, restDelta: 0.001 });
+  const y = useTransform(smooth, [0, 1], ["105%", "0%"]);
 
   return (
-    <h2 ref={ref} className="type-h2" style={{ whiteSpace: "pre-line" }}>
-      {displayed}
+    <span ref={ref} style={{ display: "block", overflow: "hidden" }}>
+      <motion.span style={{ display: "block", y }}>{line}</motion.span>
+    </span>
+  );
+}
+
+function LineRevealTitle() {
+  return (
+    <h2 className="type-h2 flex flex-col" style={{ gap: "0.05em" }}>
+      {TITLE_LINES.map((line, i) => (
+        <RevealLine key={i} line={line} />
+      ))}
     </h2>
   );
 }
 
 export default function MyExperiences() {
   return (
-    <section className="flex flex-col section-container max-w-none pt-39 md:pt-60 pb-0 md:pb-50">
+    <section className="flex flex-col section-container max-w-none pt-39 md:pt-60 pb-24 md:pb-50">
 
-      {/* Title */}
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: EASE }}
-        viewport={{ once: true, margin: "-100px" }}
-      >
-        <TypewriterTitle />
-      </motion.div>
+      {/* Title + button */}
+      <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
+        <LineRevealTitle />
+        <Button variant="solid" size="lg" label="ABOUT ME" hoverLabel="LET'S GO →" href="/about" className="self-start lg:self-auto" />
+      </div>
 
       {/* Experience list */}
       <motion.div
@@ -98,12 +98,12 @@ export default function MyExperiences() {
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE, delay: 0.15 }}
         viewport={{ once: true, margin: "-100px" }}
-        className="flex flex-col mt-30 md:mt-50 lg:mt-60 border-t border-dashed border-foreground"
+        className="flex flex-col mt-18 md:mt-50 lg:mt-60 border-t border-ui"
       >
         {EXPERIENCES.map(({ label, groups }) => (
           <div
             key={label}
-            className="flex flex-row items-start justify-between border-b border-dashed border-foreground p-4 lg:p-8"
+            className="flex flex-row items-start justify-between border-b border-ui p-4 lg:p-8"
           >
             {/* Left — step label */}
             <div className="flex items-center gap-4 shrink-0 self-center">
