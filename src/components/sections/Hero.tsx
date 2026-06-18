@@ -5,16 +5,10 @@ import { createContext, useContext, useEffect, useRef, useState, useMemo, Fragme
 
 // ── Constants ────────────────────────────────────────────────────────────────
 
-const mobileItems = [
-  { text: "ARCHITECT BY ROOTS."         },
-  { text: "PRODUCT DESIGNER BY CHOICE." },
-  { text: "VIBE-CODER BY FORCE."        },
-  { text: "QUANG ANH TRAN"              },
-];
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const DESKTOP_GAP = "0.65lh";
-const MOBILE_GAP  = "0.2lh";
+const DESKTOP_GAP = "0.85lh";
+
 
 function sr(seed: number) {
   const x = Math.sin(seed + 1) * 10000;
@@ -211,69 +205,6 @@ function DancingText({ text, charOffset = 0, playing }: { text: string; charOffs
   );
 }
 
-// ── Disc — dances to the center of the section ───────────────────────────────
-
-function DancingDisc({ playing, children }: { playing: boolean; children: React.ReactNode }) {
-  const sectionRef = useContext(SectionCtx);
-  const discRef    = useRef<HTMLDivElement>(null);
-  const controls   = useAnimation();
-  const playingRef = useRef(playing);
-  useEffect(() => { playingRef.current = playing; });
-
-  const v = useMemo(() => {
-    const r = (n: number) => sr(999 * 13.7 + n * 9.3);
-    return {
-      tx: 0.5, ty: 0.5,
-      sRot:   (r(2) - 0.5) * 60,
-      sDur:   1.5,
-      driftX: (r(3) - 0.5) * 40,
-      driftY: (r(4) - 0.5) * 40,
-      dRot:   (r(5) - 0.5) * 30,
-      dDur:   3.5,
-    };
-  }, []);
-
-  useEffect(() => {
-    const { tx, ty, sRot, sDur, driftX, driftY, dRot, dDur } = v;
-
-    if (!playing) {
-      controls.stop();
-      controls.start({ x: 0, y: 0, rotate: 0,
-        transition: { duration: 0.6, delay: 1.05, ease: EASE } });
-      return;
-    }
-
-    const section = sectionRef.current;
-    const el      = discRef.current;
-    if (!section || !el) return;
-
-    const sRect = section.getBoundingClientRect();
-    const eRect = el.getBoundingClientRect();
-    const dx    = sRect.left + sRect.width  * tx - (eRect.left + eRect.width  / 2);
-    const dy    = sRect.top  + sRect.height * ty - (eRect.top  + eRect.height / 2);
-
-    controls.start({
-      x: dx, y: dy, rotate: sRot,
-      transition: { duration: sDur, ease: "easeInOut" },
-    }).then(() => {
-      if (!playingRef.current) return;
-      controls.start({
-        x:      [dx, dx + driftX, dx - driftX * 0.8, dx],
-        y:      [dy, dy + driftY, dy - driftY * 0.7, dy],
-        rotate: [sRot, sRot + dRot, sRot - dRot, sRot],
-        transition: { duration: dDur, repeat: Infinity, ease: "easeInOut" },
-      });
-    });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [playing]);
-
-  return (
-    <motion.div ref={discRef} animate={controls} style={{ display: "inline-flex", alignSelf: "center" }}>
-      {children}
-    </motion.div>
-  );
-}
-
 // ── Breakpoint hook ──────────────────────────────────────────────────────────
 
 function useBreakpoint() {
@@ -304,108 +235,33 @@ function useBreakpoint() {
 
 // ── TextColumn ───────────────────────────────────────────────────────────────
 
-function TextColumn({
-  items,
-  align = "left",
-  mobile = false,
-  playing = false,
-  charOffset = 0,
-}: {
-  items: { text: string }[];
-  align?: "left" | "right" | "center";
-  mobile?: boolean;
-  playing?: boolean;
-  charOffset?: number;
-}) {
-  const gap = mobile ? MOBILE_GAP : DESKTOP_GAP;
-  let offset = charOffset;
-
-  return (
-    <div
-      className="type-h1"
-      style={{ display: "flex", flexDirection: "column", textAlign: align, paddingBlock: "0.15em" }}
-    >
-      {items.map(({ text }, i) => {
-        const currentOffset = offset;
-        offset += text.length;
-        const marginTop = i === 0 ? undefined : gap;
-        return (
-          <span
-            key={i}
-            style={{
-              display:    "block",
-              whiteSpace: mobile ? "normal" : "nowrap",
-              color:      "var(--foreground)",
-              visibility: text ? "visible" : "hidden",
-              marginTop,
-            }}
-          >
-            {text
-              ? <DancingText text={text} charOffset={currentOffset} playing={playing} />
-              : " "}
-          </span>
-        );
-      })}
-    </div>
-  );
-}
-
-// ── Disc button ───────────────────────────────────────────────────────────────
-
-function DiscButton({ onToggle }: { onToggle: (isPlaying: boolean) => void }) {
-  const rotate      = useMotionValue(0);
-  const speed       = useRef(0.4);
-  const targetSpeed = useRef(0.4);
-  const audio       = useRef<HTMLAudioElement | null>(null);
-  const playing     = useRef(false);
-
-  useEffect(() => {
-    audio.current = new Audio("/theme-song.mp3");
-    audio.current.loop = true;
-    return () => { audio.current?.pause(); };
-  }, []);
-
-  useAnimationFrame(() => {
-    speed.current += (targetSpeed.current - speed.current) * 0.06;
-    rotate.set(rotate.get() + speed.current);
-  });
-
-  const handleClick = () => {
-    if (!audio.current) return;
-    if (playing.current) {
-      audio.current.pause();
-      playing.current = false;
-    } else {
-      audio.current.play();
-      playing.current = true;
-    }
-    onToggle(playing.current);
-  };
-
-  return (
-    <button
-      onClick={handleClick}
-      onMouseEnter={() => { targetSpeed.current = 4; }}
-      onMouseLeave={() => { targetSpeed.current = 0.4; }}
-      className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-transparent bg-foreground text-background h-8 md:h-12 px-3 md:px-5 text-base-bold outline-none transition-colors duration-200 overflow-hidden hover:bg-foreground hover:text-background"
-    >
-      <motion.img src="/disc.png" alt="" style={{ width: 24, height: 24, rotate, flexShrink: 0 }} />
-      <span>Let's dance</span>
-    </button>
-  );
-}
-
 // ── Page ──────────────────────────────────────────────────────────────────────
 
 export default function Hero() {
   const { isTablet, isDesktop } = useBreakpoint();
   const [playing, setPlaying]   = useState(false);
-  const sectionRef  = useRef<HTMLElement>(null);
-  const mousePosRef = useRef({ x: -9999, y: -9999 });
-  const playingRef  = useRef(false);
+  const sectionRef   = useRef<HTMLElement>(null);
+  const mousePosRef  = useRef({ x: -9999, y: -9999 });
+  const playingRef   = useRef(false);
+  const isTabletRef  = useRef(isTablet);
+  useEffect(() => { isTabletRef.current = isTablet; }, [isTablet]);
+  const isDesktopRef = useRef(isDesktop);
+  useEffect(() => { isDesktopRef.current = isDesktop; }, [isDesktop]);
+  const audioRef       = useRef<HTMLAudioElement | null>(null);
+  const followerRef    = useRef<HTMLDivElement>(null);
+  const followerImgRef = useRef<HTMLImageElement>(null);
+  const followerRafRef = useRef(0);
+  const targetX        = useRef(0);
+  const targetY        = useRef(0);
   const [scatterTargets, setScatterTargets] = useState<Map<number, { tx: number; ty: number }>>(new Map());
 
   useEffect(() => { playingRef.current = playing; }, [playing]);
+
+  useEffect(() => {
+    audioRef.current = new Audio("/theme-song.mp3");
+    audioRef.current.loop = true;
+    return () => { audioRef.current?.pause(); };
+  }, []);
 
   useEffect(() => {
     const el = sectionRef.current;
@@ -419,19 +275,137 @@ export default function Hero() {
     });
     observer.observe(el);
 
-    const onMouse = (e: MouseEvent) => { mousePosRef.current = { x: e.clientX, y: e.clientY }; };
+    const updateTarget = (clientX: number, clientY: number) => {
+      const rect = el.getBoundingClientRect();
+      targetX.current = Math.max(0, Math.min(rect.width,  clientX - rect.left));
+      targetY.current = Math.max(0, Math.min(rect.height, clientY - rect.top));
+    };
+    const onMouse = (e: MouseEvent) => {
+      mousePosRef.current = { x: e.clientX, y: e.clientY };
+      updateTarget(e.clientX, e.clientY);
+    };
+    const onScroll = () => {
+      const { x, y } = mousePosRef.current;
+      if (x !== 0 || y !== 0) updateTarget(x, y);
+    };
     window.addEventListener("mousemove", onMouse);
+    window.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       observer.disconnect();
       window.removeEventListener("mousemove", onMouse);
+      window.removeEventListener("scroll", onScroll);
     };
   }, []);
 
-  const desktopLines = [
-    { text: "ARCHITECT BY ROOTS.",        offset: 0  },
-    { text: "PRODUCT DESIGNER BY CHOICE.", offset: 19 },
-    { text: "VIBE-CODER BY FORCE.",        offset: 46 },
-  ];
+  // RAF loop — position lerp + velocity-driven 3D tilt (max ±24deg)
+  useEffect(() => {
+    const LERP           = 0.1;
+    const VEL_LERP       = 0.14;
+    const MAX_DEG        = 56;
+    const FACTOR         = 2;
+    const STRETCH_FACTOR = 0.018;
+    const MAX_STRETCH    = 0.4;
+
+    const rect = sectionRef.current?.getBoundingClientRect();
+    const initX = rect ? rect.width  / 2 : 0;
+    const initY = rect ? rect.height / 2 : 0;
+    targetX.current = initX;
+    targetY.current = initY;
+
+    let curX = initX, curY = initY;
+    let prevTX = initX, prevTY = initY;
+    let velX = 0, velY = 0;
+
+    const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v));
+
+    const tick = () => {
+      velX += (targetX.current - prevTX - velX) * VEL_LERP;
+      velY += (targetY.current - prevTY - velY) * VEL_LERP;
+      prevTX = targetX.current;
+      prevTY = targetY.current;
+
+      // rotateX: up = +24, down = -24 | rotateY: right = +24, left = -24
+      const rotX = clamp(-velY * FACTOR, -MAX_DEG, MAX_DEG);
+      const rotY = clamp( velX * FACTOR, -MAX_DEG, MAX_DEG);
+
+      curX += (targetX.current - curX) * LERP;
+      curY += (targetY.current - curY) * LERP;
+
+      // Clamp so the full image (+ 8px offset) never escapes the section bounds
+      const secW = sectionRef.current?.offsetWidth  ?? 9999;
+      const secH = sectionRef.current?.offsetHeight ?? 9999;
+      const imgW = followerImgRef.current?.offsetWidth  ?? 0;
+      const imgH = followerImgRef.current?.offsetHeight ?? 0;
+      curX = Math.max(imgW / 2, Math.min(secW - imgW / 2, curX));
+      curY = Math.max(imgH / 2, Math.min(secH - imgH / 2, curY));
+
+      const speed   = Math.sqrt(velX * velX + velY * velY);
+      const stretch = Math.min(speed * STRETCH_FACTOR, MAX_STRETCH);
+      const nx      = speed > 0 ? velX / speed : 0;
+      const ny      = speed > 0 ? velY / speed : 0;
+      const scaleX  = 1 + Math.abs(nx) * stretch - Math.abs(ny) * stretch * 0.4;
+      const scaleY  = 1 + Math.abs(ny) * stretch - Math.abs(nx) * stretch * 0.4;
+
+      if (isDesktopRef.current) {
+        if (followerRef.current) {
+          followerRef.current.style.transform = `translate(${curX}px, ${curY}px)`;
+        }
+        if (followerImgRef.current) {
+          followerImgRef.current.style.transform =
+            `translate(calc(-50% + 24px), calc(-50% - 24px)) perspective(280px) rotateX(${rotX}deg) rotateY(${rotY}deg) scaleX(${scaleX.toFixed(3)}) scaleY(${scaleY.toFixed(3)})`;
+        }
+      }
+
+      followerRafRef.current = requestAnimationFrame(tick);
+    };
+
+    followerRafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(followerRafRef.current);
+  }, []);
+
+  const renderSpray = (text: string, startOff: number, maxBlur = 10, minBlur = 0) => {
+    const n = text.length;
+    const words = text.split(" ");
+    let ci = 0;
+    return words.map((word, wi) => {
+      const wordStart = ci;
+      ci += word.length;
+      const spaceIdx = ci;
+      const hasSpace = wi < words.length - 1;
+      if (hasSpace) ci += 1;
+      return (
+        <Fragment key={wi}>
+          <span style={{ whiteSpace: "nowrap", display: "inline" }}>
+            {word.split("").map((char, k) => {
+              const j = wordStart + k;
+              return (
+                <span key={k} style={{ display: "inline-block", filter: `blur(${(minBlur + (j / (n - 1)) * (maxBlur - minBlur)).toFixed(1)}px)` }}>
+                  <DancingChar char={char} seed={startOff + j} playing={playing} />
+                </span>
+              );
+            })}
+          </span>
+          {hasSpace && (
+            <span style={{ display: "inline-block", filter: `blur(${(minBlur + (spaceIdx / (n - 1)) * (maxBlur - minBlur)).toFixed(1)}px)` }}>
+              <DancingChar char=" " seed={startOff + spaceIdx} playing={playing} />
+            </span>
+          )}
+        </Fragment>
+      );
+    });
+  };
+
+  const handleToggle = () => {
+    if (!audioRef.current) return;
+    const next = !playing;
+    if (next) {
+      audioRef.current.play();
+    } else {
+      audioRef.current.pause();
+    }
+    setPlaying(next);
+  };
+
   const nameOffset = 66;
 
   return (
@@ -441,37 +415,95 @@ export default function Hero() {
         <TargetCtx.Provider value={scatterTargets}>
           <section
             ref={sectionRef}
+            onClick={isDesktop ? handleToggle : undefined}
             className={`flex flex-col overflow-hidden${isTablet ? " flex-1" : ""}`}
-            style={{ justifyContent: "center", padding: "var(--section-padding)", height: !isTablet ? "100dvh" : undefined }}
+            style={{
+              position: "relative",
+              justifyContent: isDesktop ? "center" : "flex-start",
+              paddingTop: isDesktop ? "var(--section-padding)" : isTablet ? 112 : 72,
+              paddingRight: "var(--section-padding)",
+              paddingBottom: "var(--section-padding)",
+              paddingLeft: "var(--section-padding)",
+              minHeight: isDesktop ? "100dvh" : !isTablet ? "100dvh" : undefined,
+            }}
           >
+            {/* SVG filter — spray paint stencil for "BY __." words */}
+            <svg style={{ position: "absolute", width: 0, height: 0 }} aria-hidden="true">
+              <defs>
+                <filter id="hero-spray" x="-20%" y="-40%" width="140%" height="180%" colorInterpolationFilters="sRGB">
+                  {/* Grain applied to already-blurred SourceGraphic (blur is CSS per-char) */}
+                  <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="4" stitchTiles="stitch" result="noise" />
+                  <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 8 -2" in="noise" result="dots" />
+                  <feComposite in="SourceGraphic" in2="dots" operator="in" />
+                </filter>
+              </defs>
+            </svg>
+
+            {/* Cursor follower image */}
+            <div
+              ref={followerRef}
+              className={`${isDesktop ? "pointer-events-none" : "cursor-pointer"} absolute z-10`}
+              style={isDesktop
+                ? { top: 0, left: 0, transform: "translate(0px, 0px)" }
+                : { bottom: 8, left: 8 }
+              }
+              onClick={!isDesktop ? handleToggle : undefined}
+            >
+              <img
+                ref={followerImgRef}
+                src={playing ? "/end.png" : "/play.png"}
+                alt=""
+                style={{ display: "block", transform: isDesktop ? "translate(-50%, -50%)" : undefined, width: isDesktop ? undefined : 156, height: isDesktop ? undefined : 156 }}
+              />
+            </div>
+
             <motion.div
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE }}
-              className="type-h1 w-full flex flex-col items-center"
-              style={{ gap: isTablet ? DESKTOP_GAP : MOBILE_GAP, textAlign: "center" }}
+              className={`type-h1 w-full flex flex-col ${isDesktop ? "items-center" : "items-start"}`}
+              style={{ gap: isDesktop ? DESKTOP_GAP : 24, textAlign: isDesktop ? "center" : "left" }}
             >
               {isDesktop ? (
                 <>
-                  {desktopLines.map(({ text, offset }) => (
-                    <span key={offset} style={{ display: "block", whiteSpace: "nowrap", color: "var(--foreground)" }}>
-                      <DancingText text={text} charOffset={offset} playing={playing} />
+                  {([
+                    { prefix: "ARCHITECT ",        prefixOff: 0,  sprayText: "BY ROOTS.",  sprayOff: 10 },
+                    { prefix: "PRODUCT DESIGNER ", prefixOff: 19, sprayText: "BY CHOICE.", sprayOff: 36 },
+                    { prefix: "VIBE-CODER ",       prefixOff: 46, sprayText: "BY FORCE.",  sprayOff: 57 },
+                  ] as const).map(({ prefix, prefixOff, sprayText, sprayOff }, li) => (
+                    <span key={li} style={{ display: "block", whiteSpace: "nowrap" }}>
+                      <span style={{ color: "var(--foreground)" }}>
+                        <DancingText text={prefix} charOffset={prefixOff} playing={playing} />
+                      </span>
+                      <span style={{ color: "var(--foreground)", filter: "url(#hero-spray)" }}>
+                        {renderSpray(sprayText, sprayOff, 10, 1)}
+                      </span>
                     </span>
                   ))}
-                  <DancingDisc playing={playing}>
-                    <DiscButton onToggle={setPlaying} />
-                  </DancingDisc>
-                  <span style={{ display: "block", whiteSpace: "nowrap", color: "var(--foreground)" }}>
-                    <DancingText text="QUANG ANH TRAN" charOffset={nameOffset} playing={playing} />
+                  <span style={{ display: "block", whiteSpace: "nowrap" }}>
+                    <span style={{ color: "var(--foreground)" }}>
+                      <DancingText text="QUANG " charOffset={nameOffset} playing={playing} />
+                    </span>
+                    <span style={{ color: "var(--foreground)", filter: "url(#hero-spray)" }}>
+                      {renderSpray("ANH TRAN", nameOffset + 6, 10, 1)}
+                    </span>
                   </span>
                 </>
               ) : (
                 <>
-                  <TextColumn items={mobileItems.slice(0, 3)} align="center" mobile playing={playing} charOffset={0} />
-                  <DancingDisc playing={playing}>
-                    <DiscButton onToggle={setPlaying} />
-                  </DancingDisc>
-                  <TextColumn items={mobileItems.slice(3)} align="center" mobile playing={playing} charOffset={66} />
+                  {[
+                    { prefix: "ARCHITECT ",        prefixOff: 0,  sprayText: "BY ROOTS.",  sprayOff: 10 },
+                    { prefix: "PRODUCT DESIGNER ", prefixOff: 19, sprayText: "BY CHOICE.", sprayOff: 36 },
+                    { prefix: "VIBE-CODER ",       prefixOff: 46, sprayText: "BY FORCE.",  sprayOff: 57 },
+                    { prefix: "QUANG ",            prefixOff: 66, sprayText: "ANH TRAN",   sprayOff: 72 },
+                  ].map(({ prefix, prefixOff, sprayText, sprayOff }, i) => (
+                    <span key={i} style={{ display: "block", whiteSpace: "normal", color: "var(--foreground)" }}>
+                      <DancingText text={prefix} charOffset={prefixOff} playing={playing} />
+                      <span style={{ filter: "url(#hero-spray)" }}>
+                        {renderSpray(sprayText, sprayOff, 4)}
+                      </span>
+                    </span>
+                  ))}
                 </>
               )}
             </motion.div>

@@ -126,6 +126,10 @@ html.dark {
 
 /* ── Base styles ────────────────────────────────────────────────────── */
 @layer base {
+  @media (max-width: 1279px) {
+    *, *::before, *::after { border-style: dashed; }
+  }
+
   html {
     min-height:  100%;
     background:  var(--background);
@@ -148,8 +152,8 @@ html.dark {
   }
 
   ::selection {
-    background: var(--primary);
-    color: var(--primary-foreground);
+    background: #e6fe7f;
+    color: #000000;
   }
 
   /* Compound selector — cannot be expressed as a Tailwind utility */

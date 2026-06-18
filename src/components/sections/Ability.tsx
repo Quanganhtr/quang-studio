@@ -43,9 +43,6 @@ export default function Ability() {
           cardBg="var(--background)"
           borderColor="var(--border)"
           borderWidth={1}
-          tickerColor="var(--muted-foreground)"
-          tickerLength={8}
-          tickerWeight={1}
           cards={[
             { targetImg: "/images/Target-PT.png", dragImg: "/images/Drag-PT.png", imgSizePercent: 40, media: "/images/Product Thinking.gif" },
             { targetImg: "/images/Target-IU.png", dragImg: "/images/Drag-IU.png", imgSizePercent: 50, media: "/images/interaction.gif" },

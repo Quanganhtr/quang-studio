@@ -6,19 +6,18 @@ import CustomCursor from "@/components/ui/CustomCursor";
 type Theme = "light" | "dark";
 
 const ThemeContext = createContext<{ theme: Theme; toggle: () => void }>({
-  theme: "light",
+  theme: "dark",
   toggle: () => {},
 });
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>("dark");
 
   useEffect(() => {
     const saved = localStorage.getItem("theme") as Theme | null;
-    if (saved) {
-      setTheme(saved);
-      document.documentElement.classList.toggle("dark", saved === "dark");
-    }
+    const resolved = saved ?? "dark";
+    setTheme(resolved);
+    document.documentElement.classList.toggle("dark", resolved === "dark");
   }, []);
 
   const toggle = () => {

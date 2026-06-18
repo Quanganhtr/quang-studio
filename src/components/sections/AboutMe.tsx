@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, easeOut, type MotionValue } from "framer-motion";
 
@@ -278,6 +279,12 @@ export default function AboutMe() {
         <p className="text-base-regular text-background">
           Ultimately, my mission remains nearly the same - prioritizing understanding and meeting the needs of our users, ensuring that my designs not only reflect aesthetic considerations but also deliver an impeccable user experience.
         </p>
+        <Link
+          href="/about"
+          className="self-start px-6 py-4 bg-background text-foreground text-base-bold"
+        >
+          READ MORE ABOUT ME
+        </Link>
       </div>
       <div
         className="theme-icon"
@@ -295,10 +302,10 @@ export default function AboutMe() {
 
         {/* Canvas grid — scaled 2x, randomly rotated, overlapping */}
         <div style={{ position: "relative", width: "calc(100% - 16px)", height: "60vw", marginTop: 80 }}>
-          <canvas ref={knifeCanvasRef}  width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", left: "-20%",  transform: "rotate(-15deg)", filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 4 }} />
-          <canvas ref={pencilCanvasRef} width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", right: "-20%", transform: "rotate(12deg)",  filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 3 }} />
-          <canvas ref={cupCanvasRef}    width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", left: "10%",   transform: "rotate(-6deg)",  filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 2 }} />
-          <canvas ref={sprayCanvasRef}  width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", right: "8%",   transform: "rotate(20deg)",  filter: "drop-shadow(4px 6px 10px rgba(0,0,0,0.18))", zIndex: 1 }} />
+          <canvas ref={knifeCanvasRef}  width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", left: "-20%",  transform: "rotate(-15deg)", zIndex: 4 }} />
+          <canvas ref={pencilCanvasRef} width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", right: "-20%", transform: "rotate(12deg)", zIndex: 3 }} />
+          <canvas ref={cupCanvasRef}    width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", left: "10%",   transform: "rotate(-6deg)", zIndex: 2 }} />
+          <canvas ref={sprayCanvasRef}  width={960} height={960} style={{ position: "absolute", width: "55%", height: "auto", top: "5%", right: "8%",   transform: "rotate(20deg)", zIndex: 1 }} />
         </div>
 
         {/* About me letter — static */}

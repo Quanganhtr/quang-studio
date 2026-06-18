@@ -61,6 +61,10 @@ export default function CustomCursor() {
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const pillRef   = useRef<HTMLDivElement>(null);
+  const rafRef    = useRef(0);
+  const targetX   = useRef(-200);
+  const targetY   = useRef(-200);
+
   const [active,   setActive]   = useState(false);
   const [pillText, setPillText] = useState<string | null>(null);
 
@@ -80,18 +84,35 @@ export default function CustomCursor() {
     }
   }, [pillText]);
 
+  // RAF lerp loop for smooth cursor following
+  useEffect(() => {
+    if (window.matchMedia("(pointer: coarse)").matches) return;
+
+    const LERP = 0.12;
+    let curX = -200, curY = -200;
+
+    const tick = () => {
+      curX += (targetX.current - curX) * LERP;
+      curY += (targetY.current - curY) * LERP;
+
+      const t = `translate(${curX}px, ${curY}px)`;
+      if (cursorRef.current) cursorRef.current.style.transform = t;
+      if (pillRef.current)   pillRef.current.style.transform   = t;
+
+      rafRef.current = requestAnimationFrame(tick);
+    };
+
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, []);
+
   useEffect(() => {
     if (window.matchMedia("(pointer: coarse)").matches) return;
 
     const move = (e: MouseEvent) => {
-      const t = `translate(${e.clientX}px, ${e.clientY}px)`;
-      if (cursorRef.current) {
-        cursorRef.current.style.transform = t;
-        cursorRef.current.style.opacity   = "1";
-      }
-      if (pillRef.current) {
-        pillRef.current.style.transform = t;
-      }
+      targetX.current = e.clientX;
+      targetY.current = e.clientY;
+      if (cursorRef.current) cursorRef.current.style.opacity = "1";
       setActive(true);
     };
 

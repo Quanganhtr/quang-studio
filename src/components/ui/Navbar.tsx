@@ -45,9 +45,20 @@ function getUntilLocal(statusKey: StatusKey): string {
 }
 
 const STATUS_ORDER: StatusKey[] = ["dating", "gym", "working", "sleep"];
-const CARD = 124;
 const PEEK = 8;
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
+
+function useCardSize() {
+  const [card, setCard] = useState(96);
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const update = (e: MediaQueryListEvent | MediaQueryList) => setCard(e.matches ? 124 : 96);
+    update(mq);
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+  return card;
+}
 
 function getStatus(): StatusKey {
   const now   = new Date();
@@ -61,10 +72,18 @@ function getStatus(): StatusKey {
 }
 
 function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
-  const [status, setStatus]     = useState<StatusKey>(getStatus);
-  const [open, setOpen]         = useState(false);
-  const [scrolled, setScrolled] = useState(false);
-  const scrollTimer             = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const CARD = useCardSize();
+  const [status, setStatus]   = useState<StatusKey>(getStatus);
+  const [open, setOpen]       = useState(false);
+  const [hovered, setHovered] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 1280);
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
 
   useEffect(() => {
     const id = setInterval(() => setStatus(getStatus()), 60000);
@@ -72,17 +91,9 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
   }, []);
 
   useEffect(() => {
-    const onScroll = () => {
-      setOpen(false);
-      setScrolled(true);
-      if (scrollTimer.current) clearTimeout(scrollTimer.current);
-      scrollTimer.current = setTimeout(() => setScrolled(false), 800);
-    };
+    const onScroll = () => setOpen(false);
     window.addEventListener("scroll", onScroll, { passive: true });
-    return () => {
-      window.removeEventListener("scroll", onScroll);
-      if (scrollTimer.current) clearTimeout(scrollTimer.current);
-    };
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   const activeIdx  = STATUS_ORDER.indexOf(status);
@@ -91,12 +102,18 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
 
   return (
     <motion.div
-      className="fixed left-4 bottom-4 md:left-6 md:bottom-6 cursor-pointer overflow-hidden"
-      style={{ width: CARD, zIndex: 9999, transformOrigin: "bottom left" }}
+      className="fixed right-2 bottom-2 md:left-6 md:bottom-6 cursor-pointer overflow-hidden"
+      style={{ width: CARD, zIndex: 9999, transformOrigin: isMobile ? "bottom right" : "bottom left" }}
+      onMouseEnter={() => setHovered(true)}
+      onMouseLeave={() => setHovered(false)}
       animate={{
         height:  open ? numCards * CARD : CARD + peekTotal,
-        x:       menuOpen ? -(CARD + 32) : scrolled ? -(CARD / 2) : 0,
-        rotate:  scrolled && !menuOpen ? -8 : 0,
+        x:       menuOpen
+          ? (isMobile ? (CARD + 32) : -(CARD + 32))
+          : (isMobile ? !open : (!hovered && !open))
+            ? (isMobile ? (CARD / 2) : -(CARD / 2))
+            : 0,
+        rotate:  (isMobile ? !open : (!hovered && !open)) && !menuOpen ? (isMobile ? 8 : -8) : 0,
         opacity: menuOpen ? 0 : 1,
       }}
       transition={{ duration: 0.5, ease: EASE }}

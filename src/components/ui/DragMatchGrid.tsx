@@ -13,33 +13,6 @@ import {
 const MAX_CONTAINER_WIDTH = 4800;
 const PADDING = 20;
 
-const CornerTicks = ({
-  color = "white",
-  length = 16,
-  weight = 1,
-}: {
-  color?: string;
-  length?: number;
-  weight?: number;
-}) => {
-  const style: React.CSSProperties = {
-    position: "absolute",
-    width: length,
-    height: length,
-    borderColor: color,
-    borderStyle: "solid",
-    pointerEvents: "none",
-    zIndex: 3,
-  };
-  return (
-    <>
-      <div style={{ ...style, top: 0, left: 0, borderRight: "0", borderBottom: "0", borderWidth: weight }} />
-      <div style={{ ...style, top: 0, right: 0, borderLeft: "0", borderBottom: "0", borderWidth: weight }} />
-      <div style={{ ...style, bottom: 0, left: 0, borderRight: "0", borderTop: "0", borderWidth: weight }} />
-      <div style={{ ...style, bottom: 0, right: 0, borderLeft: "0", borderTop: "0", borderWidth: weight }} />
-    </>
-  );
-};
 
 interface CardData {
   targetImg?: string;
@@ -53,9 +26,6 @@ interface DragMatchGridProps {
   cardBg?: string;
   borderColor?: string;
   borderWidth?: number;
-  tickerColor?: string;
-  tickerLength?: number;
-  tickerWeight?: number;
 }
 
 export function DragMatchGrid({
@@ -63,13 +33,10 @@ export function DragMatchGrid({
   cardBg = "var(--background)",
   borderColor = "var(--border)",
   borderWidth = 2,
-  tickerColor = "var(--muted-foreground)",
-  tickerLength = 16,
-  tickerWeight = 1,
 }: DragMatchGridProps) {
   return (
     <div
-      className="w-full mx-auto border-t border-l border-dashed border-border"
+      className="w-full mx-auto border-t border-dashed border-border"
       style={{ maxWidth: MAX_CONTAINER_WIDTH }}
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "DRAG AND DROP" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
@@ -78,6 +45,7 @@ export function DragMatchGrid({
         {cards.map((card, index) => (
           <DraggableCard
             key={index}
+            index={index}
             targetImg={card.targetImg}
             dragImg={card.dragImg}
             media={card.media}
@@ -85,9 +53,6 @@ export function DragMatchGrid({
             bg={cardBg}
             borderColor={borderColor}
             borderWidth={borderWidth}
-            tickerColor={tickerColor}
-            tickerLength={tickerLength}
-            tickerWeight={tickerWeight}
           />
         ))}
       </div>
@@ -96,6 +61,7 @@ export function DragMatchGrid({
 }
 
 function DraggableCard({
+  index,
   targetImg,
   dragImg,
   media,
@@ -103,10 +69,8 @@ function DraggableCard({
   borderColor,
   borderWidth,
   imgSizePercent,
-  tickerColor,
-  tickerLength,
-  tickerWeight,
 }: {
+  index: number;
   targetImg?: string;
   dragImg?: string;
   media?: string;
@@ -114,13 +78,11 @@ function DraggableCard({
   borderColor: string;
   borderWidth: number;
   imgSizePercent: number;
-  tickerColor: string;
-  tickerLength: number;
-  tickerWeight: number;
 }) {
   const [isMatched, setIsMatched] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
+  const [isLg, setIsLg] = useState(false);
 
   const containerRef = useRef<HTMLDivElement>(null);
   const targetRef = useRef<HTMLDivElement>(null);
@@ -146,10 +108,13 @@ function DraggableCard({
   });
 
   useEffect(() => {
-    const checkMobile = () => setIsMobile(window.innerWidth < 768);
-    checkMobile();
-    window.addEventListener("resize", checkMobile);
-    return () => window.removeEventListener("resize", checkMobile);
+    const check = () => {
+      setIsMobile(window.innerWidth < 768);
+      setIsLg(window.innerWidth >= 1024);
+    };
+    check();
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
   }, []);
 
   const dropToBottom = () => {
@@ -244,7 +209,7 @@ function DraggableCard({
         height: "auto",
         aspectRatio: "1 / 1",
         backgroundColor: bg,
-        borderRight: `${borderWidth}px dashed ${borderColor}`,
+        borderRight: ((index + 1) % (isLg ? 3 : 2) === 0) ? "none" : `${borderWidth}px dashed ${borderColor}`,
         borderBottom: `${borderWidth}px dashed ${borderColor}`,
         boxSizing: "border-box",
         borderRadius: "0px",
@@ -254,7 +219,6 @@ function DraggableCard({
         justifyContent: "center",
       }}
     >
-      <CornerTicks length={tickerLength} color={tickerColor} weight={tickerWeight} />
 
       <motion.div
         initial={false}
