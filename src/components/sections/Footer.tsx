@@ -70,11 +70,11 @@ export default function Footer() {
       bg: [
         cssVarToRgb("var(--background)"),
         [212,212,212], [116,212,255], [253,165,213], [255,184,106],
-        cssVarToRgb("var(--primary)"),
+        [230, 254, 127], // --primary: #e6fe7f (hardcoded — cssVarToRgb can't resolve chained vars)
       ],
       fg: [
         cssVarToRgb("var(--foreground)"),
-        [64,64,64], [0,105,168], [163,0,76], [159,45,0], [0,0,0],
+        [64,64,64], [0,105,168], [163,0,76], [159,45,0], [20,20,20],
       ],
     };
   };

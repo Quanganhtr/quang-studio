@@ -60,7 +60,7 @@ function getStatus(): StatusKey {
   return "dating";
 }
 
-function StatusBadge() {
+function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
   const [status, setStatus]     = useState<StatusKey>(getStatus);
   const [open, setOpen]         = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -94,9 +94,10 @@ function StatusBadge() {
       className="fixed left-4 bottom-4 md:left-6 md:bottom-6 cursor-pointer overflow-hidden"
       style={{ width: CARD, zIndex: 9999, transformOrigin: "bottom left" }}
       animate={{
-        height: open ? numCards * CARD : CARD + peekTotal,
-        x:      scrolled ? -(CARD / 2) : 0,
-        rotate: scrolled ? -8 : 0,
+        height:  open ? numCards * CARD : CARD + peekTotal,
+        x:       menuOpen ? -(CARD + 32) : scrolled ? -(CARD / 2) : 0,
+        rotate:  scrolled && !menuOpen ? -8 : 0,
+        opacity: menuOpen ? 0 : 1,
       }}
       transition={{ duration: 0.5, ease: EASE }}
       onClick={() => setOpen(o => !o)}
@@ -261,7 +262,7 @@ export default function Navbar() {
       </motion.header>
 
       <MenuOverlay open={menuOpen} onClose={() => setMenuOpen(false)} btnRef={menuBtnRef} />
-      <StatusBadge />
+      <StatusBadge menuOpen={menuOpen} />
     </>
   );
 }

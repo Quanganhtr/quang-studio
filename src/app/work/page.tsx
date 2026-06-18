@@ -139,20 +139,38 @@ export default function WorkPage() {
 
         {/* ── Title ─────────────────────────────────────────────────────── */}
         <section className="section-container max-w-none pt-40 md:pt-80 lg:pt-120 pb-8 md:pb-12 px-2 md:px-8 lg:px-14">
-          <motion.h2
-            initial={{ opacity: 0, y: 24 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.65, ease: EASE }}
-            className="type-h2"
-          >
-            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" of the day. "}</span>
-            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" of the year. "}</span>
-            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" that went live. "}</span>
-            <span className="text-foreground">Work</span><span className="text-accent-foreground">{" that stayed shy. Just "}</span>
-            <span className="text-foreground">Work</span><span className="text-accent-foreground">{", "}</span>
-            <span className="text-foreground">Work</span><span className="text-accent-foreground">{", "}</span>
-            <span className="text-foreground">Work</span><span className="text-accent-foreground">{"."}</span>
-          </motion.h2>
+          <h2 className="type-h2">
+            {[
+              [
+                { t: "Work" }, { t: " of the day. ", a: true },
+                { t: "Work" }, { t: " of the year. ", a: true },
+              ],
+              [
+                { t: "Work" }, { t: " that went live. ", a: true },
+                { t: "Work" }, { t: " that stayed shy. Just ", a: true },
+              ],
+              [
+                { t: "Work" }, { t: ", ", a: true },
+                { t: "Work" }, { t: ", ", a: true },
+                { t: "Work" }, { t: ".", a: true },
+              ],
+            ].map((line, i) => (
+              <span key={i} style={{ display: "block" }}>
+                <span style={{ display: "inline-block", whiteSpace: "nowrap", overflow: "hidden", position: "relative" }}>
+                  {line.map((seg, j) => (
+                    <span key={j} className={seg.a ? "text-accent-foreground" : "text-foreground"}>{seg.t}</span>
+                  ))}
+                  {/* Mask slides left→right to reveal text */}
+                  <motion.span
+                    initial={{ x: "0%" }}
+                    animate={{ x: "101%" }}
+                    transition={{ duration: 0.8, ease: EASE, delay: 0.1 + i * 0.12 }}
+                    style={{ position: "absolute", inset: 0, background: "var(--foreground)", display: "block" }}
+                  />
+                </span>
+              </span>
+            ))}
+          </h2>
         </section>
 
         {/* ── Project list ──────────────────────────────────────────────── */}

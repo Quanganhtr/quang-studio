@@ -10,12 +10,41 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  themeColor: "#000000",
+  themeColor: "#e6fe7f",
 };
 
+const BASE_URL = "https://quang.studio";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(BASE_URL),
   title: "Quang Studio",
-  description: "Product Designer Portfolio",
+  description: "Product Designer specializing in Web3 — and open to anything creative worth building.",
+  openGraph: {
+    title: "Quang Studio",
+    description: "Product Designer specializing in Web3 — and open to anything creative worth building.",
+    url: BASE_URL,
+    siteName: "Quang Studio",
+    images: [{ url: "/og.png", width: 1200, height: 630, alt: "Quang Studio" }],
+    type: "website",
+    locale: "en_US",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Quang Studio",
+    description: "Product Designer specializing in Web3 — and open to anything creative worth building.",
+    images: ["/og.png"],
+  },
+  alternates: {
+    canonical: BASE_URL,
+  },
+  icons: {
+    icon: [
+      { url: "/favicon/favicon.ico", sizes: "any" },
+      { url: "/favicon/favicon.svg", type: "image/svg+xml" },
+    ],
+    apple: "/favicon/apple-touch-icon.png",
+  },
+  manifest: "/favicon/site.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",

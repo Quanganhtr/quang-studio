@@ -39,7 +39,7 @@ function NavItem({
       onMouseLeave={() => setHovered(false)}
       style={{ overflow: "visible", position: "relative" }}
       // sin(4°) ≈ 6.976% — padding-% is relative to element width, so this exactly matches the lift
-      animate={{ paddingTop: active ? "6.976%" : "0%" }}
+      animate={{ paddingTop: isSlid ? "6.976%" : "0%" }}
       transition={{ duration: 0.4, ease: EASE }}
     >
       <motion.button
@@ -54,7 +54,7 @@ function NavItem({
           transformOrigin: "right bottom",
           background:      "transparent",
         }}
-        animate={{ rotate: active ? 4 : 0 }}
+        animate={{ rotate: isSlid ? 4 : 0 }}
         transition={{ duration: 0.4, ease: EASE }}
       >
         {/* slide-up background — inside the button so it rotates with it */}
@@ -119,8 +119,6 @@ export default function MenuOverlay({ open, onClose }: MenuOverlayProps) {
       style={{
         position:      "fixed",
         inset:         0,
-        width:         "100vw",
-        height:        "var(--app-height)",
         zIndex:        50,
         background:    "var(--foreground)",
         pointerEvents: open ? "auto" : "none",
