@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useRef, useEffect } from "react";
+import React, { useRef, useEffect, useState } from "react";
 import { motion, useScroll } from "framer-motion";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -18,9 +18,25 @@ const NAV_LINKS = [
 const SOCIAL_LINKS = [
   { label: "X",        href: "#" },
   { label: "Linkedin", href: "https://www.linkedin.com/in/quanganhtr" },
-  { label: "Dribbble", href: "#" },
-  { label: "Behance",  href: "#" },
+  { label: "Dribbble", href: "https://dribbble.com/quanganh29" },
+  { label: "Behance",  href: "https://www.behance.net/quanganhtran2908" },
 ];
+
+function HoverText({ children }: { children: React.ReactNode }) {
+  const [hovered, setHovered]   = useState(false);
+  const [rotation, setRotation] = useState(0);
+  return (
+    <motion.span
+      className="inline-block"
+      onMouseEnter={() => { setRotation(Math.random() * 16 - 8); setHovered(true); }}
+      onMouseLeave={() => setHovered(false)}
+      animate={hovered ? { scale: 2, rotate: rotation } : { scale: 1, rotate: 0 }}
+      transition={{ duration: 0.2, ease: EASE }}
+    >
+      {children}
+    </motion.span>
+  );
+}
 
 type RGB = [number, number, number];
 
@@ -76,7 +92,9 @@ export default function Footer() {
     const i    = Math.min(Math.floor(t * segs), segs - 1);
     const lt   = smootherstep(t * segs - i);
     document.body.style.backgroundColor = lerp(bgStops[i], bgStops[i + 1], lt);
-    if (content) content.style.color = lerp(fgStops[i], fgStops[i + 1], lt);
+    const fgColor = lerp(fgStops[i], fgStops[i + 1], lt);
+    if (content) content.style.color = fgColor;
+    document.dispatchEvent(new CustomEvent("footer-fg-color", { detail: fgColor }));
   });
 
   useEffect(() => {
@@ -126,7 +144,7 @@ export default function Footer() {
               {NAV_LINKS.map(({ label, href }, i) => (
                 <React.Fragment key={label}>
                   <Link href={href} className="text-base-bold">
-                    {label}
+                    <HoverText>{label}</HoverText>
                   </Link>
                   {i < NAV_LINKS.length - 1 && (
                     <span className="text-base-bold hidden md:inline">·</span>
@@ -142,7 +160,7 @@ export default function Footer() {
                 <React.Fragment key={label}>
                   <span className="text-base-bold hidden md:inline">·</span>
                   <a href={href} target="_blank" rel="noopener noreferrer" className="text-base-bold">
-                    {label}
+                    <HoverText>{label}</HoverText>
                   </a>
                 </React.Fragment>
               ))}

@@ -3,6 +3,29 @@
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, easeOut, type MotionValue } from "framer-motion";
 
+const HEADING_WORDS = "WHO KNEW MY CAREER WOULD TAKE A PLOT TWIST?".split(" ");
+
+function WordReveal({ className, style, breaks = [] }: { className?: string; style?: React.CSSProperties; breaks?: number[] }) {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const { scrollYProgress } = useScroll({ target: ref, offset: ["start 0.85", "center 0.5"] });
+  return (
+    <h2 ref={ref} className={`type-h2 text-center ${className ?? ""}`} style={style}>
+      {HEADING_WORDS.map((word, i) => {
+        const start = i / HEADING_WORDS.length;
+        const end   = (i + 1) / HEADING_WORDS.length;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const opacity = useTransform(scrollYProgress, [start, end], [0.2, 1]);
+        return (
+          <span key={i}>
+            <motion.span style={{ opacity, display: "inline-block" }}>{word}</motion.span>
+            {breaks.includes(i) ? <br /> : i < HEADING_WORDS.length - 1 ? " " : ""}
+          </span>
+        );
+      })}
+    </h2>
+  );
+}
+
 const KNIFE_FRAMES: string[] = Array.from({ length: 30 }, (_, i) =>
   `/images-sequence/knife/${String(i + 1).padStart(4, "0")}.webp`
 );
@@ -267,16 +290,8 @@ export default function AboutMe() {
   if (isMobile) {
     return (
       <section ref={sectionRef} className="relative flex flex-col items-center pt-39 pb-0">
-        <motion.h2
-          className="type-h2 text-center"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-          viewport={{ once: true, margin: "-100px" }}
-          style={{ position: "relative", zIndex: 10, paddingInline: "8px" }}
-        >
-          WHO KNEW<br />MY CAREER<br />WOULD TAKE<br />A PLOT TWIST?
-        </motion.h2>
+        {/* WHO KNEW\nMY CAREER\nWOULD TAKE\nA PLOT TWIST? */}
+        <WordReveal breaks={[1, 3, 5]} style={{ position: "relative", zIndex: 10, paddingInline: "8px" }} />
 
         {/* Canvas grid — scaled 2x, randomly rotated, overlapping */}
         <div style={{ position: "relative", width: "calc(100% - 16px)", height: "60vw", marginTop: 80 }}>
@@ -315,16 +330,8 @@ export default function AboutMe() {
         style={{ perspective: "600px" }}
       >
         {/* Headline — absolutely positioned, stays behind */}
-        <motion.h2
-          className="type-h2 text-center"
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-          viewport={{ once: true, margin: "-100px" }}
-          style={{ position: "absolute" }}
-        >
-          WHO KNEW MY CAREER<br />WOULD TAKE A PLOT TWIST?
-        </motion.h2>
+        {/* WHO KNEW MY CAREER\nWOULD TAKE A PLOT TWIST? */}
+        <WordReveal breaks={[3]} style={{ position: "absolute" }} />
 
         {/* About me letter — in-flow, centered by flex, flies in from right */}
         <motion.div

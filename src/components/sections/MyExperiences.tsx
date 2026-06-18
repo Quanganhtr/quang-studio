@@ -1,7 +1,7 @@
 "use client";
 
-import { useRef } from "react";
-import { motion, useScroll, useTransform, useSpring } from "framer-motion";
+import { useRef, useEffect } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -48,52 +48,62 @@ const EXPERIENCES: { label: string; groups: Item[][] }[] = [
 ];
 
 function itemClass(item: Item) {
-  if (item.muted)      return "text-base-medium text-muted-foreground";
-  if (item.largeMuted) return "text-lg-medium text-muted-foreground";
-  if (item.large)      return "text-lg-medium text-foreground";
-  return "text-base-bold text-foreground";
+  if (item.muted)      return "text-base-medium opacity-50";
+  if (item.largeMuted) return "text-lg-medium opacity-50";
+  if (item.large)      return "text-lg-medium";
+  return "text-base-bold";
 }
 
-const TITLE_LINES = [`HOW I SURVIVE AFTER`, `SAYING "BYE" TO`, `ARCHITECTURE.`];
+const TITLE_WORDS = `HOW I SURVIVE AFTER SAYING "BYE" TO ARCHITECTURE.`.split(" ");
+const TITLE_BREAKS = [3, 6];
 
-function RevealLine({ line }: { line: string }) {
-  const ref = useRef<HTMLSpanElement>(null);
+function WordRevealTitle() {
+  const ref = useRef<HTMLHeadingElement>(null);
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: ["start 0.95", "start 0.4"],
+    offset: ["start 0.85", "center 0.5"],
   });
-  const smooth = useSpring(scrollYProgress, { stiffness: 80, damping: 25, restDelta: 0.001 });
-  const y = useTransform(smooth, [0, 1], ["105%", "0%"]);
-
   return (
-    <span ref={ref} style={{ display: "block", overflow: "hidden" }}>
-      <motion.span style={{ display: "block", y }}>{line}</motion.span>
-    </span>
-  );
-}
-
-function LineRevealTitle() {
-  return (
-    <h2 className="type-h2 flex flex-col" style={{ gap: "0.05em" }}>
-      {TITLE_LINES.map((line, i) => (
-        <RevealLine key={i} line={line} />
-      ))}
+    <h2 ref={ref} className="type-h2">
+      {TITLE_WORDS.map((word, i) => {
+        const start = i / TITLE_WORDS.length;
+        const end   = (i + 1) / TITLE_WORDS.length;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const opacity = useTransform(scrollYProgress, [start, end], [0.2, 1]);
+        return (
+          <span key={i}>
+            <motion.span style={{ opacity, display: "inline-block" }}>{word}</motion.span>
+            {TITLE_BREAKS.includes(i) ? <br /> : i < TITLE_WORDS.length - 1 ? " " : ""}
+          </span>
+        );
+      })}
     </h2>
   );
 }
 
 export default function MyExperiences() {
+  const listRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handler = (e: Event) => {
+      if (listRef.current) listRef.current.style.color = (e as CustomEvent<string>).detail;
+    };
+    document.addEventListener("footer-fg-color", handler);
+    return () => document.removeEventListener("footer-fg-color", handler);
+  }, []);
+
   return (
     <section className="flex flex-col section-container max-w-none pt-39 md:pt-60 pb-24 md:pb-50">
 
       {/* Title + button */}
       <div className="flex flex-col lg:flex-row lg:items-end lg:justify-between gap-6">
-        <LineRevealTitle />
+        <WordRevealTitle />
         <Button variant="solid" size="lg" label="ABOUT ME" hoverLabel="LET'S GO →" href="/about" className="self-start lg:self-auto" />
       </div>
 
       {/* Experience list */}
       <motion.div
+        ref={listRef}
         initial={{ opacity: 0, y: 40 }}
         whileInView={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.7, ease: EASE, delay: 0.15 }}
@@ -107,8 +117,8 @@ export default function MyExperiences() {
           >
             {/* Left — step label */}
             <div className="flex items-center gap-4 shrink-0 self-center">
-              <div className="w-3 h-3 bg-foreground shrink-0" />
-              <span className="text-base-bold text-foreground">{label}</span>
+              <div className="w-3 h-3 bg-current shrink-0" />
+              <span className="text-base-bold">{label}</span>
             </div>
 
             {/* Right — mobile: stacked groups / desktop: single row */}

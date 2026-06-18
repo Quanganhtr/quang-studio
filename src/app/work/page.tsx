@@ -9,11 +9,11 @@ import Footer from "@/components/sections/Footer";
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const PROJECTS = [
-  { index: "01", title: "Minswap",   category: "Product Design", thumbnail: "/minswap-thumbnail.gif"   },
-  { index: "02", title: "Reviewnha", category: "UX Research",    thumbnail: "/reviewnha-thumbnail.png" },
-  { index: "03", title: "Ada.fun",   category: "Product Design", thumbnail: "/adafun-thumbnail.png"    },
-  { index: "04", title: "Noodles.fi", category: "Branding",      thumbnail: "/noodles-thumbnail.gif"   },
-  { index: "05", title: "Fruit map", category: "Motion",         thumbnail: "/vietnam-thumbnail.png"   },
+  { index: "My Proudest Child", title: "Minswap",    slug: "minswap",    category: "Product Design", thumbnail: "/minswap-thumbnail.gif"   },
+  { index: "02", title: "Reviewnha",  slug: "reviewnha",  category: "UX Research",    thumbnail: "/reviewnha-thumbnail.png" },
+  { index: "03", title: "Ada.fun",    slug: "ada-fun",    category: "Product Design", thumbnail: "/adafun-thumbnail.png"    },
+  { index: "04", title: "Noodles.fi", slug: "noodles-fi", category: "Branding",       thumbnail: "/noodles-thumbnail.gif"   },
+  { index: "05", title: "Fruit map",  slug: "fruit-map",  category: "Motion",         thumbnail: "/vietnam-thumbnail.png"   },
 ];
 
 type Project = typeof PROJECTS[number];
@@ -30,8 +30,8 @@ function ProjectRow({
 }: {
   project: Project;
   thumbLeft: boolean;
-  rowRef: RowRef;
-  prevRef: RowRef | null;
+  rowRef:    RowRef;
+  prevRef:   RowRef | null;
 }) {
   // Row 0: grows as it travels from viewport bottom → its own top hits screen top
   // Row 1+: grows while the previous row's top travels across the screen (exits)
@@ -58,7 +58,7 @@ function ProjectRow({
           <span className="text-base-bold text-muted-foreground">{project.index}</span>
           <h3 className="type-h3">{project.title}</h3>
         </div>
-        <Button variant="solid" size="lg" label="View details" hoverLabel="LET'S GO →" />
+        <Button variant="solid" size="lg" label="View details" hoverLabel="LET'S GO →" href={`/work/${project.slug}`} />
       </div>
       <div className="aspect-square w-full">
         <img src={project.thumbnail} alt="" aria-hidden className="w-full h-full object-cover" />
@@ -102,6 +102,7 @@ function ProjectRow({
     <div
       ref={rowRef}
       className="border-b border-ui cursor-pointer"
+      onClick={() => window.location.href = `/work/${project.slug}`}
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
@@ -112,7 +113,7 @@ function ProjectRow({
             <span className="text-base-bold text-muted-foreground">{project.index}</span>
             <h3 className="type-h3">{project.title}</h3>
           </div>
-          <Button variant="solid" size="lg" label="View details" hoverLabel="LET'S GO →" />
+          <Button variant="solid" size="lg" label="View details" hoverLabel="LET'S GO →" href={`/work/${project.slug}`} />
         </div>
         <div className="aspect-square w-full">
           <img src={project.thumbnail} alt="" aria-hidden className="w-full h-full object-cover" />

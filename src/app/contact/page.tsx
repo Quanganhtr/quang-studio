@@ -11,8 +11,8 @@ const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 const CONTACT_LINKS = [
   { label: "Email",    value: "quanganhtran2908@gmail.com", href: "mailto:quanganhtran2908@gmail.com" },
   { label: "LinkedIn", value: "linkedin.com/in/quanganhtr", href: "https://www.linkedin.com/in/quanganhtr" },
-  { label: "Dribbble", value: "dribbble.com/quanganh",     href: "#" },
-  { label: "Behance",  value: "behance.net/quanganh",      href: "#" },
+  { label: "Dribbble", value: "dribbble.com/quanganh29",   href: "https://dribbble.com/quanganh29" },
+  { label: "Behance",  value: "behance.net/quanganhtran2908", href: "https://www.behance.net/quanganhtran2908" },
 ];
 
 type Status = "idle" | "loading" | "success" | "error";

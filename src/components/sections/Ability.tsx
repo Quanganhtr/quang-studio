@@ -1,25 +1,42 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { DragMatchGrid } from "@/components/ui/DragMatchGrid";
 
-export default function Ability() {
+const WORDS = "LET ME BUILD A MAGICAL BRIDGE CONNECTING YOUR BUSINESS → END-USERS.".split(" ");
+
+function WordReveal() {
+  const ref = useRef<HTMLHeadingElement>(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start 0.85", "center 0.5"],
+  });
 
   return (
-    <section
-      className="app-visible-screen flex flex-col items-center justify-center w-full pt-39 md:pt-60 pb-0 md:pb-60 gap-30 md:gap-50 lg:gap-60"
-    >
-      <motion.div
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] as [number, number, number, number] }}
-        viewport={{ once: true, margin: "-100px" }}
-        className="flex flex-col gap-4 section-container items-center text-center"
-      >
-        <h2 className="type-h2 text-center">
-          LET ME BUILD A MAGICAL BRIDGE CONNECTING YOUR BUSINESS → END-USERS.
-        </h2>
-      </motion.div>
+    <h2 ref={ref} className="type-h2 text-center">
+      {WORDS.map((word, i) => {
+        const start = i / WORDS.length;
+        const end   = (i + 1) / WORDS.length;
+        // eslint-disable-next-line react-hooks/rules-of-hooks
+        const opacity = useTransform(scrollYProgress, [start, end], [0.2, 1]);
+        return (
+          <motion.span key={i} style={{ opacity, display: "inline-block" }}>
+            {word}
+            {i < WORDS.length - 1 ? " " : ""}
+          </motion.span>
+        );
+      })}
+    </h2>
+  );
+}
+
+export default function Ability() {
+  return (
+    <section className="app-visible-screen flex flex-col items-center justify-center w-full pt-39 md:pt-60 pb-0 md:pb-60 gap-30 md:gap-50 lg:gap-60">
+      <div className="flex flex-col gap-4 section-container items-center text-center">
+        <WordReveal />
+      </div>
 
       <div className="w-full">
         <DragMatchGrid
