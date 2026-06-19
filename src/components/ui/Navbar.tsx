@@ -1,6 +1,8 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 import Button from "@/components/ui/Button";
 import MenuOverlay from "@/components/ui/MenuOverlay";
 import LogoAnimation from "@/components/ui/LogoAnimation";
@@ -161,6 +163,7 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
 
 export default function Navbar() {
   const { toggle, theme } = useTheme();
+  const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuBtnRef  = useRef<HTMLButtonElement>(null);
   const lastScrollY = useRef(0);
@@ -221,13 +224,14 @@ export default function Navbar() {
       >
         <div className="flex items-center justify-between">
           {/* Logo */}
-          <a
+          <Link
             href="/"
             className="flex items-center"
             style={menuOpen ? { position: "fixed", top: SP, left: SP, zIndex: 200 } : undefined}
+            onClick={(e) => { if (pathname === "/") { e.preventDefault(); window.scrollTo({ top: 0, behavior: "smooth" }); } }}
           >
             <LogoAnimation isDark={theme === "dark"} menuOpen={menuOpen} />
-          </a>
+          </Link>
 
           {/* Right controls */}
           <div className="flex items-center gap-2">

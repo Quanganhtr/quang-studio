@@ -17,31 +17,25 @@ const TOTAL = ALL_FRAMES.length;
 
 export default function LoadingScreen() {
   const router = useRouter();
-  const [progress, setProgress]     = useState(0);
-  const [displayed, setDisplayed]   = useState(0);
-  const [visible, setVisible]       = useState(true); // start visible so it covers the page immediately
-  const [ready, setReady]           = useState(false);
+  const [displayed, setDisplayed] = useState(0);
+  const [visible, setVisible]     = useState(true);
+  const [ready, setReady]         = useState(false);
 
-  // Kill instantly before first paint for returning visitors
   useLayoutEffect(() => {
     if (sessionStorage.getItem("loaded")) setVisible(false);
   }, []);
-  const loadedRef  = useRef(0);
-  const doneRef    = useRef(false);
-  const currentRef = useRef(0);
 
-  // Smoothly animate the displayed counter toward the real progress
-  useEffect(() => {
-    const controls = animate(currentRef.current, progress, {
-      duration: 0.6,
-      ease: "easeOut",
-      onUpdate(v) {
-        currentRef.current = v;
-        setDisplayed(Math.round(v));
-      },
-    });
-    return () => controls.stop();
-  }, [progress]);
+  const loadedRef      = useRef(0);
+  const loadingDone    = useRef(false);
+  const animDone       = useRef(false);
+  const readyCalled    = useRef(false);
+
+  const tryShowButton = () => {
+    if (loadingDone.current && animDone.current && !readyCalled.current) {
+      readyCalled.current = true;
+      setTimeout(() => setReady(true), 400);
+    }
+  };
 
   const handleEnter = () => {
     sessionStorage.setItem("loaded", "1");
@@ -54,6 +48,26 @@ export default function LoadingScreen() {
     setVisible(false);
   };
 
+  // Fixed-pace counter: always counts 0→100 over ~2.5s regardless of load speed.
+  // TAP TO ENTER only appears when both this animation AND real loading are done.
+  useEffect(() => {
+    if (sessionStorage.getItem("loaded")) return;
+
+    const controls = animate(0, 100, {
+      duration: 2.5,
+      ease: "linear",
+      onUpdate(v) { setDisplayed(Math.round(v)); },
+      onComplete() {
+        animDone.current = true;
+        tryShowButton();
+      },
+    });
+
+    return () => controls.stop();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Real loading tracker — signals when assets are actually ready
   useEffect(() => {
     if (sessionStorage.getItem("loaded")) return;
     document.body.style.overflow = "hidden";
@@ -63,10 +77,9 @@ export default function LoadingScreen() {
     const isMobile = window.innerWidth <= 768;
 
     const finish = () => {
-      if (doneRef.current) return;
-      doneRef.current = true;
-      setProgress(100);
-      setTimeout(() => setReady(true), 800);
+      if (loadingDone.current) return;
+      loadingDone.current = true;
+      tryShowButton();
     };
 
     if (isMobile) {
@@ -91,7 +104,6 @@ export default function LoadingScreen() {
         const img = new Image();
         img.onload = img.onerror = () => {
           loadedRef.current += 1;
-          setProgress(Math.round((loadedRef.current / TOTAL) * 100));
           if (loadedRef.current === TOTAL) {
             imagesReady = true;
             tryFinish();
@@ -113,12 +125,12 @@ export default function LoadingScreen() {
           transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
           className="fixed inset-0 z-[99999] flex flex-col items-center justify-center gap-6 bg-foreground"
         >
-          {/* Animated counter */}
+          {/* Counter */}
           <h2 className="type-h2 text-background tabular-nums">
             {displayed}
           </h2>
 
-          {/* TAP TO ENTER fades in once ready */}
+          {/* TAP TO ENTER fades in once both animation and loading are done */}
           <AnimatePresence>
             {ready && (
               <motion.button
