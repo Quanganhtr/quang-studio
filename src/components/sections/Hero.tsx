@@ -433,7 +433,7 @@ export default function Hero() {
               <defs>
                 <filter id="hero-spray" x="-20%" y="-40%" width="140%" height="180%" colorInterpolationFilters="sRGB">
                   {/* Grain applied to already-blurred SourceGraphic (blur is CSS per-char) */}
-                  <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="4" stitchTiles="stitch" result="noise" />
+                  <feTurbulence type="fractalNoise" baseFrequency="1.2" numOctaves="4" stitchTiles="stitch" result="noise" />
                   <feColorMatrix type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 8 -2" in="noise" result="dots" />
                   <feComposite in="SourceGraphic" in2="dots" operator="in" />
                 </filter>

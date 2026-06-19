@@ -23,18 +23,20 @@ type RowRef = React.RefObject<HTMLDivElement | null>;
 const COL_SMALL = (5 / 12) * 100;
 const COL_LARGE = (7 / 12) * 100;
 
-// dir=0: no slide (initial open), dir=1: scroll down, dir=-1: scroll up
-const slideVariants = {
-  enter: (dir: number) => ({ y: dir === 0 ? 0 : dir > 0 ? "100%" : "-100%" }),
+// scroll-up (dir=1): both panels move up — current exits up, next enters from below
+// scroll-down (dir=-1): both panels move down — current exits down, prev enters from above
+// dir=0: open/close — always slide from/to bottom
+// panels are fixed inset-0 so 100% = 100vh → zero gap, full exit
+const panelVariants = {
+  enter: (dir: number) => ({ y: dir >= 0 ? "100%" : "-100%" }),
   center: { y: 0 },
-  exit:  (dir: number) => ({ y: dir === 0 ? 0 : dir > 0 ? "-100%" : "100%" }),
+  exit:  (dir: number) => ({ y: dir > 0  ? "-100%" : "100%" }),
 };
 
 function ProjectModal({ project, onClose }: { project: Project | null; onClose: () => void }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [direction, setDirection]     = useState(0);
   const activeIndexRef = useRef(0);
-  const isAnimating    = useRef(false);
 
   // Sync when a new project opens
   useEffect(() => {
@@ -43,15 +45,13 @@ function ProjectModal({ project, onClose }: { project: Project | null; onClose: 
     setActiveIndex(idx);
     activeIndexRef.current = idx;
     setDirection(0);
-    isAnimating.current = false;
+
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [project?.slug]);
 
   const navigate = useCallback((dir: 1 | -1) => {
-    if (isAnimating.current) return;
     const next = activeIndexRef.current + dir;
     if (next < 0 || next >= PROJECTS.length) return;
-    isAnimating.current = true;
     setDirection(dir);
     setActiveIndex(next);
     activeIndexRef.current = next;
@@ -64,28 +64,48 @@ function ProjectModal({ project, onClose }: { project: Project | null; onClose: 
     return () => { document.body.style.overflow = ""; };
   }, [project]);
 
+  const handleClose = useCallback(() => {
+    setDirection(0);
+    onClose();
+  }, [onClose]);
+
   // Keyboard
   useEffect(() => {
     if (!project) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape")    { onClose(); return; }
+      if (e.repeat) return;
+      if (e.key === "Escape")    { handleClose(); return; }
       if (e.key === "ArrowDown") navigate(1);
       if (e.key === "ArrowUp")   navigate(-1);
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [project, navigate, onClose]);
+  }, [project, navigate, handleClose]);
 
-  // Wheel
+  // Wheel — accumulate deltaY so one gesture = one navigation
   useEffect(() => {
     if (!project) return;
+    let acc = 0;
+    let locked = false;
+    let lockTimer: ReturnType<typeof setTimeout>;
+
     const onWheel = (e: WheelEvent) => {
       e.preventDefault();
-      if (isAnimating.current) return;
-      navigate(e.deltaY > 0 ? 1 : -1);
+      if (locked) return;
+      acc += e.deltaY;
+      if (Math.abs(acc) > 50) {
+        navigate(acc > 0 ? 1 : -1);
+        acc = 0;
+        locked = true;
+        clearTimeout(lockTimer);
+        lockTimer = setTimeout(() => { locked = false; }, 900);
+      }
     };
     window.addEventListener("wheel", onWheel, { passive: false });
-    return () => window.removeEventListener("wheel", onWheel);
+    return () => {
+      window.removeEventListener("wheel", onWheel);
+      clearTimeout(lockTimer);
+    };
   }, [project, navigate]);
 
   // Touch swipe
@@ -108,9 +128,10 @@ function ProjectModal({ project, onClose }: { project: Project | null; onClose: 
   const activeProject = project ? PROJECTS[activeIndex] : null;
 
   return (
-    <AnimatePresence>
-      {project && activeProject && (
-        <>
+    <>
+      {/* Backdrop */}
+      <AnimatePresence>
+        {project && (
           <motion.div
             key="backdrop"
             className="fixed inset-0 bg-foreground/20 z-10000"
@@ -118,80 +139,75 @@ function ProjectModal({ project, onClose }: { project: Project | null; onClose: 
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.3 }}
-            onClick={onClose}
+            onClick={handleClose}
           />
+        )}
+      </AnimatePresence>
 
+      {/* Each panel is fixed inset-0 so 100% = 100vh — clean full exit, zero gap */}
+      <AnimatePresence custom={direction}>
+        {project && activeProject && (
           <motion.div
-            key="panel"
-            className="fixed inset-3 md:inset-5 lg:inset-8 z-10001 bg-background border border-ui flex flex-col overflow-hidden"
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ duration: 0.5, ease: EASE }}
+            key={activeProject.slug}
+            custom={direction}
+            variants={panelVariants}
+            initial="enter"
+            animate="center"
+            exit="exit"
+            transition={{ duration: 0.7, ease: EASE }}
+            className="fixed inset-0 z-10001 p-3 md:p-5 lg:p-8"
+            onClick={handleClose}
           >
-            {/* Header */}
-            <div className="flex items-center justify-between px-4 py-4 md:px-8 md:py-5 shrink-0">
-              <div className="flex items-baseline gap-3">
-                <span className="text-base-bold">{activeProject.index} — {activeProject.title}</span>
-                <span className="text-base-bold opacity-30">{activeIndex + 1} / {PROJECTS.length}</span>
-              </div>
-              <button
-                onClick={onClose}
-                className="w-8 h-8 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
-                aria-label="Close"
-              >
-                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                  <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" strokeWidth="1.5"/>
-                  <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" strokeWidth="1.5"/>
-                </svg>
-              </button>
-            </div>
-
-            {/* Scrollable body — projects slide in/out here */}
-            <div className="relative flex-1 overflow-hidden">
-              <AnimatePresence
-                custom={direction}
-                onExitComplete={() => { isAnimating.current = false; }}
-              >
-                <motion.div
-                  key={activeProject.slug}
-                  custom={direction}
-                  variants={slideVariants}
-                  initial="enter"
-                  animate="center"
-                  exit="exit"
-                  transition={{ duration: 0.45, ease: EASE }}
-                  className="absolute inset-0 flex flex-col items-center justify-center gap-8"
+            <div
+              className="w-full h-full bg-background border border-ui flex flex-col overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Header */}
+              <div className="flex items-center justify-between px-4 py-4 md:px-8 md:py-5 lg:px-5 shrink-0">
+                <div className="flex items-baseline gap-3">
+                  <span className="text-base-bold">{activeProject.index} — {activeProject.title}</span>
+                  <span className="text-base-bold opacity-30">{activeIndex + 1} / {PROJECTS.length}</span>
+                </div>
+                <button
+                  onClick={handleClose}
+                  className="w-8 h-8 flex items-center justify-center opacity-60 hover:opacity-100 transition-opacity cursor-pointer"
+                  aria-label="Close"
                 >
-                  {/* Placeholder grid bg */}
-                  <svg
-                    className="absolute inset-0 w-full h-full text-border pointer-events-none"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <defs>
-                      <pattern id={`grid-${activeProject.slug}`} width="48" height="48" patternUnits="userSpaceOnUse">
-                        <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 4"/>
-                      </pattern>
-                    </defs>
-                    <rect width="100%" height="100%" fill={`url(#grid-${activeProject.slug})`} opacity="0.5"/>
+                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                    <line x1="1" y1="1" x2="13" y2="13" stroke="currentColor" strokeWidth="1.5"/>
+                    <line x1="13" y1="1" x2="1" y2="13" stroke="currentColor" strokeWidth="1.5"/>
                   </svg>
+                </button>
+              </div>
 
-                  <h2 className="type-h2 relative z-10 text-center">COMING SOON</h2>
-                  <Button
-                    variant="solid"
-                    size="lg"
-                    label="Check live site"
-                    hoverLabel="Check live site"
-                    href={activeProject.liveUrl}
-                    className="relative z-10"
-                  />
-                </motion.div>
-              </AnimatePresence>
+              {/* Body */}
+              <div className="relative flex-1 flex flex-col items-center justify-center gap-8">
+                <svg
+                  className="absolute inset-0 w-full h-full text-border pointer-events-none"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <defs>
+                    <pattern id={`grid-${activeProject.slug}`} width="48" height="48" patternUnits="userSpaceOnUse">
+                      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="currentColor" strokeWidth="0.5" strokeDasharray="2 4"/>
+                    </pattern>
+                  </defs>
+                  <rect width="100%" height="100%" fill={`url(#grid-${activeProject.slug})`} opacity="0.5"/>
+                </svg>
+                <h2 className="type-h2 relative z-10 text-center">COMING SOON</h2>
+                <Button
+                  variant="solid"
+                  size="lg"
+                  label="Check live site"
+                  hoverLabel="Check live site"
+                  href={activeProject.liveUrl}
+                  className="relative z-10"
+                />
+              </div>
             </div>
           </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
 
