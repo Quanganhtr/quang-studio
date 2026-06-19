@@ -1,7 +1,10 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
+
+const PAGES = ["/work", "/about", "/contact"];
 
 const ALL_FRAMES: string[] = [
   ...Array.from({ length: 30 }, (_, i) => `/images-sequence/knife/${String(i + 1).padStart(4, "0")}.webp`),
@@ -13,6 +16,7 @@ const ALL_FRAMES: string[] = [
 const TOTAL = ALL_FRAMES.length;
 
 export default function LoadingScreen() {
+  const router = useRouter();
   const [progress, setProgress] = useState(0);
   const [visible, setVisible] = useState(false);
   const [ready, setReady] = useState(false);
@@ -34,6 +38,8 @@ export default function LoadingScreen() {
     if (sessionStorage.getItem("loaded")) return;
     setVisible(true);
     document.body.style.overflow = "hidden";
+
+    PAGES.forEach((p) => router.prefetch(p));
 
     const isMobile = window.innerWidth <= 768;
 
@@ -87,7 +93,7 @@ export default function LoadingScreen() {
         <motion.div
           exit={{ y: "-100%" }}
           transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-          className="fixed inset-0 z-9999 flex flex-col items-center justify-center gap-4 bg-foreground"
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center gap-4 bg-foreground"
         >
           <span className="label-h2 text-background">
             QUANG STUDIO
