@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, animate } from "framer-motion";
 
 const PAGES = ["/work", "/about", "/contact"];
 
@@ -17,11 +17,31 @@ const TOTAL = ALL_FRAMES.length;
 
 export default function LoadingScreen() {
   const router = useRouter();
-  const [progress, setProgress] = useState(0);
-  const [visible, setVisible] = useState(false);
-  const [ready, setReady] = useState(false);
-  const loadedRef = useRef(0);
-  const doneRef = useRef(false);
+  const [progress, setProgress]     = useState(0);
+  const [displayed, setDisplayed]   = useState(0);
+  const [visible, setVisible]       = useState(true); // start visible so it covers the page immediately
+  const [ready, setReady]           = useState(false);
+
+  // Kill instantly before first paint for returning visitors
+  useLayoutEffect(() => {
+    if (sessionStorage.getItem("loaded")) setVisible(false);
+  }, []);
+  const loadedRef  = useRef(0);
+  const doneRef    = useRef(false);
+  const currentRef = useRef(0);
+
+  // Smoothly animate the displayed counter toward the real progress
+  useEffect(() => {
+    const controls = animate(currentRef.current, progress, {
+      duration: 0.6,
+      ease: "easeOut",
+      onUpdate(v) {
+        currentRef.current = v;
+        setDisplayed(Math.round(v));
+      },
+    });
+    return () => controls.stop();
+  }, [progress]);
 
   const handleEnter = () => {
     sessionStorage.setItem("loaded", "1");
@@ -36,7 +56,6 @@ export default function LoadingScreen() {
 
   useEffect(() => {
     if (sessionStorage.getItem("loaded")) return;
-    setVisible(true);
     document.body.style.overflow = "hidden";
 
     PAGES.forEach((p) => router.prefetch(p));
@@ -47,18 +66,16 @@ export default function LoadingScreen() {
       if (doneRef.current) return;
       doneRef.current = true;
       setProgress(100);
-      setTimeout(() => setReady(true), 500);
+      setTimeout(() => setReady(true), 800);
     };
 
     if (isMobile) {
-      // Mobile: skip image preloading — just wait for page resources
       if (document.readyState === "complete") {
         finish();
       } else {
         window.addEventListener("load", finish, { once: true });
       }
     } else {
-      // Desktop: preload all image frames + wait for window.onload
       let pageReady = document.readyState === "complete";
       let imagesReady = false;
 
@@ -85,6 +102,7 @@ export default function LoadingScreen() {
     }
 
     return () => { document.body.style.overflow = ""; };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
@@ -93,23 +111,27 @@ export default function LoadingScreen() {
         <motion.div
           exit={{ y: "-100%" }}
           transition={{ duration: 0.9, ease: [0.76, 0, 0.24, 1] }}
-          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center gap-4 bg-foreground"
+          className="fixed inset-0 z-[99999] flex flex-col items-center justify-center gap-6 bg-foreground"
         >
-          <span className="label-h2 text-background">
-            QUANG STUDIO
-          </span>
-          {ready ? (
-            <button
-              onClick={handleEnter}
-              className="label-sm text-background bg-transparent border border-background px-7 py-2.5 cursor-pointer tracking-[0.15em]"
-            >
-              TAP TO ENTER
-            </button>
-          ) : (
-            <span className="label-sm text-gray-5 tabular-nums tracking-widest">
-              {String(progress).padStart(3, "0")}%
-            </span>
-          )}
+          {/* Animated counter */}
+          <h2 className="type-h2 text-background tabular-nums">
+            {displayed}
+          </h2>
+
+          {/* TAP TO ENTER fades in once ready */}
+          <AnimatePresence>
+            {ready && (
+              <motion.button
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                onClick={handleEnter}
+                className="text-background bg-transparent border border-background px-7 py-2.5 cursor-pointer tracking-[0.15em] text-base-bold"
+              >
+                TAP TO ENTER
+              </motion.button>
+            )}
+          </AnimatePresence>
         </motion.div>
       )}
     </AnimatePresence>
