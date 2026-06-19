@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Button from "@/components/ui/Button";
 import { useRef, useEffect, useState } from "react";
 import { motion, useScroll, useTransform, easeOut, type MotionValue } from "framer-motion";
 
@@ -279,12 +279,7 @@ export default function AboutMe() {
         <p className="text-base-regular text-background">
           Ultimately, my mission remains nearly the same - prioritizing understanding and meeting the needs of our users, ensuring that my designs not only reflect aesthetic considerations but also deliver an impeccable user experience.
         </p>
-        <Link
-          href="/about"
-          className="self-start px-6 py-4 bg-background text-foreground text-base-bold"
-        >
-          READ MORE ABOUT ME
-        </Link>
+        <Button href="/about" size="md" label="Go deep into Quang" className="bg-background! text-foreground! border-border self-end mt-4" />
       </div>
       <div
         className="theme-icon"

@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useEffect } from "react";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useInView } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -12,8 +12,8 @@ const EXPERIENCES: { label: string; groups: Item[][] }[] = [
   {
     label: "STEP 1",
     groups: [
-      [{ text: "Came to", muted: true }, { text: "CONSULT INDOCHINA", large: true }],
-      [{ text: "as", muted: true }, { text: "UIUX DESIGN LEAD", largeMuted: true }],
+      [{ text: "Came to", muted: true }, { text: "Consult Indochina", large: true }],
+      [{ text: "as", muted: true }, { text: "UIUX Design Lead", largeMuted: true }],
       [{ text: "from", muted: true }, { text: "2016", largeMuted: true }, { text: "to", muted: true }, { text: "2022", largeMuted: true }],
     ],
   },
@@ -46,6 +46,21 @@ const EXPERIENCES: { label: string; groups: Item[][] }[] = [
     ],
   },
 ];
+
+function AnimatedLine({ side }: { side: "top" | "bottom" }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true });
+  return (
+    <motion.div
+      ref={ref}
+      className={`absolute ${side === "top" ? "top-0" : "bottom-0"} left-0 right-0 ${side === "top" ? "border-t" : "border-b"} border-ui`}
+      initial={{ scaleX: 0 }}
+      animate={{ scaleX: isInView ? 1 : 0 }}
+      transition={{ duration: 0.8, ease: EASE }}
+      style={{ transformOrigin: "left" }}
+    />
+  );
+}
 
 function itemClass(item: Item) {
   if (item.muted)      return "text-base-medium opacity-50";
@@ -102,18 +117,13 @@ export default function MyExperiences() {
       </div>
 
       {/* Experience list */}
-      <motion.div
-        ref={listRef}
-        initial={{ opacity: 0, y: 40 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.7, ease: EASE, delay: 0.15 }}
-        viewport={{ once: true, margin: "-100px" }}
-        className="flex flex-col mt-18 md:mt-50 lg:mt-60 border-t border-ui"
-      >
+      <div ref={listRef} className="flex flex-col mt-18 md:mt-50 lg:mt-60 relative">
+        <AnimatedLine side="top" />
+
         {EXPERIENCES.map(({ label, groups }) => (
           <div
             key={label}
-            className="flex flex-row items-start justify-between border-b border-ui p-4 lg:p-8"
+            className="relative flex flex-row items-start justify-between p-4 lg:p-8"
           >
             {/* Left — step label */}
             <div className="flex items-center gap-4 shrink-0 self-center">
@@ -144,9 +154,11 @@ export default function MyExperiences() {
                 )
               )}
             </div>
+
+            <AnimatedLine side="bottom" />
           </div>
         ))}
-      </motion.div>
+      </div>
 
     </section>
   );

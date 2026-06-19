@@ -95,7 +95,8 @@ function DancingChar({ char, seed, playing }: { char: string; seed: number; play
 
   // Runs every frame; uses scatter target position (no per-frame DOM read)
   useAnimationFrame(() => {
-    if (!playing || !isDesktop) {
+    if (!isDesktop) return;
+    if (!playing) {
       rawPushX.set(0);
       rawPushY.set(0);
       rawScale.set(1);
@@ -156,7 +157,7 @@ function DancingChar({ char, seed, playing }: { char: string; seed: number; play
         x: tx, y: ty, rotate: sRot,
         transition: { duration: sDur, ease: "easeInOut" },
       }).then(() => {
-        if (!playingRef.current) return;
+        if (!playingRef.current || !isDesktop) return;
         controls.start({
           x:      [tx, tx + driftX, tx - driftX * 0.7, tx],
           y:      [ty, ty + driftY, ty - driftY * 0.8, ty],
@@ -303,8 +304,8 @@ export default function Hero() {
     const VEL_LERP       = 0.14;
     const MAX_DEG        = 56;
     const FACTOR         = 2;
-    const STRETCH_FACTOR = 0.018;
-    const MAX_STRETCH    = 0.4;
+    const STRETCH_FACTOR = 0.01;
+    const MAX_STRETCH    = 0.2;
 
     const rect = sectionRef.current?.getBoundingClientRect();
     const initX = rect ? rect.width  / 2 : 0;
@@ -424,7 +425,7 @@ export default function Hero() {
               paddingRight: "var(--section-padding)",
               paddingBottom: "var(--section-padding)",
               paddingLeft: "var(--section-padding)",
-              minHeight: isDesktop ? "100dvh" : !isTablet ? "100dvh" : undefined,
+              minHeight: isDesktop ? "100dvh" : !isTablet ? "100svh" : undefined,
             }}
           >
             {/* SVG filter — spray paint stencil for "BY __." words */}
@@ -439,23 +440,21 @@ export default function Hero() {
               </defs>
             </svg>
 
-            {/* Cursor follower image */}
-            <div
-              ref={followerRef}
-              className={`${isDesktop ? "pointer-events-none" : "cursor-pointer"} absolute z-10`}
-              style={isDesktop
-                ? { top: 0, left: 0, transform: "translate(0px, 0px)" }
-                : { bottom: 8, left: 8 }
-              }
-              onClick={!isDesktop ? handleToggle : undefined}
-            >
-              <img
-                ref={followerImgRef}
-                src={playing ? "/end.png" : "/play.png"}
-                alt=""
-                style={{ display: "block", transform: isDesktop ? "translate(-50%, -50%)" : undefined, width: isDesktop ? undefined : 156, height: isDesktop ? undefined : 156 }}
-              />
-            </div>
+            {/* Cursor follower image — desktop only */}
+            {isDesktop && (
+              <div
+                ref={followerRef}
+                className="pointer-events-none absolute z-10"
+                style={{ top: 0, left: 0, transform: "translate(0px, 0px)" }}
+              >
+                <img
+                  ref={followerImgRef}
+                  src={playing ? "/end.png" : "/play.png"}
+                  alt=""
+                  style={{ display: "block", transform: "translate(-50%, -50%)" }}
+                />
+              </div>
+            )}
 
             <motion.div
               initial={{ opacity: 0, y: 30 }}
