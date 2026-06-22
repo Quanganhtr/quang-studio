@@ -1,20 +1,22 @@
 "use client";
 
 import { useRef } from "react";
-import { useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { PROJECTS, type Project } from "@/lib/projects";
+import { useProjectNav } from "@/lib/useProjectNav";
 
 const CARDS = PROJECTS.slice(0, 5);
 
 function WaveCard({
   card,
   onOpen,
+  loading,
 }: {
   card: Project;
   // ⚡️ DEVELOPER: navigates to the project detail page (/work/[slug])
   onOpen: (slug: string) => void;
+  loading: boolean;
 }) {
   return (
     <motion.div
@@ -36,16 +38,18 @@ function WaveCard({
           <p className="text-sm-regular text-muted-foreground">{card.category}</p>
         </div>
       </div>
+      {loading && (
+        <div className="absolute inset-0 z-20 flex items-center justify-center bg-foreground/40">
+          <i className="ri-loader-4-line animate-spin text-background text-3xl" aria-hidden="true" />
+        </div>
+      )}
     </motion.div>
   );
 }
 
 export default function MyWork() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-
-  // ⚡️ DEVELOPER: opens the project detail page (/work/[slug])
-  const openProject = (slug: string) => router.push(`/work/${slug}`);
+  const { loadingSlug, openProject } = useProjectNav();
 
   const { scrollYProgress } = useScroll({
     target: scrollRef,
@@ -78,6 +82,7 @@ export default function MyWork() {
                     key={card.slug}
                     card={card}
                     onOpen={openProject}
+                    loading={loadingSlug === card.slug}
                   />
                 ))}
               </motion.div>
@@ -129,6 +134,11 @@ export default function MyWork() {
                     <p className="text-sm-regular text-muted-foreground">{card.category}</p>
                   </div>
                 </div>
+                {loadingSlug === card.slug && (
+                  <div className="absolute inset-0 z-20 flex items-center justify-center bg-foreground/40">
+                    <i className="ri-loader-4-line animate-spin text-background text-3xl" aria-hidden="true" />
+                  </div>
+                )}
               </div>
             ))}
           </div>

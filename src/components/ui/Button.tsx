@@ -68,7 +68,9 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
     );
 
     // Label-swap content — fixed size via invisible spacer
-    const labelContent = label ? (
+    const labelContent = loading ? (
+      <i className="ri-loader-4-line animate-spin text-base" aria-hidden="true" />
+    ) : label ? (
       <span className="relative flex flex-col items-center">
         {/* Invisible spacer holding the wider of the two labels */}
         <span className="invisible block whitespace-nowrap px-0" aria-hidden>
@@ -92,15 +94,7 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
         </motion.span>
       </span>
     ) : (
-      <>
-        {loading ? (
-          <span
-            aria-hidden="true"
-            className="size-3.5 animate-spin rounded-full border-2 border-current border-r-transparent"
-          />
-        ) : null}
-        <span>{children}</span>
-      </>
+      <span>{children}</span>
     );
 
     if (href) {
