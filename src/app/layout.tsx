@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Boldonse, Geist_Mono, Inter } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import ScrollReset from "@/components/ui/ScrollReset";
@@ -6,6 +7,10 @@ import LoadingScreen from "@/components/ui/LoadingScreen";
 import ViewportHeight from "@/components/ui/ViewportHeight";
 import FastScrollToast from "@/components/ui/FastScrollToast";
 import "./globals.css";
+
+const boldonse = Boldonse({ subsets: ["latin"], weight: "400", variable: "--font-boldonse", display: "swap" });
+const geistMono = Geist_Mono({ subsets: ["latin"], weight: ["400", "700", "900"], variable: "--font-geist-mono", display: "swap" });
+const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-inter", display: "swap" });
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -58,7 +63,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${boldonse.variable} ${geistMono.variable} ${inter.variable}`}>
       <body className="antialiased">
         <ViewportHeight />
         <LoadingScreen />

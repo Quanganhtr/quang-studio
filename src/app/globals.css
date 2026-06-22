@@ -1,4 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Boldonse&family=Momo+Trust+Sans&family=Geist+Mono:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
 @import "remixicon/fonts/remixicon.css";
 @import "tailwindcss";
 @import "tailwindcss/theme.css";
@@ -44,10 +43,10 @@
   --color-ring:                 var(--ring);
   --color-navbar-bg:            var(--navbar-bg);
 
-  /* Typography */
-  --font-display: 'Boldonse', cursive;
-  --font-mono:    'Geist Mono', monospace;
-  --font-sans:    'Inter', sans-serif;
+  /* Typography — self-hosted via next/font/google in layout.tsx */
+  --font-display: var(--font-boldonse), cursive;
+  --font-mono:    var(--font-geist-mono), monospace;
+  --font-sans:    var(--font-inter), sans-serif;
 
   /* Radius */
   --radius-sm:  0.25rem;
@@ -69,9 +68,9 @@
   --app-bottom: 0px;
 
   /* Typography — re-declared so var() resolves at runtime in @utility */
-  --font-display: 'Boldonse', cursive;
-  --font-mono:    'Geist Mono', monospace;
-  --font-sans:    'Inter', sans-serif;
+  --font-display: var(--font-boldonse), cursive;
+  --font-mono:    var(--font-geist-mono), monospace;
+  --font-sans:    var(--font-inter), sans-serif;
 
   /* Section padding — scales with breakpoints */
   --section-padding: 0.5rem;
