@@ -31,7 +31,7 @@ const sizeClasses: Record<ButtonSize, string> = {
 const variantClasses: Record<ButtonVariant, string> = {
   solid:   'border-transparent bg-foreground text-background hover:bg-foreground hover:text-background',
   outline: 'border-border bg-card text-foreground hover:bg-accent hover:text-accent-foreground',
-  ghost:   'border-transparent bg-transparent text-foreground hover:bg-accent hover:text-accent-foreground',
+  ghost:   'border-transparent bg-transparent text-foreground hover:bg-background hover:text-foreground',
 };
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
