@@ -48,6 +48,7 @@ function getUntilLocal(statusKey: StatusKey): string {
 
 const STATUS_ORDER: StatusKey[] = ["dating", "gym", "working", "sleep"];
 const PEEK = 8;
+const GAP  = 4;
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 function useCardSize() {
@@ -109,7 +110,7 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       animate={{
-        height:  open ? numCards * CARD : CARD + peekTotal,
+        height:  open ? numCards * CARD + (numCards - 1) * GAP : CARD + peekTotal,
         x:       menuOpen
           ? (isMobile ? (CARD + 32) : -(CARD + 32))
           : (isMobile ? !open : (!hovered && !open))
@@ -124,22 +125,18 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
       {STATUS_ORDER.map((s, i) => {
         const isActive   = s === status;
         const collapsedY = i <= activeIdx ? i * PEEK : CARD + peekTotal;
-        const expandedY  = i * CARD;
+        const expandedY  = i * (CARD + GAP);
 
         return (
           <motion.div
             key={s}
             animate={{
               y:       open ? expandedY  : collapsedY,
-              opacity: open ? 1 : isActive ? 1 : i < activeIdx ? 0.5 : 0,
+              opacity: open ? 1 : i <= activeIdx ? 1 : 0,
               scale:   open ? 1 : isActive ? 1 : i < activeIdx ? 1 - (activeIdx - i) * 0.05 : 1,
             }}
             transition={{ duration: 0.5, ease: EASE }}
-            className={`absolute top-0 left-0 flex flex-col justify-end p-3 ${
-              open
-                ? `${i === 0 ? "border" : "border-b border-l border-r"} border-ui`
-                : "border border-border"
-            } ${isActive ? "bg-foreground" : "bg-background"}`}
+            className={`absolute top-0 left-0 flex flex-col justify-end p-3 rounded-lg border border-solid border-muted ${isActive ? "bg-foreground" : "bg-background"}`}
             style={{ width: CARD, height: CARD, zIndex: i + 1, transformOrigin: "top center" }}
           >
             {(open || isActive) && (
@@ -252,7 +249,7 @@ export default function Navbar() {
                 right:    menuOpen ? SP : undefined,
                 zIndex:   200,
               }}
-              className={`h-8 w-8 md:h-12 md:w-12 flex items-center justify-center cursor-pointer rounded-none border border-border group ${
+              className={`h-8 w-8 md:h-12 md:w-12 flex items-center justify-center cursor-pointer rounded-xs border border-muted group ${
                 menuOpen ? "bg-foreground" : "bg-background hover:bg-foreground"
               }`}
             >

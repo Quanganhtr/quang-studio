@@ -91,7 +91,7 @@ export default function ThemeButton({ isDark, onToggle }: ThemeButtonProps) {
       onClick={handleClick}
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center cursor-pointer rounded-none border border-border bg-background hover:bg-foreground group"
+      className="h-8 w-8 md:h-12 md:w-12 flex items-center justify-center cursor-pointer rounded-xs border border-muted bg-background hover:bg-foreground group"
     >
       <div
         className={`w-5 h-5 transition-[filter] duration-150 ${iconClass}`}

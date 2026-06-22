@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useRef } from "react";
+import { useRouter } from "next/navigation";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
 import { Button } from "@/components/ui/Button";
 import Footer from "@/components/sections/Footer";
-import ProjectModal from "@/components/ui/ProjectModal";
 import { PROJECTS, type Project } from "@/lib/projects";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -20,13 +20,14 @@ function ProjectRow({
   thumbLeft,
   rowRef,
   prevRef,
-  onSelect,
+  onOpen,
 }: {
   project: Project;
   thumbLeft: boolean;
   rowRef:    RowRef;
   prevRef:   RowRef | null;
-  onSelect:  (p: Project) => void;
+  // ⚡️ DEVELOPER: navigates to the project detail page (/work/[slug])
+  onOpen:    (slug: string) => void;
 }) {
   const entryTarget = (prevRef ?? rowRef) as React.RefObject<HTMLElement>;
   const { scrollYProgress: entryP } = useScroll({
@@ -59,7 +60,7 @@ function ProjectRow({
           size="lg"
           label="View details"
           hoverLabel="View details"
-          onClick={(e) => { e.stopPropagation(); onSelect(project); }}
+          onClick={(e) => { e.stopPropagation(); onOpen(project.slug); }}
         />
       </div>
       <div className="aspect-square w-full">
@@ -104,7 +105,7 @@ function ProjectRow({
     <div
       ref={rowRef}
       className="border-b border-ui cursor-pointer"
-      onClick={() => onSelect(project)}
+      onClick={() => onOpen(project.slug)}
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
@@ -120,7 +121,7 @@ function ProjectRow({
             size="lg"
             label="View details"
             hoverLabel="View details"
-            onClick={(e) => { e.stopPropagation(); onSelect(project); }}
+            onClick={(e) => { e.stopPropagation(); onOpen(project.slug); }}
           />
         </div>
         <div className="aspect-square w-full">
@@ -138,7 +139,10 @@ function ProjectRow({
 
 export default function WorkPage() {
   const rowRefs = useRef<RowRef[]>(PROJECTS.map(() => ({ current: null }))).current;
-  const [selected, setSelected] = useState<Project | null>(null);
+  const router = useRouter();
+
+  // ⚡️ DEVELOPER: opens the project detail page (/work/[slug])
+  const openProject = (slug: string) => router.push(`/work/${slug}`);
 
   return (
     <>
@@ -164,15 +168,13 @@ export default function WorkPage() {
               thumbLeft={i % 2 === 0}
               rowRef={rowRefs[i]}
               prevRef={i > 0 ? rowRefs[i - 1] : null}
-              onSelect={setSelected}
+              onOpen={openProject}
             />
           ))}
         </section>
 
         <Footer />
       </main>
-
-      <ProjectModal project={selected} onClose={() => setSelected(null)} />
     </>
   );
 }

@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Boldonse&family=Geist+Mono:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Boldonse&family=Momo+Trust+Sans&family=Geist+Mono:wght@400;700;900&family=Inter:wght@400;500;600;700&display=swap');
 @import "remixicon/fonts/remixicon.css";
 @import "tailwindcss";
 @import "tailwindcss/theme.css";
@@ -99,6 +99,7 @@
   --input:                var(--color-neutral-200);
   --ring:                 var(--color-honeysuckle-500);
   --navbar-bg:            rgba(255, 255, 255, 0.85); /* alpha composite — no palette ref */
+  --spray-foreground:     var(--color-neutral-300);
 }
 
 html.dark {
@@ -122,6 +123,7 @@ html.dark {
   --input:                var(--color-neutral-900);
   --ring:                 var(--color-honeysuckle-300);
   --navbar-bg:            var(--color-black);
+  --spray-foreground:     var(--color-neutral-700);
 }
 
 /* ── Base styles ────────────────────────────────────────────────────── */
@@ -162,6 +164,22 @@ html.dark {
   }
 }
 
+/* Thins existing borders on mobile only — unlayered so it beats Tailwind's
+   utility-layer border-width (e.g. border-b's 1px). Targets each side's exact
+   class (not the border-width shorthand) so it never adds a border to a side
+   that didn't already have one — e.g. border-b must not gain a top border.
+   Capped at 767px (below `md`) so it doesn't fight md:border-*-0 side-switching
+   used in tablet+ grid layouts. */
+@media (max-width: 767px) {
+  .border-b { border-bottom-width: 0.5px; }
+  .border-t { border-top-width: 0.5px; }
+  .border-l { border-left-width: 0.5px; }
+  .border-r { border-right-width: 0.5px; }
+  .border, .border-2 {
+    border-width: 0.5px;
+  }
+}
+
 /* ── Keyframes ──────────────────────────────────────────────────────── */
 @keyframes floatUpDown {
   from { translate: 0px 0px; }
@@ -183,7 +201,7 @@ html.dark {
   }
 
   @variant lg {
-    font-size:   clamp(56px, 4.5vw, 96px);
+    font-size:   clamp(48px, 4.5vw, 80px);
     line-height: 1.05;
   }
 }
@@ -302,11 +320,11 @@ html.dark {
 @utility text-lg-bold {
   font-family: var(--font-mono);
   font-weight: 700;
-  font-size:   44px;
-  line-height: 56px;
+  font-size:   16px;
+  line-height: 24px;
 
-  @variant md { font-size: 56px; line-height: 64px; }
-  @variant lg { font-size: 56px; line-height: 64px; }
+  @variant md { font-size: 18px; line-height: 28px; }
+  @variant lg { font-size: 24px; line-height: 32px; }
 }
 
 /* Border utilities */

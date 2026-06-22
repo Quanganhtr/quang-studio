@@ -3,8 +3,14 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, animate } from "framer-motion";
+import { PROJECTS } from "@/lib/projects";
 
-const PAGES = ["/work", "/about", "/contact"];
+const PAGES = [
+  "/work",
+  "/about",
+  "/contact",
+  ...PROJECTS.map((p) => `/work/${p.slug}`),
+];
 
 const ALL_FRAMES: string[] = [
   ...Array.from({ length: 30 }, (_, i) => `/images-sequence/knife/${String(i + 1).padStart(4, "0")}.webp`),

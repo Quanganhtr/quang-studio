@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { usePathname } from "next/navigation";
 import Lottie, { LottieRefCurrentProps } from "lottie-react";
 import { useTheme } from "@/lib/ThemeContext";
 import lightAnimation from "../../../public/Light-Loading.json";
@@ -58,6 +59,7 @@ function useSlotText(target: string | null): string | null {
 
 export default function CustomCursor() {
   const { theme } = useTheme();
+  const pathname  = usePathname();
   const lottieRef = useRef<LottieRefCurrentProps>(null);
   const cursorRef = useRef<HTMLDivElement>(null);
   const pillRef   = useRef<HTMLDivElement>(null);
@@ -77,6 +79,12 @@ export default function CustomCursor() {
     window.addEventListener("cursor-pill", handler);
     return () => window.removeEventListener("cursor-pill", handler);
   }, []);
+
+  // Route changes can unmount a hovered card before its mouseleave fires,
+  // leaving a stale pill stuck on screen — clear it on every navigation.
+  useEffect(() => {
+    setPillText(null);
+  }, [pathname]);
 
   useLayoutEffect(() => {
     if (pillRef.current) {

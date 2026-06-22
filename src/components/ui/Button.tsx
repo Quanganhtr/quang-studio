@@ -19,6 +19,8 @@ export interface ButtonProps extends Omit<BaseButtonProps, 'className'> {
   href?: string;
   label?: string;
   hoverLabel?: string;
+  target?: string;
+  rel?: string;
 }
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -48,6 +50,8 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
       href,
       label,
       hoverLabel,
+      target,
+      rel,
       ...props
     },
     ref
@@ -55,7 +59,7 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
     const [hovered, setHovered] = React.useState(false);
 
     const sharedClass = clsx(
-      'inline-flex cursor-pointer items-center justify-center gap-2 rounded-none border outline-none transition-colors duration-200 overflow-hidden',
+      'inline-flex cursor-pointer items-center justify-center gap-2 rounded-xs border outline-none transition-colors duration-200 overflow-hidden',
       'focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background',
       'disabled:cursor-not-allowed disabled:opacity-60 data-disabled:cursor-not-allowed data-disabled:opacity-60',
       variantClasses[variant],
@@ -103,6 +107,8 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
       return (
         <a
           href={href}
+          target={target}
+          rel={rel}
           className={sharedClass}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}

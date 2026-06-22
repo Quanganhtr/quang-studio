@@ -110,7 +110,7 @@ export default function FastScrollToast() {
               }}
               exit={{ y: -(CARD), opacity: 0 }}
               transition={{ duration: 0.5, ease: EASE }}
-              className="absolute top-0 left-0 bg-card flex flex-col justify-end p-4"
+              className="absolute top-0 left-0 bg-card flex flex-col justify-end p-4 rounded-lg"
               style={{ width: CARD, height: CARD, zIndex: i + 1, fontFamily: "var(--font-mono)", transformOrigin: "top center" }}
             >
               {isActive && (

@@ -44,11 +44,10 @@ function NavItem({
     >
       <motion.button
         onClick={() => onNav(href)}
-        className="pl-6 pr-6 text-lg-bold cursor-pointer border-none w-full gap-6 flex items-center"
+        className="pl-6 pr-6 type-h3 cursor-pointer border-b border-ui w-full gap-6 flex items-center"
         style={{
           position:        "relative",
           overflow:        "hidden",
-          borderBottom:    "0.1rem solid var(--muted-foreground)",
           paddingBlock:    "1.5rem",
           color:           effectiveColor,
           transformOrigin: "right bottom",

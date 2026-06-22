@@ -1,33 +1,25 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useScroll, useTransform, MotionValue } from "framer-motion";
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/Button";
-import ProjectModal from "@/components/ui/ProjectModal";
 import { PROJECTS, type Project } from "@/lib/projects";
 
 const CARDS = PROJECTS.slice(0, 5);
 
 function WaveCard({
-  progress,
-  phase,
   card,
-  onSelect,
+  onOpen,
 }: {
-  progress: MotionValue<number>;
-  phase: number;
   card: Project;
-  onSelect: (p: Project) => void;
+  // ⚡️ DEVELOPER: navigates to the project detail page (/work/[slug])
+  onOpen: (slug: string) => void;
 }) {
-  const y      = useTransform(progress, (v) => Math.sin(v * Math.PI * 2 + phase) * 40);
-  const rotate = useTransform(progress, (v) => Math.cos(v * Math.PI * 2 + phase) * 8);
-  const scale  = useTransform(progress, (v) => 1 + 0.2 * ((Math.cos(v * Math.PI * 2 + phase) + 1) / 2));
-
   return (
     <motion.div
-      style={{ y, rotate, scale }}
-      className="shrink-0 w-[22vw] aspect-square border-4 border-background flex flex-col justify-between p-6 cursor-pointer relative overflow-hidden"
-      onClick={() => onSelect(card)}
+      className="shrink-0 w-[24vw] aspect-square border-2 border-background flex flex-col justify-between p-6 cursor-pointer relative overflow-hidden"
+      onClick={() => onOpen(card.slug)}
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
@@ -50,7 +42,10 @@ function WaveCard({
 
 export default function MyWork() {
   const scrollRef = useRef<HTMLDivElement>(null);
-  const [selected, setSelected] = useState<Project | null>(null);
+  const router = useRouter();
+
+  // ⚡️ DEVELOPER: opens the project detail page (/work/[slug])
+  const openProject = (slug: string) => router.push(`/work/${slug}`);
 
   const { scrollYProgress } = useScroll({
     target: scrollRef,
@@ -76,15 +71,13 @@ export default function MyWork() {
                 MY CTRL+Z LIFE
               </motion.div>
 
-              {/* Cards — pan left → right with wave, overlapping text */}
-              <motion.div className="absolute flex gap-10 items-end" style={{ x: xCards, top: "48vh", left: 0 }}>
-                {CARDS.map((card, i) => (
+              {/* Cards — pan left → right, overlapping text */}
+              <motion.div className="absolute flex gap-4 items-end" style={{ x: xCards, top: "calc(48vh - 56px)", left: 0 }}>
+                {CARDS.map((card) => (
                   <WaveCard
                     key={card.slug}
-                    progress={scrollYProgress}
-                    phase={i * (Math.PI / 2)}
                     card={card}
-                    onSelect={setSelected}
+                    onOpen={openProject}
                   />
                 ))}
               </motion.div>
@@ -115,11 +108,11 @@ export default function MyWork() {
             className="flex flex-row overflow-x-auto snap-x snap-mandatory [&::-webkit-scrollbar]:hidden"
             style={{ paddingInline: "var(--section-padding)", gap: "16px", scrollbarWidth: "none" }}
           >
-            {[...CARDS].reverse().map((card) => (
+            {CARDS.map((card) => (
               <div
                 key={card.slug}
-                className="shrink-0 w-[80vw] aspect-square border-4 border-background cursor-pointer relative overflow-hidden snap-center flex flex-col justify-between p-6"
-                onClick={() => setSelected(card)}
+                className="shrink-0 w-[80vw] aspect-square border-2 border-background cursor-pointer relative overflow-hidden snap-center flex flex-col justify-between p-6"
+                onClick={() => openProject(card.slug)}
                 onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
                 onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
               >
@@ -142,8 +135,6 @@ export default function MyWork() {
         </motion.div>
 
       </section>
-
-      <ProjectModal project={selected} onClose={() => setSelected(null)} />
     </>
   );
 }

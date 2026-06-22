@@ -7,7 +7,7 @@ import { createContext, useContext, useEffect, useRef, useState, useMemo, Fragme
 
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
-const DESKTOP_GAP = "0.85lh";
+const DESKTOP_GAP = "0.75lh";
 
 
 function sr(seed: number) {
@@ -261,6 +261,7 @@ export default function Hero() {
   useEffect(() => {
     audioRef.current = new Audio("/theme-song.mp3");
     audioRef.current.loop = true;
+    audioRef.current.volume = 0.1;
     return () => { audioRef.current?.pause(); };
   }, []);
 
@@ -364,10 +365,15 @@ export default function Hero() {
     return () => cancelAnimationFrame(followerRafRef.current);
   }, []);
 
-  const renderSpray = (text: string, startOff: number, maxBlur = 10, minBlur = 0) => {
+  const renderSpray = (text: string, startOff: number, maxBlur = 10, minBlur = 0, noBlurChars = 3) => {
     const n = text.length;
     const words = text.split(" ");
     let ci = 0;
+    const blurFor = (j: number) => {
+      if (j < noBlurChars) return 0;
+      const span = Math.max(1, (n - 1) - noBlurChars);
+      return minBlur + ((j - noBlurChars) / span) * (maxBlur - minBlur);
+    };
     return words.map((word, wi) => {
       const wordStart = ci;
       ci += word.length;
@@ -380,14 +386,14 @@ export default function Hero() {
             {word.split("").map((char, k) => {
               const j = wordStart + k;
               return (
-                <span key={k} style={{ display: "inline-block", filter: `blur(${(minBlur + (j / (n - 1)) * (maxBlur - minBlur)).toFixed(1)}px)` }}>
+                <span key={k} style={{ display: "inline-block", filter: `blur(${blurFor(j).toFixed(1)}px)` }}>
                   <DancingChar char={char} seed={startOff + j} playing={playing} />
                 </span>
               );
             })}
           </span>
           {hasSpace && (
-            <span style={{ display: "inline-block", filter: `blur(${(minBlur + (spaceIdx / (n - 1)) * (maxBlur - minBlur)).toFixed(1)}px)` }}>
+            <span style={{ display: "inline-block", filter: `blur(${blurFor(spaceIdx).toFixed(1)}px)` }}>
               <DancingChar char=" " seed={startOff + spaceIdx} playing={playing} />
             </span>
           )}
@@ -461,46 +467,47 @@ export default function Hero() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, ease: EASE }}
               className={`type-h1 w-full flex flex-col ${isDesktop ? "items-center" : "items-start"}`}
-              style={{ gap: isDesktop ? DESKTOP_GAP : 24, textAlign: isDesktop ? "center" : "left" }}
+              style={{ gap: isDesktop ? DESKTOP_GAP : 8, textAlign: isDesktop ? "center" : "left" }}
             >
               {isDesktop ? (
                 <>
                   {([
-                    { prefix: "ARCHITECT ",        prefixOff: 0,  sprayText: "BY ROOTS.",  sprayOff: 10 },
-                    { prefix: "PRODUCT DESIGNER ", prefixOff: 19, sprayText: "BY CHOICE.", sprayOff: 36 },
-                    { prefix: "VIBE-CODER ",       prefixOff: 46, sprayText: "BY FORCE.",  sprayOff: 57 },
-                  ] as const).map(({ prefix, prefixOff, sprayText, sprayOff }, li) => (
-                    <span key={li} style={{ display: "block", whiteSpace: "nowrap" }}>
-                      <span style={{ color: "var(--foreground)" }}>
-                        <DancingText text={prefix} charOffset={prefixOff} playing={playing} />
-                      </span>
-                      <span style={{ color: "var(--foreground)", filter: "url(#hero-spray)" }}>
-                        {renderSpray(sprayText, sprayOff, 10, 1)}
-                      </span>
+                    { text: "ARCHITECT BY ROOTS.",        offset: 0,  spray: true  },
+                    { text: "PRODUCT DESIGNER BY CHOICE.", offset: 19, spray: false },
+                    { text: "VIBE-CODER BY FORCE.",        offset: 46, spray: true  },
+                  ] as const).map(({ text, offset, spray }, li) => (
+                    <span key={li} style={{ display: "block", whiteSpace: "nowrap", color: spray ? "var(--spray-foreground)" : "var(--foreground)" }}>
+                      {spray ? (
+                        <span style={{ filter: "url(#hero-spray)" }}>
+                          {renderSpray(text, offset, 5, 1)}
+                        </span>
+                      ) : (
+                        <DancingText text={text} charOffset={offset} playing={playing} />
+                      )}
                     </span>
                   ))}
-                  <span style={{ display: "block", whiteSpace: "nowrap" }}>
-                    <span style={{ color: "var(--foreground)" }}>
-                      <DancingText text="QUANG " charOffset={nameOffset} playing={playing} />
-                    </span>
-                    <span style={{ color: "var(--foreground)", filter: "url(#hero-spray)" }}>
-                      {renderSpray("ANH TRAN", nameOffset + 6, 10, 1)}
+                  <span style={{ display: "block", whiteSpace: "nowrap", color: "var(--spray-foreground)" }}>
+                    <span style={{ filter: "url(#hero-spray)" }}>
+                      {renderSpray("QUANG ANH TRAN", nameOffset, 5, 1)}
                     </span>
                   </span>
                 </>
               ) : (
                 <>
                   {[
-                    { prefix: "ARCHITECT ",        prefixOff: 0,  sprayText: "BY ROOTS.",  sprayOff: 10 },
-                    { prefix: "PRODUCT DESIGNER ", prefixOff: 19, sprayText: "BY CHOICE.", sprayOff: 36 },
-                    { prefix: "VIBE-CODER ",       prefixOff: 46, sprayText: "BY FORCE.",  sprayOff: 57 },
-                    { prefix: "QUANG ",            prefixOff: 66, sprayText: "ANH TRAN",   sprayOff: 72 },
-                  ].map(({ prefix, prefixOff, sprayText, sprayOff }, i) => (
-                    <span key={i} style={{ display: "block", whiteSpace: "normal", color: "var(--foreground)" }}>
-                      <DancingText text={prefix} charOffset={prefixOff} playing={playing} />
-                      <span style={{ filter: "url(#hero-spray)" }}>
-                        {renderSpray(sprayText, sprayOff, 4)}
-                      </span>
+                    { text: "ARCHITECT BY ROOTS.",        offset: 0,  spray: true  },
+                    { text: "PRODUCT DESIGNER BY CHOICE.", offset: 19, spray: false },
+                    { text: "VIBE-CODER BY FORCE.",        offset: 46, spray: true  },
+                    { text: "QUANG ANH TRAN",              offset: 66, spray: true  },
+                  ].map(({ text, offset, spray }, i) => (
+                    <span key={i} style={{ display: "block", whiteSpace: "normal", color: spray ? "var(--spray-foreground)" : "var(--foreground)" }}>
+                      {spray ? (
+                        <span style={{ filter: "url(#hero-spray)" }}>
+                          {renderSpray(text, offset, 4)}
+                        </span>
+                      ) : (
+                        <DancingText text={text} charOffset={offset} playing={playing} />
+                      )}
                     </span>
                   ))}
                 </>
