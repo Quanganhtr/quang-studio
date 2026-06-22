@@ -105,7 +105,7 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
 
   return (
     <motion.div
-      className="fixed right-2 bottom-2 md:left-6 md:bottom-6 cursor-pointer overflow-hidden"
+      className="fixed right-2 bottom-2 lg:left-2 lg:bottom-6 cursor-pointer overflow-hidden"
       style={{ width: CARD, zIndex: 9999, transformOrigin: isMobile ? "bottom right" : "bottom left" }}
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
