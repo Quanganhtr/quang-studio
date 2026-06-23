@@ -11,9 +11,9 @@ const PEEK                = 8;
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
 const MESSAGES = [
-  { title: "Hey, slow down!", desc: "You scroll too fast — I spent 100+ hours writing this.", img: "/sad.png"      },
-  { title: "Seriously???", desc: "Good stuff here. Take a breath pls.",           img: "/angry.png"    },
-  { title: "Ok, I give up.",   desc: "But come back and read it sometime, yeah?",                    img: "/hopeless.png" },
+  { title: "Hey, slow down!", desc: "You scroll too fast — I spent 100+ hours writing this.", img: "/sad.webp"     },
+  { title: "Seriously???", desc: "Good stuff here. Take a breath pls.",           img: "/angry.webp"   },
+  { title: "Ok, I give up.",   desc: "But come back and read it sometime, yeah?",                    img: "/hopeless.webp" },
 ];
 
 interface ToastData { id: number; messageIndex: number; }

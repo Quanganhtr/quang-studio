@@ -317,7 +317,7 @@ export default function WorkPage() {
           </section>
         ) : (
           <section className="w-full flex flex-col items-center justify-center gap-6 text-center px-2" style={{ minHeight: "100dvh" }}>
-            <img src="/why.png" alt="" aria-hidden className="w-40" />
+            <img src="/why.webp" alt="" aria-hidden className="w-40" />
             <div className="flex flex-col gap-2">
               <h3 className="type-h3">Are you asking why nothing here?</h3>
               <p className="text-base-regular text-muted-foreground">I&apos;m working on it. Hope it would finish soon!</p>

@@ -455,7 +455,7 @@ export default function Hero() {
               >
                 <img
                   ref={followerImgRef}
-                  src={playing ? "/end.png" : "/play.png"}
+                  src={playing ? "/end.webp" : "/play.webp"}
                   alt=""
                   style={{ display: "block", transform: "translate(-50%, -50%)" }}
                 />

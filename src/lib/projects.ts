@@ -85,7 +85,7 @@ export const PROJECTS: Project[] = [
       { value: "220K+",                         label: "Unique users" },
     ],
     closingVideo: "/minswap-shot-4.webm",
-    closingImage: "/minswap-shot-5.png",
+    closingImage: "/minswap-shot-5.webp",
     testimonial: {
       quote: [
         { text: "Working with Quang Anh was " },
@@ -113,9 +113,9 @@ export const PROJECTS: Project[] = [
       { value: "13.9K",   label: "Followers gained" },
     ],
     gridLeftVideo: "/noodles-thumbnail.webm",
-    gridRightImage: "/noodles-shot-2.png",
+    gridRightImage: "/noodles-shot-2.webp",
     closingVideo: "/noodles-shot-4.webm",
-    closingImage: "/noodles-shot-4.png",
+    closingImage: "/noodles-shot-4.webp",
     testimonial: {
       quote: [
         { text: "At Noodles, he played a key role in translating complex Web3 mechanics into intuitive, clean, and highly scannable UI that our community loved. " },
@@ -125,8 +125,8 @@ export const PROJECTS: Project[] = [
       role: "Co-founder of Noodles.fi",
     },
   },
-  { index: "03",                title: "Ada.fun",    slug: "ada-fun",    category: "Product Design", thumbnail: "/adafun-thumbnail.png",     liveUrl: "#", comingSoon: true },
-  { index: "04",                title: "Reviewnha",  slug: "reviewnha",  category: "UX Research",    thumbnail: "/reviewnha-thumbnail.png",  liveUrl: "#", comingSoon: true },
-  { index: "05",                title: "Fruit map",  slug: "fruit-map",  category: "Motion",         thumbnail: "/vietnam-thumbnail.png",    liveUrl: "#", comingSoon: true },
-  { index: "06",                title: "My Gu",      slug: "my-gu",      category: "Product Design", thumbnail: "/mygu-thumbnail.png",       liveUrl: "#", comingSoon: true },
+  { index: "03",                title: "Ada.fun",    slug: "ada-fun",    category: "Product Design", thumbnail: "/adafun-thumbnail.webp",     liveUrl: "#", comingSoon: true },
+  { index: "04",                title: "Reviewnha",  slug: "reviewnha",  category: "UX Research",    thumbnail: "/reviewnha-thumbnail.webp",  liveUrl: "#", comingSoon: true },
+  { index: "05",                title: "Fruit map",  slug: "fruit-map",  category: "Motion",         thumbnail: "/vietnam-thumbnail.webp",    liveUrl: "#", comingSoon: true },
+  { index: "06",                title: "My Gu",      slug: "my-gu",      category: "Product Design", thumbnail: "/mygu-thumbnail.webp",       liveUrl: "#", comingSoon: true },
 ];
