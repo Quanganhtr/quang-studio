@@ -18,15 +18,15 @@ interface Project {
 }
 
 const ARCH_PROJECTS: Project[] = [
-  { label: "Rehab Camp", image: "/images/arch-rehab-camp.jpg" },
-  { label: "Museum",     image: "/images/arch-museum.jpg"     },
+  { label: "Rehab Camp", image: "/rehab-camp.webp" },
+  { label: "Museum",     image: "/museum.webp"     },
   { label: "Hotel",      image: "/hotel.png"                   },
 ];
 
 const PILL_STYLES = [
   { bg: "bg-foreground", text: "text-background"         },
   { bg: "bg-primary",    text: "text-primary-foreground" },
-  { bg: "bg-muted",      text: "text-primary-foreground" },
+  { bg: "bg-[oklch(87.1%_0.15_154.449)]", text: "text-primary-foreground" },
 ];
 
 const PILL_ROTATIONS  = [-4, 3, -2];
@@ -36,20 +36,22 @@ interface ProjectPillProps extends Project {
   index:        number;
   onHoverStart: () => void;
   onHoverEnd:   () => void;
+  onPress:      (e: React.MouseEvent<HTMLSpanElement>) => void;
 }
 
-function ProjectPill({ label, index, onHoverStart, onHoverEnd }: ProjectPillProps) {
+function ProjectPill({ label, index, onHoverStart, onHoverEnd, onPress }: ProjectPillProps) {
   const { bg, text } = PILL_STYLES[index % PILL_STYLES.length];
   const rotation     = PILL_ROTATIONS[index % PILL_ROTATIONS.length];
   return (
     <span
-      className="relative inline-flex"
+      className="relative inline-flex cursor-pointer"
       style={{ marginLeft: index === 0 ? 0 : 4, zIndex: index + 1 }}
       onMouseEnter={onHoverStart}
       onMouseLeave={onHoverEnd}
+      onClick={onPress}
     >
       <motion.span
-        className={`inline-flex items-center select-none ${bg} ${text}`}
+        className={`inline-flex items-center select-none rounded-sm ${bg} ${text}`}
         style={{ paddingInline: 12, paddingBlock: 2, fontFamily: "var(--font-mono)", fontSize: "inherit", fontWeight: 600, lineHeight: "inherit", rotate: rotation }}
         whileHover={{ scale: 1.2 }}
         transition={{ duration: 0.2, ease: EASE }}
@@ -62,10 +64,48 @@ function ProjectPill({ label, index, onHoverStart, onHoverEnd }: ProjectPillProp
 
 // ─── SECTION CONTENT ─────────────────────────────────────────────────────────
 
+const MOBILE_PREVIEW_SIZE = 160;
+const MOBILE_PREVIEW_GAP  = 16;
+
 function OriginStorySection() {
   const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [previewPos, setPreviewPos] = useState<{ top: number; left: number } | null>(null);
+  const sectionRef      = useRef<HTMLDivElement>(null);
+  const pressTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (pressTimeoutRef.current) clearTimeout(pressTimeoutRef.current);
+    };
+  }, []);
+
+  const handlePress = (pi: number, e: React.MouseEvent<HTMLSpanElement>) => {
+    if (pressTimeoutRef.current) clearTimeout(pressTimeoutRef.current);
+
+    if (hoveredIndex === pi) {
+      setHoveredIndex(null); // tapped again: close immediately
+      return;
+    }
+
+    const containerRect = sectionRef.current?.getBoundingClientRect();
+    const pillRect = e.currentTarget.getBoundingClientRect();
+    if (containerRect) {
+      const left = Math.min(
+        Math.max(pillRect.left - containerRect.left + pillRect.width / 2 - MOBILE_PREVIEW_SIZE / 2, 0),
+        Math.max(containerRect.width - MOBILE_PREVIEW_SIZE, 0)
+      );
+      const top = pillRect.top - containerRect.top - MOBILE_PREVIEW_SIZE - MOBILE_PREVIEW_GAP;
+      setPreviewPos({ top, left });
+    }
+
+    setHoveredIndex(pi);
+    pressTimeoutRef.current = setTimeout(() => {
+      setHoveredIndex((current) => (current === pi ? null : current));
+    }, 1000);
+  };
+
   return (
-    <>
+    <div ref={sectionRef} className="relative">
       <motion.div
         initial="hidden"
         whileInView="visible"
@@ -75,19 +115,19 @@ function OriginStorySection() {
       >
         <div className="flex flex-col" style={{ gap: 32 }}>
           {[
-            "Before I became a product designer, I was supposed to become an architect. It wasn't a dramatic “I was born to be” story. It was more personal than that.",
-            "My dad really wanted to become an architect. But life did what life usually does: opened too many tabs, crashed the system, and that dream never fully happened for him.",
+            "Before I became a product designer, I was supposed to become an architect. It wasn't a dramatic “I was born to be” story, just a personal one.",
+            <><span className="font-semibold text-foreground">My dad really wanted to become an architect.</span> But life doesnt follow the way he wants, he missed the chance.</>,
             null,
-            "Then in my 3rd year, something unexpected happened. I got my first UI/UX design job with salary of 1.5 million VND ($60) per month. A very small number. But somehow, it became a very big turning point.",
+            "Then in my 3rd year, I got my first UI/UX design job with salary of 1.5 million VND ($60) per month in accidentally. A very small number, but somehow, it became a very big turning point.",
           ].map((para, i) =>
             para === null ? (
               <motion.p
                 key="pills"
                 variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
-                className="text-lg-regular text-muted-foreground"
+                className="text-base-regular text-muted-foreground"
                 style={{ lineHeight: 1.85 }}
               >
-                So I decided to carry his dream and studied architecture at <span style={{ fontWeight: 600 }}>Hanoi Architectural University</span>. Partly for myself, partly for him. For a while, it looked like the plan was working. I designed{" "}
+                So I decided to carry his dream and studied architecture at <span className="font-semibold text-foreground">Hanoi Architectural University</span>. Partly for myself, partly for him. For a while, it looked like the plan was working. I designed{" "}
                 <span className="inline-flex items-center">
                   {ARCH_PROJECTS.map((p, pi) => (
                     <ProjectPill
@@ -96,6 +136,7 @@ function OriginStorySection() {
                       index={pi}
                       onHoverStart={() => setHoveredIndex(pi)}
                       onHoverEnd={() => setHoveredIndex(null)}
+                      onPress={(e) => handlePress(pi, e)}
                     />
                   ))}
                 </span>
@@ -105,7 +146,7 @@ function OriginStorySection() {
               <motion.p
                 key={i}
                 variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
-                className="text-lg-regular text-muted-foreground"
+                className="text-base-regular text-muted-foreground"
                 style={{ lineHeight: 1.85 }}
               >
                 {para}
@@ -115,6 +156,7 @@ function OriginStorySection() {
         </div>
       </motion.div>
 
+      {/* Desktop: centered on screen, hover-triggered */}
       <AnimatePresence mode="wait">
         {hoveredIndex !== null && (
           <motion.div
@@ -123,10 +165,10 @@ function OriginStorySection() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.22, ease: EASE }}
-            className="hidden md:block absolute top-1/2 -translate-y-1/2 pointer-events-none z-10"
-            style={{ right: 156, rotate: IMAGE_ROTATIONS[hoveredIndex] }}
+            className="hidden md:block fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none z-10"
+            style={{ rotate: IMAGE_ROTATIONS[hoveredIndex] }}
           >
-            <div className="overflow-hidden bg-card" style={{ width: "22vw", height: "22vw", border: "2px solid var(--foreground)" }}>
+            <div className="overflow-hidden rounded-xl bg-card" style={{ width: "clamp(180px, 26vw, 280px)", height: "clamp(180px, 26vw, 280px)", border: "2px solid var(--foreground)" }}>
               <img
                 src={ARCH_PROJECTS[hoveredIndex].image}
                 alt={ARCH_PROJECTS[hoveredIndex].label}
@@ -136,14 +178,37 @@ function OriginStorySection() {
           </motion.div>
         )}
       </AnimatePresence>
-    </>
+
+      {/* Mobile/tablet: anchored above the pressed pill, clamped within this container */}
+      <AnimatePresence mode="wait">
+        {hoveredIndex !== null && previewPos && (
+          <motion.div
+            key={hoveredIndex}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: EASE }}
+            className="block md:hidden absolute pointer-events-none z-10"
+            style={{ top: previewPos.top, left: previewPos.left, rotate: IMAGE_ROTATIONS[hoveredIndex] }}
+          >
+            <div className="overflow-hidden rounded-xl bg-card" style={{ width: MOBILE_PREVIEW_SIZE, height: MOBILE_PREVIEW_SIZE, border: "2px solid var(--foreground)" }}>
+              <img
+                src={ARCH_PROJECTS[hoveredIndex].image}
+                alt={ARCH_PROJECTS[hoveredIndex].label}
+                className="w-full h-full object-cover"
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }
 
 const HOW_I_SURVIVE_PARAGRAPHS = [
-  "Somehow, that $60/month job didn't scare me off. It taught me. I learned Figma by Googling, shipped things by guessing, and presented designs to stakeholders while quietly hoping nobody would ask too many questions.",
-  "I left architecture school without finishing the blueprint. But I walked into product design with something most designers don't have: five years of thinking about how people move through space, how structures hold weight, and why a bad layout makes people feel lost before they even realize it.",
-  "Now I work as a product designer. I obsess over spacing, argue about 4px versus 8px, and occasionally explain to a developer why \"just move it a little to the left\" is a real design decision. The usual. It's not the career my dad dreamed of. But it's the one that somehow kept finding me — and at some point, I stopped running from it.",
+  "The very 1st $60/month job didn't scare me off, but it taught me a lot. I learned Figma by Googling (actually Adobe XD first), shipped things by guessing, and presented designs to stakeholders while quietly hoping nobody would ask too many questions.",
+  <>Nearly <span className="font-semibold text-foreground">8 years in product design</span>, with the last <span className="font-semibold text-foreground">4 focused on Web3 and DeFi</span>. Looking back, it’s been an incredible journey - I've loved every moment and every person I’ve met along the way.</>,
+  "It's not the career my dad dreamed of. But it's the one that somehow kept finding me — and at some point, I stopped running from it, even when AI is occupying the whole ecosystem.",
 ];
 
 function HowISurviveSection() {
@@ -160,7 +225,7 @@ function HowISurviveSection() {
           <motion.p
             key={i}
             variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
-            className="text-lg-regular text-muted-foreground"
+            className="text-base-regular text-muted-foreground"
             style={{ lineHeight: 1.85 }}
           >
             {para}
@@ -172,7 +237,7 @@ function HowISurviveSection() {
 }
 
 const ARCH_HAUNTS_PARAGRAPHS = [
-  "The funny thing is, I never really left architecture. I just changed materials.",
+  <>The funny thing is, <span className="font-semibold text-foreground">I never really left architecture</span>. I just changed materials.</>,
   "Before, I designed with walls, doors, rooms, and circulation for users who got lost even when the exit sign was glowing. Now, I design buttons, cards, flows, states for users who definitely did not read the tooltip.",
   "Architecture taught me to think about space. Product design taught me to think about digital space. Both are about helping people move from one point to another without feeling lost, confused, or personally attacked by the layout.",
   "Maybe my dad's dream didn't disappear. It just got a different type of blueprint.",
@@ -192,7 +257,7 @@ function ArchHauntsSection() {
           <motion.p
             key={i}
             variants={{ hidden: { opacity: 0, y: 24 }, visible: { opacity: 1, y: 0, transition: { duration: 0.65, ease: EASE } } }}
-            className="text-lg-regular text-muted-foreground"
+            className="text-base-regular text-muted-foreground"
             style={{ lineHeight: 1.85 }}
           >
             {para}
@@ -206,19 +271,26 @@ function ArchHauntsSection() {
 // ─── STRETCH COLUMN ───────────────────────────────────────────────────────────
 
 interface StretchColumnProps {
-  title:      string;
-  decorType:  "cross" | "ellipse";
-  className?: string;
-  children:   React.ReactNode;
+  title:            string;
+  decorType:        "cross" | "ellipse";
+  className?:       string;
+  children:         React.ReactNode;
+  index:            number;
+  onMeasureWidth:   (index: number, width: number) => void;
+  sharedScrollRoom: number;
 }
 
-function StretchColumn({ title, decorType, className = "", children }: StretchColumnProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-  const titleRef   = useRef<HTMLDivElement>(null);
+function StretchColumn({
+  title, decorType, className = "", children, index, onMeasureWidth, sharedScrollRoom,
+}: StretchColumnProps) {
+  const wrapperRef    = useRef<HTMLDivElement>(null);
+  const titleRef      = useRef<HTMLDivElement>(null);
+  const shrinkRoomRef = useRef<HTMLDivElement>(null);
 
   const [isDesktop, setIsDesktop] = useState(false);
   const [triggerStart, setTriggerStart] = useState(99999);
   const [triggerEnd,   setTriggerEnd]   = useState(99999);
+  const [colWidth,     setColWidth]     = useState(0);
 
   useEffect(() => {
     const check = () => setIsDesktop(window.innerWidth >= 768);
@@ -235,17 +307,36 @@ function StretchColumn({ title, decorType, className = "", children }: StretchCo
       const wrapperEl = wrapperRef.current;
       if (!titleEl || !wrapperEl) return;
       const titleBottomDoc = titleEl.getBoundingClientRect().bottom + window.scrollY;
-      const start    = titleBottomDoc - window.innerHeight;
-      const colWidth = wrapperEl.offsetWidth;
+      const start = titleBottomDoc - window.innerHeight;
+      const width = wrapperEl.offsetWidth;
       setTriggerStart(Math.max(0, start));
-      setTriggerEnd(Math.max(0, start) + colWidth);
+      setTriggerEnd(Math.max(0, start) + width);
+      setColWidth(width);
+      onMeasureWidth(index, width);
     };
     measure();
     window.addEventListener("resize", measure);
     return () => window.removeEventListener("resize", measure);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const decorH = useTransform(scrollY, [triggerStart, triggerEnd], [0, triggerEnd - triggerStart], { clamp: true });
+  // Grow phase (unchanged): decor grows 0 -> colWidth as the column enters view.
+  const growDecorH = useTransform(scrollY, [triggerStart, triggerEnd], [0, triggerEnd - triggerStart], { clamp: true });
+
+  // Shrink phase: once the title naturally reaches the top (and CSS sticky
+  // pins it there), decor shrinks colWidth -> 0 over `sharedScrollRoom` px,
+  // synced across all 3 columns. Driven by a fixed-height marker (not the
+  // live/animated decor itself) positioned at the column's natural top, so
+  // the scroll-room measurement isn't self-referential with the animation.
+  const { scrollYProgress: shrinkProgress } = useScroll({
+    target: shrinkRoomRef as React.RefObject<HTMLElement>,
+    offset: ["start start", "end start"],
+  });
+  const shrinkDecorH = useTransform(shrinkProgress, (p) =>
+    Math.max(0, colWidth - p * sharedScrollRoom)
+  );
+
+  const decorH = useTransform([growDecorH, shrinkDecorH], ([g, s]: number[]) => Math.min(g, s));
 
   const decorSvg = decorType === "cross" ? (
     <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full text-border">
@@ -259,8 +350,17 @@ function StretchColumn({ title, decorType, className = "", children }: StretchCo
   );
 
   return (
-    <div ref={wrapperRef} className={`flex flex-col ${className}`}>
-      <div ref={titleRef} className="border-b border-ui px-2 py-6 md:px-8 md:py-8 lg:px-14 lg:py-14">
+    <div ref={wrapperRef} className={`relative flex flex-col ${className}`}>
+      {/* Invisible fixed-height marker defining the shrink-phase scroll room,
+          aligned with the title's natural top. Always mounted (height 0 when
+          inactive) so its ref is hydrated before useScroll reads it. */}
+      <div
+        ref={shrinkRoomRef}
+        className="absolute top-0 left-0 w-px pointer-events-none"
+        style={{ height: isDesktop ? sharedScrollRoom : 0 }}
+        aria-hidden
+      />
+      <div ref={titleRef} className="md:sticky md:top-0 md:z-10 md:bg-background border-b border-ui px-2 py-6 md:px-8 md:py-8 lg:px-14 lg:py-14">
         <h3 className="type-h3">{title}</h3>
       </div>
       {/* content: naturally second in source, pushed after decor on md+ */}
@@ -285,6 +385,19 @@ export default function AboutPage() {
   const canvasRef  = useRef<HTMLCanvasElement>(null);
   const imagesRef  = useRef<HTMLImageElement[]>([]);
   const rafRef     = useRef<number | null>(null);
+
+  // Largest measured column width across the 3 StretchColumns, shared so
+  // all 3 decor-shrink phases run over the same distance and release together.
+  const [colWidths, setColWidths] = useState<number[]>([0, 0, 0]);
+  const sharedScrollRoom = Math.max(...colWidths);
+  const handleMeasureWidth = (index: number, width: number) => {
+    setColWidths((prev) => {
+      if (prev[index] === width) return prev;
+      const next = [...prev];
+      next[index] = width;
+      return next;
+    });
+  };
 
   const { scrollYProgress: heroP } = useScroll({ target: heroRef, offset: ["start 50%", "end 50%"] });
   const heroY = useTransform(heroP, [0, 1], ["12%", "-12%"]);
@@ -381,6 +494,9 @@ export default function AboutPage() {
               title="My origin story"
               decorType="cross"
               className="md:col-span-4 border-b border-ui md:border-b-0 md:border-r"
+              index={0}
+              onMeasureWidth={handleMeasureWidth}
+              sharedScrollRoom={sharedScrollRoom}
             >
               <OriginStorySection />
             </StretchColumn>
@@ -389,6 +505,9 @@ export default function AboutPage() {
               title="How I survive now"
               decorType="ellipse"
               className="md:col-span-4 border-b border-ui md:border-b-0 md:border-r"
+              index={1}
+              onMeasureWidth={handleMeasureWidth}
+              sharedScrollRoom={sharedScrollRoom}
             >
               <HowISurviveSection />
             </StretchColumn>
@@ -397,6 +516,9 @@ export default function AboutPage() {
               title="Architecture still haunts me"
               decorType="cross"
               className="md:col-span-4"
+              index={2}
+              onMeasureWidth={handleMeasureWidth}
+              sharedScrollRoom={sharedScrollRoom}
             >
               <ArchHauntsSection />
             </StretchColumn>
