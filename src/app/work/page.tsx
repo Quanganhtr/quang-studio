@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
 import { Button } from "@/components/ui/Button";
 import Footer from "@/components/sections/Footer";
-import { PROJECTS, type Project } from "@/lib/projects";
+import { PROJECTS, type Project, AI_GENERATED, type AIGeneratedItem } from "@/lib/projects";
 import { useProjectNav } from "@/lib/useProjectNav";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -160,6 +160,45 @@ function ProjectRow({
   );
 }
 
+function AIGeneratedCard({ item }: { item: AIGeneratedItem }) {
+  const open = () => window.open(item.linkUrl, "_blank", "noopener");
+  const pillText = item.linkUrl.includes("linkedin.com") ? "VIEW ON LINKEDIN" : "VIEW ON X";
+
+  return (
+    <div
+      className="border-b border-ui cursor-pointer"
+      onClick={open}
+      onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: pillText } }))}
+      onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
+    >
+      <div className="border-b border-ui px-2 py-6 md:px-8 md:py-8 lg:px-14 lg:py-14 flex flex-row items-end justify-between">
+        <div className="flex flex-col gap-3">
+          <span className="text-base-bold text-muted-foreground">{item.eyebrow}</span>
+          <h3 className="type-h3">{item.title}</h3>
+        </div>
+        <span onClick={(e) => e.stopPropagation()}>
+          <Button
+            variant="solid"
+            size="lg"
+            label="View full"
+            hoverLabel="View full"
+            href={item.linkUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+          />
+        </span>
+      </div>
+      <div className="relative aspect-video w-full">
+        {item.media.type === "video" ? (
+          <video src={item.media.src} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+        ) : (
+          <img src={item.media.src} alt="" aria-hidden className="w-full h-full object-cover" />
+        )}
+      </div>
+    </div>
+  );
+}
+
 export default function WorkPage() {
   const rowRefs = useRef<RowRef[]>(PROJECTS.map(() => ({ current: null }))).current;
   const { loadingSlug, openProject } = useProjectNav();
@@ -262,8 +301,20 @@ export default function WorkPage() {
               />
             ))}
           </section>
+        ) : activeTab === "ai-generated" ? (
+          <section className="section-container max-w-none p-0 bg-background">
+            {AI_GENERATED.map((item, i) => (
+              <AIGeneratedCard key={i} item={item} />
+            ))}
+          </section>
         ) : (
-          <section className="w-full" style={{ minHeight: "100dvh" }} />
+          <section className="w-full flex flex-col items-center justify-center gap-6 text-center px-2" style={{ minHeight: "100dvh" }}>
+            <img src="/why.png" alt="" aria-hidden className="w-40" />
+            <div className="flex flex-col gap-2">
+              <h3 className="type-h3">Are you asking why nothing here?</h3>
+              <p className="text-base-regular text-muted-foreground">I&apos;m working on it. Hope it would finish soon!</p>
+            </div>
+          </section>
         )}
 
         <Footer />

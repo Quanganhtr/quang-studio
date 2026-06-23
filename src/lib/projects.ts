@@ -37,6 +37,34 @@ export type Project = {
   testimonial?: ProjectTestimonial;
 };
 
+export type AIGeneratedItem = {
+  eyebrow: string;
+  title: string;
+  media: { type: "video" | "image"; src: string };
+  linkUrl: string;
+};
+
+export const AI_GENERATED: AIGeneratedItem[] = [
+  {
+    eyebrow: "##1",
+    title: "Meow-Potter",
+    media: { type: "video", src: "/ai-1.webm" },
+    linkUrl: "https://x.com/MinswapDEX/status/2051159771542434037?s=20",
+  },
+  {
+    eyebrow: "##2",
+    title: "Meow at the gym",
+    media: { type: "video", src: "/ai-2.webm" },
+    linkUrl: "https://www.linkedin.com/posts/quanganhtr_another-day-with-minswap-activity-7472871091057676288-2fTu?utm_source=share&utm_medium=member_desktop&rcm=ACoAADXVCPUBTL7JRwX1DDzE4RoanBCOrXLOhxQ",
+  },
+  {
+    eyebrow: "##3",
+    title: "Cat-tronaut",
+    media: { type: "video", src: "/ai-3.webm" },
+    linkUrl: "https://x.com/MinswapDEX/status/2044315918625615993?s=20",
+  },
+];
+
 export const PROJECTS: Project[] = [
   {
     index: "My Proudest Child", title: "Minswap", slug: "minswap",
