@@ -6,7 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
 import { Button } from "@/components/ui/Button";
 import Footer from "@/components/sections/Footer";
-import { PROJECTS, type Project, AI_GENERATED, type AIGeneratedItem } from "@/lib/projects";
+import { PROJECTS, type Project, AI_GENERATED, type AIGeneratedItem, isVideoSrc } from "@/lib/projects";
 import { useProjectNav } from "@/lib/useProjectNav";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -76,7 +76,11 @@ function ProjectRow({
         />
       </div>
       <div className="relative aspect-square w-full">
-        <img src={project.thumbnail} alt="" aria-hidden className="w-full h-full object-cover" />
+        {isVideoSrc(project.thumbnail) ? (
+          <video src={project.thumbnail} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+        ) : (
+          <img src={project.thumbnail} alt="" aria-hidden className="w-full h-full object-cover" />
+        )}
         {loading && (
           <div className="absolute inset-0 flex items-center justify-center bg-foreground/40">
             <i className="ri-loader-4-line animate-spin text-background text-3xl" aria-hidden="true" />
@@ -143,7 +147,11 @@ function ProjectRow({
           />
         </div>
         <div className="relative aspect-square w-full">
+          {isVideoSrc(project.thumbnail) ? (
+          <video src={project.thumbnail} autoPlay muted loop playsInline className="w-full h-full object-cover" />
+        ) : (
           <img src={project.thumbnail} alt="" aria-hidden className="w-full h-full object-cover" />
+        )}
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center bg-foreground/40">
               <i className="ri-loader-4-line animate-spin text-background text-3xl" aria-hidden="true" />

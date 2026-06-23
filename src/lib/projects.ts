@@ -37,6 +37,8 @@ export type Project = {
   testimonial?: ProjectTestimonial;
 };
 
+export const isVideoSrc = (src: string) => /\.(webm|mp4)$/i.test(src);
+
 export type AIGeneratedItem = {
   eyebrow: string;
   title: string;
@@ -68,7 +70,7 @@ export const AI_GENERATED: AIGeneratedItem[] = [
 export const PROJECTS: Project[] = [
   {
     index: "My Proudest Child", title: "Minswap", slug: "minswap",
-    thumbnail: "/minswap-thumbnail.gif", liveUrl: "https://minswap.org",
+    thumbnail: "/minswap-thumbnail.webm", liveUrl: "https://minswap.org",
     tagline: "Cardano's biggest DEX",
     description: "Minswap has grown into Cardano's leading decentralized exchange, serving traders and liquidity providers through swaps, farming, liquidity, and aggregated trade routing.",
     scope: ["Brand Identity", "Design System", "Product & UX Design", "Motion Design", "Creative Strategy", "Content Strategy (for video)", "Growth Design"],
@@ -82,7 +84,7 @@ export const PROJECTS: Project[] = [
       { value: "$20.02M", share: "60.6% share", label: "Total fees generated" },
       { value: "220K+",                         label: "Unique users" },
     ],
-    closingVideo: "/minswap-shot-4.mp4",
+    closingVideo: "/minswap-shot-4.webm",
     closingImage: "/minswap-shot-5.png",
     testimonial: {
       quote: [
@@ -98,7 +100,7 @@ export const PROJECTS: Project[] = [
   },
   {
     index: "The Second-Born Star", title: "Noodles.fi", slug: "noodles-fi",
-    thumbnail: "/noodles-thumbnail.gif", liveUrl: "https://app.noodles.fi",
+    thumbnail: "/noodles-thumbnail.webm", liveUrl: "https://app.noodles.fi",
     tagline: "Your Homepage for SUI",
     description: "Noodles is a platform that enables users to discover and act on the best opportunities in Sui. From Analytics to Swaps to Vaults, we aim to be the gateway to Sui",
     scope: ["Brand Identity", "Design System", "Product & UX Design", "Motion Design", "Creative Strategy", "Content Strategy (for video)", "Growth Design"],
@@ -110,7 +112,7 @@ export const PROJECTS: Project[] = [
       { value: "12,500%", label: "User growth since launch" },
       { value: "13.9K",   label: "Followers gained" },
     ],
-    gridLeftImage: "/noodles-thumbnail.gif",
+    gridLeftVideo: "/noodles-thumbnail.webm",
     gridRightImage: "/noodles-shot-2.png",
     closingVideo: "/noodles-shot-4.webm",
     closingImage: "/noodles-shot-4.png",

@@ -3,7 +3,7 @@
 import { useRef } from "react";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/Button";
-import { PROJECTS, type Project } from "@/lib/projects";
+import { PROJECTS, type Project, isVideoSrc } from "@/lib/projects";
 import { useProjectNav } from "@/lib/useProjectNav";
 
 const CARDS = PROJECTS.slice(0, 5);
@@ -25,12 +25,23 @@ function WaveCard({
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
-      <img
-        src={card.thumbnail}
-        alt=""
-        className="absolute inset-0 w-full h-full object-cover"
-        aria-hidden
-      />
+      {isVideoSrc(card.thumbnail) ? (
+        <video
+          src={card.thumbnail}
+          autoPlay
+          muted
+          loop
+          playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      ) : (
+        <img
+          src={card.thumbnail}
+          alt=""
+          className="absolute inset-0 w-full h-full object-cover"
+          aria-hidden
+        />
+      )}
       <div className="relative z-10 contents">
         <span className="text-sm-regular text-muted-foreground">{card.index}</span>
         <div className="flex flex-col gap-1">
@@ -121,12 +132,23 @@ export default function MyWork() {
                 onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
                 onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
               >
-                <img
-                  src={card.thumbnail}
-                  alt=""
-                  className="absolute inset-0 w-full h-full object-cover"
-                  aria-hidden
-                />
+                {isVideoSrc(card.thumbnail) ? (
+                  <video
+                    src={card.thumbnail}
+                    autoPlay
+                    muted
+                    loop
+                    playsInline
+                    className="absolute inset-0 w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={card.thumbnail}
+                    alt=""
+                    className="absolute inset-0 w-full h-full object-cover"
+                    aria-hidden
+                  />
+                )}
                 <div className="relative z-10 contents">
                   <span className="text-sm-regular text-muted-foreground">{card.index}</span>
                   <div className="flex flex-col gap-1">

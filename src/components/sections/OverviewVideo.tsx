@@ -55,7 +55,7 @@ export default function OverviewVideo() {
         >
           {/* scale-up gives room for the parallax drift without showing empty edges */}
           <motion.div style={{ y: isMobile ? 0 : parallaxY, scale: isMobile ? 1 : 1.2, width: "100%", height: "100%" }}>
-            <PixelMosaicVideo video={isMobile ? "/overview-video-mobile.mp4" : "/overview-video.mp4"} />
+            <PixelMosaicVideo video={isMobile ? "/overview-video-mobile.webm" : "/overview-video.webm"} />
           </motion.div>
         </motion.div>
       </div>
