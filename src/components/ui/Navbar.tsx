@@ -208,6 +208,12 @@ export default function Navbar() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [menuOpen]);
 
+  // Let other fixed/sticky UI (e.g. a sticky tab bar) react to whether the
+  // navbar is currently shown or slid out of view.
+  useEffect(() => {
+    window.dispatchEvent(new CustomEvent("navbar-hidden", { detail: { hidden } }));
+  }, [hidden]);
+
   useEffect(() => {
     if (menuOpen) setHidden(false);
   }, [menuOpen]);

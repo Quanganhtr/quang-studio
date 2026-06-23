@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { clsx } from "clsx";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
@@ -211,18 +211,58 @@ export default function WorkPage() {
   const rowRefs = useRef<RowRef[]>(PROJECTS.map(() => ({ current: null }))).current;
   const { loadingSlug, openProject } = useProjectNav();
   const [activeTab, setActiveTab] = useState<TabKey>("showcase");
-  const tabsRef = useRef<HTMLDivElement>(null);
+  const tabsRef  = useRef<HTMLDivElement>(null);
+  const titleRef = useRef<HTMLDivElement>(null);
 
-  // Mobile only: the navbar never auto-hides there, so once the tab bar
-  // sticks right under it, swap the navbar's transparent header for a solid
-  // background to avoid the tab row showing through it.
+  // Tracks the navbar's own show/hide state (emitted by Navbar) so the tabs
+  // can sit at top:0 while it's hidden (scrolling down), then get pushed
+  // down to sit right under it once it slides back in (scrolling up).
+  const [navbarHidden, setNavbarHidden] = useState(false);
+  useEffect(() => {
+    const handler = (e: Event) => setNavbarHidden((e as CustomEvent<{ hidden: boolean }>).detail.hidden);
+    window.addEventListener("navbar-hidden", handler);
+    return () => window.removeEventListener("navbar-hidden", handler);
+  }, []);
+
+  // Switching tabs: snap the tab bar back to its sticky position so the new
+  // list always starts from its first item, instead of staying wherever the
+  // previous tab's scroll position happened to be. Runs after the new tab's
+  // content has actually committed/laid out — doing this synchronously in
+  // the click handler races the old DOM's layout against the new tab's
+  // (different-height) content, so the browser's scroll position would
+  // settle past the first item once the new content mounted.
+  //
+  // Measured off the title section above the tabs, not the tabs section
+  // itself: tabsRef is sticky, so once it's stuck its getBoundingClientRect()
+  // always reports the stuck offset regardless of how far we've scrolled
+  // into the list — useless as a "how far did we scroll" signal. The title
+  // section is never sticky, so its rect always reflects real scroll depth,
+  // and its bottom edge sits exactly at the tabs section's natural top
+  // (they're adjacent siblings with no gap between them).
+  const didMountRef = useRef(false);
+  useLayoutEffect(() => {
+    if (!didMountRef.current) {
+      didMountRef.current = true;
+      return;
+    }
+    const titleEl = titleRef.current;
+    if (!titleEl) return;
+    // Match wherever the tabs are actually sitting right now (top: 0 while
+    // the navbar's hidden, top: navbar-height while it's shown).
+    const navH = navbarHidden
+      ? 0
+      : parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--navbar-height")) || 0;
+    const delta = titleEl.getBoundingClientRect().bottom - navH;
+    window.scrollTo({ top: window.scrollY + delta, behavior: "smooth" });
+  }, [activeTab]);
+
+  // Once the tab bar has scrolled up into its sticky position, swap the
+  // navbar's transparent header for a solid background — relevant whenever
+  // the navbar is actually visible over the tabs (mobile: always; desktop:
+  // while scrolling up, since it's off-screen otherwise and the bg is moot).
   useEffect(() => {
     const handleScroll = () => {
-      const isMobile = window.matchMedia("(max-width: 767px)").matches;
-      if (!isMobile || !tabsRef.current) {
-        window.dispatchEvent(new CustomEvent("navbar-bg", { detail: { solid: false } }));
-        return;
-      }
+      if (!tabsRef.current) return;
       const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--navbar-height")) || 0;
       const stuck = tabsRef.current.getBoundingClientRect().top <= navH;
       window.dispatchEvent(new CustomEvent("navbar-bg", { detail: { solid: stuck } }));
@@ -242,7 +282,7 @@ export default function WorkPage() {
       <main>
 
         {/* ── Title ─────────────────────────────────────────────────────── */}
-        <section className="section-container max-w-none pt-40 md:pt-80 lg:pt-120 pb-8 md:pb-12 px-2 md:px-8 lg:px-14">
+        <section ref={titleRef} className="section-container max-w-none pt-40 md:pt-80 lg:pt-120 pb-8 md:pb-12 px-2 md:px-8 lg:px-14">
           <h2 className="type-h2">
             <span className="text-foreground">Work</span><span className="text-accent-foreground"> of the day. </span>
             <span className="text-foreground">Work</span><span className="text-accent-foreground"> of the year. </span>
@@ -254,7 +294,11 @@ export default function WorkPage() {
         {/* ── Tabs ──────────────────────────────────────────────────────── */}
         <section
           ref={tabsRef}
-          className="section-container max-w-none sticky top-(--navbar-height,56px) md:top-0 z-40 bg-background border-t border-b border-ui px-2 md:px-8 lg:px-14 pt-2 md:pt-2 lg:pt-5 pb-3 md:pb-4 lg:pb-6"
+          className="section-container max-w-none sticky z-40 bg-background border-t border-b border-ui px-2 md:px-8 lg:px-14 pt-2 md:pt-2 lg:pt-5 pb-3 md:pb-4 lg:pb-6"
+          style={{
+            top: navbarHidden ? 0 : "var(--navbar-height, 56px)",
+            transition: "top 0.7s ease-in-out",
+          }}
         >
           <div className="flex items-center gap-0">
             {TABS.map((tab) => {
@@ -316,10 +360,10 @@ export default function WorkPage() {
             ))}
           </section>
         ) : (
-          <section className="w-full flex flex-col items-center justify-center gap-6 text-center px-2" style={{ minHeight: "100dvh" }}>
+          <section className="w-full flex flex-col items-center justify-center gap-6 text-center px-2 py-39 md:py-50 lg:py-60 border-b border-ui">
             <img src="/why.webp" alt="" aria-hidden className="w-40" />
             <div className="flex flex-col gap-2">
-              <h3 className="type-h3">Are you asking why nothing here?</h3>
+              <h3 className="text-lg-bold">Are you asking why nothing here?</h3>
               <p className="text-base-regular text-muted-foreground">I&apos;m working on it. Hope it would finish soon!</p>
             </div>
           </section>

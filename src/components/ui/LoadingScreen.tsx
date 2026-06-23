@@ -3,6 +3,7 @@
 import { useState, useEffect, useLayoutEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence, animate } from "framer-motion";
+import { Button } from "@/components/ui/Button";
 import { PROJECTS } from "@/lib/projects";
 
 const PAGES = [
@@ -146,15 +147,19 @@ export default function LoadingScreen() {
           {/* TAP TO ENTER fades in once both animation and loading are done */}
           <AnimatePresence>
             {ready && (
-              <motion.button
+              <motion.div
                 initial={{ opacity: 0, y: 8 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                onClick={handleEnter}
-                className="text-background bg-transparent border border-background px-7 py-2.5 cursor-pointer tracking-[0.15em] text-base-bold"
               >
-                TAP TO ENTER
-              </motion.button>
+                <Button
+                  variant="solid"
+                  size="lg"
+                  label="Enter"
+                  onClick={handleEnter}
+                  className="bg-background! text-foreground! hover:bg-background! hover:text-foreground!"
+                />
+              </motion.div>
             )}
           </AnimatePresence>
         </motion.div>
