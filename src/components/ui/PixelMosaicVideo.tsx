@@ -39,8 +39,15 @@ export default function PixelMosaicVideo({ video }: { video: string }) {
 
     const vid = videoRef.current;
 
-    if (video && vid.src !== new URL(video, location.href).href) {
-      vid.src = video;
+    // Safari (macOS/iOS) has no reliable native WebM decoding — fall back
+    // to the same-named .mp4 there so autoplay still works.
+    const supportsWebm = vid.canPlayType("video/webm") !== "";
+    const resolvedSrc = video.endsWith(".webm") && !supportsWebm
+      ? video.replace(/\.webm$/i, ".mp4")
+      : video;
+
+    if (resolvedSrc && vid.src !== new URL(resolvedSrc, location.href).href) {
+      vid.src = resolvedSrc;
       vid.load();
       vid.play().catch((e) => console.log("Autoplay error:", e));
     }
