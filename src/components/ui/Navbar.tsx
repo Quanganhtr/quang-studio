@@ -1,6 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
+import { clsx } from "clsx";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Button from "@/components/ui/Button";
@@ -163,8 +164,28 @@ export default function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
   const menuBtnRef  = useRef<HTMLButtonElement>(null);
+  const headerRef   = useRef<HTMLElement>(null);
   const lastScrollY = useRef(0);
   const [hidden, setHidden] = useState(false);
+  const [solidBg, setSolidBg] = useState(false);
+
+  // Publish the rendered header height so other components (e.g. a sticky
+  // tab bar) can offset themselves to sit right below the fixed navbar.
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const setVar = () => document.documentElement.style.setProperty("--navbar-height", `${el.offsetHeight}px`);
+    setVar();
+    const ro = new ResizeObserver(setVar);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const handler = (e: Event) => setSolidBg((e as CustomEvent<{ solid: boolean }>).detail.solid);
+    window.addEventListener("navbar-bg", handler);
+    return () => window.removeEventListener("navbar-bg", handler);
+  }, []);
 
   useEffect(() => {
     const isMobile = window.matchMedia("(max-width: 767px)").matches;
@@ -204,6 +225,8 @@ export default function Navbar() {
   return (
     <>
       <motion.header
+        ref={headerRef}
+        className={clsx(solidBg && "bg-background")}
         initial={false}
         animate={{ opacity: 1, y: hidden ? "-100%" : "0%" }}
         transition={{ duration: 0.7, ease: "easeInOut" }}

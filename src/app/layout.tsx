@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { Boldonse, Geist_Mono, Inter } from "next/font/google";
+import Script from "next/script";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ThemeProvider } from "@/lib/ThemeContext";
 import ScrollReset from "@/components/ui/ScrollReset";
@@ -11,6 +12,8 @@ import "./globals.css";
 const boldonse = Boldonse({ subsets: ["latin"], weight: "400", variable: "--font-boldonse", display: "swap" });
 const geistMono = Geist_Mono({ subsets: ["latin"], weight: ["400", "700", "900"], variable: "--font-geist-mono", display: "swap" });
 const inter = Inter({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-inter", display: "swap" });
+
+const GA_MEASUREMENT_ID = "G-XZHGXZZPJ1";
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -71,6 +74,15 @@ export default function RootLayout({
         <FastScrollToast />
         <ThemeProvider>{children}</ThemeProvider>
         <SpeedInsights />
+        <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${GA_MEASUREMENT_ID}');
+          `}
+        </Script>
       </body>
     </html>
   );

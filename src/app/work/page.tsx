@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useRef } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import { clsx } from "clsx";
 import { motion, useScroll, useTransform } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
 import { Button } from "@/components/ui/Button";
@@ -14,6 +15,14 @@ type RowRef = React.RefObject<HTMLDivElement | null>;
 
 const COL_SMALL = (5 / 12) * 100;
 const COL_LARGE = (7 / 12) * 100;
+
+type TabKey = "showcase" | "ai-generated" | "behind-the-ui";
+
+const TABS: { key: TabKey; label: string; count: number }[] = [
+  { key: "showcase",      label: "Showcase",      count: PROJECTS.length },
+  { key: "ai-generated",  label: "AI Generated",  count: 3 },
+  { key: "behind-the-ui", label: "Behind the UI", count: 0 },
+];
 
 function ProjectRow({
   project,
@@ -154,6 +163,31 @@ function ProjectRow({
 export default function WorkPage() {
   const rowRefs = useRef<RowRef[]>(PROJECTS.map(() => ({ current: null }))).current;
   const { loadingSlug, openProject } = useProjectNav();
+  const [activeTab, setActiveTab] = useState<TabKey>("showcase");
+  const tabsRef = useRef<HTMLDivElement>(null);
+
+  // Mobile only: the navbar never auto-hides there, so once the tab bar
+  // sticks right under it, swap the navbar's transparent header for a solid
+  // background to avoid the tab row showing through it.
+  useEffect(() => {
+    const handleScroll = () => {
+      const isMobile = window.matchMedia("(max-width: 767px)").matches;
+      if (!isMobile || !tabsRef.current) {
+        window.dispatchEvent(new CustomEvent("navbar-bg", { detail: { solid: false } }));
+        return;
+      }
+      const navH = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--navbar-height")) || 0;
+      const stuck = tabsRef.current.getBoundingClientRect().top <= navH;
+      window.dispatchEvent(new CustomEvent("navbar-bg", { detail: { solid: stuck } }));
+    };
+    handleScroll();
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    window.addEventListener("resize", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      window.removeEventListener("resize", handleScroll);
+    };
+  }, []);
 
   return (
     <>
@@ -170,20 +204,67 @@ export default function WorkPage() {
           </h2>
         </section>
 
-        {/* ── Project list ──────────────────────────────────────────────── */}
-        <section className="section-container max-w-none border-t border-ui p-0 bg-background">
-          {PROJECTS.map((project, i) => (
-            <ProjectRow
-              key={project.index}
-              project={project}
-              thumbLeft={i % 2 === 0}
-              rowRef={rowRefs[i]}
-              prevRef={i > 0 ? rowRefs[i - 1] : null}
-              onOpen={openProject}
-              loading={loadingSlug === project.slug}
-            />
-          ))}
+        {/* ── Tabs ──────────────────────────────────────────────────────── */}
+        <section
+          ref={tabsRef}
+          className="section-container max-w-none sticky top-(--navbar-height,56px) md:top-0 z-40 bg-background border-t border-b border-ui px-2 md:px-8 lg:px-14 pt-2 md:pt-2 lg:pt-5 pb-3 md:pb-4 lg:pb-6"
+        >
+          <div className="flex items-center gap-0">
+            {TABS.map((tab) => {
+              const isActive = tab.key === activeTab;
+              return (
+                <button
+                  key={tab.key}
+                  onClick={() => setActiveTab(tab.key)}
+                  className="relative flex items-center gap-2 md:gap-3 cursor-pointer py-2 px-3 md:py-4 md:px-6"
+                >
+                  <span
+                    className={clsx(
+                      "text-base-bold",
+                      isActive ? "text-foreground" : "text-accent-foreground"
+                    )}
+                  >
+                    {tab.label}
+                  </span>
+                  <span
+                    className={clsx(
+                      "inline-flex items-center justify-center rounded-xs text-sm-medium text-background h-5 w-5 md:h-6 md:w-auto md:min-w-6 md:px-1.5",
+                      isActive ? "bg-foreground" : "bg-accent-foreground"
+                    )}
+                  >
+                    {tab.count}
+                  </span>
+                  {isActive && (
+                    <motion.span
+                      layoutId="active-tab-indicator"
+                      transition={{ duration: 0.3, ease: EASE }}
+                      className="absolute inset-x-0 mx-auto -bottom-0.5 w-8 md:w-12 h-1 rounded-xs bg-foreground"
+                    />
+                  )}
+                </button>
+              );
+            })}
+          </div>
         </section>
+
+        {/* ── Project list ──────────────────────────────────────────────── */}
+        {activeTab === "showcase" ? (
+          <section className="section-container max-w-none p-0 bg-background">
+            {PROJECTS.map((project, i) => (
+              <ProjectRow
+                key={project.index}
+                project={project}
+                thumbLeft={i % 2 === 0}
+                rowRef={rowRefs[i]}
+                prevRef={i > 0 ? rowRefs[i - 1] : null}
+                onOpen={openProject}
+                loading={loadingSlug === project.slug}
+              />
+            ))}
+          </section>
+        ) : (
+          <section className="w-full" style={{ minHeight: "100dvh" }} />
+        )}
 
         <Footer />
       </main>
