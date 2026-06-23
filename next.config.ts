@@ -5,9 +5,6 @@ const nextConfig: NextConfig = {
   turbopack: {
     root: path.resolve(__dirname),
   },
-  images: {
-    minimumCacheTTL: 0,
-  },
 };
 
 export default nextConfig;

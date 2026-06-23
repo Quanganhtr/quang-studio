@@ -54,13 +54,13 @@ export default function LoadingScreen() {
     setVisible(false);
   };
 
-  // Fixed-pace counter: always counts 0→100 over ~2.5s regardless of load speed.
+  // Fixed-pace counter: always counts 0→100 over ~1s regardless of load speed.
   // TAP TO ENTER only appears when both this animation AND real loading are done.
   useEffect(() => {
     if (sessionStorage.getItem("loaded")) return;
 
     const controls = animate(0, 100, {
-      duration: 2.5,
+      duration: 1,
       ease: "linear",
       onUpdate(v) { setDisplayed(Math.round(v)); },
       onComplete() {
@@ -78,7 +78,14 @@ export default function LoadingScreen() {
     if (sessionStorage.getItem("loaded")) return;
     document.body.style.overflow = "hidden";
 
-    PAGES.forEach((p) => router.prefetch(p));
+    // Prefetch other routes once the page itself has finished loading, so it
+    // doesn't compete with critical-path resources for mobile bandwidth.
+    const prefetchPages = () => PAGES.forEach((p) => router.prefetch(p));
+    if (document.readyState === "complete") {
+      prefetchPages();
+    } else {
+      window.addEventListener("load", prefetchPages, { once: true });
+    }
 
     const isMobile = window.innerWidth <= 768;
 

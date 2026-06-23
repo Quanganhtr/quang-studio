@@ -42,7 +42,7 @@ export default function OverviewVideo() {
   return (
     // Extra height creates the scroll room for the animation
     <div ref={containerRef} className="aspect-9/16 w-full md:aspect-auto md:h-[calc(var(--app-height)*1.5)]">
-      <div className="app-sticky-screen overflow-hidden max-md:h-full!">
+      <div className="app-sticky-screen overflow-hidden max-md:h-full! max-md:min-h-0!">
         <motion.div
           style={{
             position: "absolute",
