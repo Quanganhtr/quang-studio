@@ -257,7 +257,7 @@ export default function Navbar() {
           <div className="flex items-center gap-2">
             {!menuOpen && (
               <>
-                <Button href="#contact" label="Beat a mook" hoverLabel="Book a meet" />
+                <Button href="/contact" label="Beat a mook" hoverLabel="Book a meet" />
                 <ThemeButton isDark={theme === "dark"} onToggle={toggle} />
               </>
             )}

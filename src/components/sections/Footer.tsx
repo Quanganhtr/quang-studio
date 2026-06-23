@@ -3,7 +3,7 @@
 import React, { useRef, useEffect, useState } from "react";
 import { motion, useScroll } from "framer-motion";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/lib/ThemeContext";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
@@ -59,6 +59,7 @@ export default function Footer() {
   const { theme } = useTheme();
   const pathname = usePathname();
   const isHome = pathname === "/";
+  const router = useRouter();
 
   const { scrollYProgress } = useScroll({
     target: footerRef,
@@ -132,6 +133,7 @@ export default function Footer() {
             <h2 className="type-h2 text-left">
               YOU REACHED THE FOOTER.<br />
               <button
+                onClick={() => router.push("/contact")}
                 className="type-h2 cursor-pointer bg-transparent border-none p-0 underline-offset-4 hover:underline text-left"
               >
                 WHEN WILL YOU REACH ME?
