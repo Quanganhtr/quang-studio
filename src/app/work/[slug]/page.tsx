@@ -49,21 +49,37 @@ export default async function ProjectDetailPage({
               {project.category ? `${project.index} — ${project.category}` : project.index}
             </span>
             <h2 className="type-h2">{project.title}</h2>
-            <p className="text-base-regular text-muted-foreground max-w-xl">The supporting cast gets a spin-off when the director finds time. For now, watch Minswap and Noodlesfi.</p>
-            <Button
-              variant="solid"
-              size="lg"
-              label="Start with Minswap"
-              hoverLabel="Start with Minswap"
-              href="/work/minswap"
-            />
-            <Button
-              variant="ghost"
-              size="lg"
-              label="Then meet Noodles.fi"
-              hoverLabel="Then meet Noodles.fi"
-              href="/work/noodles-fi"
-            />
+            <p className="text-base-regular text-muted-foreground max-w-xl">
+              {project.comingSoonText ?? "The supporting cast gets a spin-off when the director finds time. For now, watch Minswap and Noodlesfi."}
+            </p>
+            {project.comingSoonButton ? (
+              <Button
+                variant="solid"
+                size="lg"
+                label={project.comingSoonButton.label}
+                hoverLabel={project.comingSoonButton.label}
+                href={project.comingSoonButton.href}
+                target="_blank"
+                rel="noopener noreferrer"
+              />
+            ) : (
+              <>
+                <Button
+                  variant="solid"
+                  size="lg"
+                  label="Start with Minswap"
+                  hoverLabel="Start with Minswap"
+                  href="/work/minswap"
+                />
+                <Button
+                  variant="ghost"
+                  size="lg"
+                  label="Then meet Noodles.fi"
+                  hoverLabel="Then meet Noodles.fi"
+                  href="/work/noodles-fi"
+                />
+              </>
+            )}
           </section>
           <Footer />
         </main>

@@ -23,6 +23,8 @@ export type Project = {
   thumbnail: string;
   liveUrl: string;
   comingSoon?: boolean;
+  comingSoonText?: string;
+  comingSoonButton?: { label: string; href: string };
   tagline?: string;
   description?: string;
   scope?: string[];
@@ -127,6 +129,11 @@ export const PROJECTS: Project[] = [
   },
   { index: "03",                title: "Ada.fun",    slug: "ada-fun",    category: "Product Design", thumbnail: "/adafun-thumbnail.webp",     liveUrl: "#", comingSoon: true },
   { index: "04",                title: "Reviewnha",  slug: "reviewnha",  category: "UX Research",    thumbnail: "/reviewnha-thumbnail.webp",  liveUrl: "#", comingSoon: true },
-  { index: "05",                title: "Fruit map",  slug: "fruit-map",  category: "Motion",         thumbnail: "/vietnam-thumbnail.webp",    liveUrl: "#", comingSoon: true },
+  {
+    index: "05", title: "Fruit map", slug: "fruit-map", category: "Motion",
+    thumbnail: "/vietnam-thumbnail.webp", liveUrl: "#", comingSoon: true,
+    comingSoonText: "It's currently unavailable on the site. You can check it on my Behance",
+    comingSoonButton: { label: "Go to Behance", href: "https://www.behance.net/gallery/114116483/Vietnam-Fruit-Map-UXUI-Design" },
+  },
   { index: "06",                title: "My Gu",      slug: "my-gu",      category: "Product Design", thumbnail: "/mygu-thumbnail.webp",       liveUrl: "#", comingSoon: true },
 ];
