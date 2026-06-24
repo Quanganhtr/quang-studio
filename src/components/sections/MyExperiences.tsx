@@ -20,7 +20,7 @@ const EXPERIENCES: { label: string; groups: Item[][] }[] = [
   {
     label: "STEP 2",
     groups: [
-      [{ text: "Entered", muted: true }, { text: "CryptoPie Labo", large: true }],
+      [{ text: "Entered", muted: true }, { text: "Blitz Labo", large: true }],
       [{ text: "as", muted: true }, { text: "Product Design Lead", largeMuted: true }],
       [{ text: "from", muted: true }, { text: "2022", largeMuted: true }, { text: "to", muted: true }, { text: "2024", largeMuted: true }],
     ],
