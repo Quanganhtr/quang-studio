@@ -72,7 +72,7 @@ export const AI_GENERATED: AIGeneratedItem[] = [
 export const PROJECTS: Project[] = [
   {
     index: "My Proudest Child", title: "Minswap", slug: "minswap",
-    thumbnail: "/minswap-thumbnail.webm", liveUrl: "https://minswap.org",
+    thumbnail: "/minswap-thumbnail.webm", liveUrl: "https://eternl-dapp-browser.minswap.org/",
     tagline: "Cardano's biggest DEX",
     description: "Minswap has grown into Cardano's leading decentralized exchange, serving traders and liquidity providers through swaps, farming, liquidity, and aggregated trade routing.",
     scope: ["Brand Identity", "Design System", "Product & UX Design", "Motion Design", "Creative Strategy", "Content Strategy (for video)", "Growth Design"],
