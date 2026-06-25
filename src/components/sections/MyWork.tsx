@@ -5,6 +5,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import { Button } from "@/components/ui/Button";
 import { PROJECTS, type Project, isVideoSrc } from "@/lib/projects";
 import { useProjectNav } from "@/lib/useProjectNav";
+import { trackEvent } from "@/lib/gtag";
 
 const CARDS = PROJECTS.slice(0, 5);
 
@@ -21,7 +22,10 @@ function WaveCard({
   return (
     <motion.div
       className="shrink-0 w-[24vw] aspect-square border-2 border-background flex flex-col justify-between p-6 cursor-pointer relative overflow-hidden"
-      onClick={() => onOpen(card.slug)}
+      onClick={() => {
+        trackEvent("project_card_click", { slug: card.slug, location: "my_work_desktop" });
+        onOpen(card.slug);
+      }}
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
@@ -128,7 +132,10 @@ export default function MyWork() {
               <div
                 key={card.slug}
                 className="shrink-0 w-[80vw] aspect-square border-2 border-background cursor-pointer relative overflow-hidden snap-center flex flex-col justify-between p-6"
-                onClick={() => openProject(card.slug)}
+                onClick={() => {
+                  trackEvent("project_card_click", { slug: card.slug, location: "my_work_mobile" });
+                  openProject(card.slug);
+                }}
                 onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
                 onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
               >

@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { useRouter, usePathname } from "next/navigation";
 import { RefObject, useEffect, useState } from "react";
+import { trackEvent } from "@/lib/gtag";
 
 const EASE: [number, number, number, number] = [0.76, 0, 0.24, 1];
 
@@ -104,6 +105,7 @@ export default function MenuOverlay({ open, onClose }: MenuOverlayProps) {
   }, [open]);
 
   const handleNav = (href: string) => {
+    trackEvent("nav_link_click", { href, location: "menu_overlay" });
     if (pathname === href) { onClose(); return; }
     setClicked(href);
     onClose();

@@ -3,6 +3,7 @@
 import { useRef, useCallback, useEffect } from "react";
 import Lottie from "lottie-react";
 import themeData from "../../../public/theme.json";
+import { trackEvent } from "@/lib/gtag";
 
 interface ThemeButtonProps {
   isDark: boolean;
@@ -25,6 +26,7 @@ export default function ThemeButton({ isDark, onToggle }: ThemeButtonProps) {
   }, []);
 
   const handleClick = useCallback(() => {
+    trackEvent("theme_toggle", { to: isDarkRef.current ? "light" : "dark" });
     clickedRef.current = true;
     const anim = lottieRef.current;
     if (anim && window.matchMedia("(pointer: coarse)").matches) {

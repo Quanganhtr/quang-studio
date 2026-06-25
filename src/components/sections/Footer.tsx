@@ -5,6 +5,7 @@ import { motion, useScroll } from "framer-motion";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useTheme } from "@/lib/ThemeContext";
+import { trackEvent } from "@/lib/gtag";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -133,7 +134,10 @@ export default function Footer() {
             <h2 className="type-h2 text-left">
               YOU REACHED THE FOOTER.<br />
               <button
-                onClick={() => router.push("/contact")}
+                onClick={() => {
+                  trackEvent("cta_click", { label: "WHEN WILL YOU REACH ME?", href: "/contact" });
+                  router.push("/contact");
+                }}
                 className="type-h2 cursor-pointer bg-transparent border-none p-0 underline-offset-4 hover:underline text-left"
               >
                 WHEN WILL YOU REACH ME?
@@ -145,7 +149,11 @@ export default function Footer() {
             <div className="flex flex-col md:flex-row md:items-center gap-4">
               {NAV_LINKS.map(({ label, href }, i) => (
                 <React.Fragment key={label}>
-                  <Link href={href} className="text-base-bold">
+                  <Link
+                    href={href}
+                    className="text-base-bold"
+                    onClick={() => trackEvent("nav_link_click", { href, location: "footer" })}
+                  >
                     <HoverText>{label}</HoverText>
                   </Link>
                   {i < NAV_LINKS.length - 1 && (

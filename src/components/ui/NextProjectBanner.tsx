@@ -4,6 +4,7 @@ import { useRef } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import type { Project } from "@/lib/projects";
+import { trackEvent } from "@/lib/gtag";
 
 // Odd positions (1st, 3rd, 5th...) slide in from the left, even positions from the right.
 // Progress 0 = section starts entering the viewport, 1 = section is fully in view.
@@ -40,6 +41,7 @@ export default function NextProjectBanner({
         className="order-3 md:order-0 flex w-full flex-col items-center md:items-start justify-center text-center md:text-left gap-6 text-accent-foreground px-2 md:px-8 lg:px-14 py-10 md:py-14 lg:pt-20 lg:pb-39"
         onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
         onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
+        onClick={() => trackEvent("project_card_click", { slug: prevProject.slug, location: "next_project_banner_prev" })}
       >
         <span className="text-base-bold">Previous project</span>
         <h3 className="type-h3">{prevProject.title}</h3>
@@ -61,6 +63,7 @@ export default function NextProjectBanner({
         className="order-2 md:order-0 flex w-full flex-col items-center md:items-end justify-center text-center md:text-right gap-6 text-foreground px-2 md:px-8 lg:px-14 py-10 md:py-14 lg:pt-20 lg:pb-39"
         onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
         onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
+        onClick={() => trackEvent("project_card_click", { slug: nextProject.slug, location: "next_project_banner_next" })}
       >
         <span className="text-base-bold">Next project</span>
         <h3 className="type-h3">{nextProject.title}</h3>

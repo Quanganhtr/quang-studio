@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Navbar from "@/components/ui/Navbar";
 import Footer from "@/components/sections/Footer";
 import { Button } from "@/components/ui/Button";
+import { trackEvent } from "@/lib/gtag";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -24,6 +25,7 @@ function ContactForm() {
   const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setStatus("loading");
+    trackEvent("contact_form_submit");
     try {
       const res = await fetch("/api/contact", {
         method:  "POST",
@@ -32,12 +34,15 @@ function ContactForm() {
       });
       if (res.ok) {
         setStatus("success");
+        trackEvent("contact_form_success");
         setForm({ name: "", email: "", message: "" });
       } else {
         setStatus("error");
+        trackEvent("contact_form_error", { reason: "http_error" });
       }
     } catch {
       setStatus("error");
+      trackEvent("contact_form_error", { reason: "network_error" });
     }
   };
 

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
+import { trackEvent } from "@/lib/gtag";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -21,6 +22,7 @@ export default function ProjectTitleLink({
       target="_blank"
       rel="noopener noreferrer"
       className="inline-block"
+      onClick={() => trackEvent("project_live_link_click", { title, liveUrl })}
       onMouseEnter={() => {
         setRotation(Math.random() * 16 - 8);
         setHovered(true);

@@ -280,7 +280,10 @@ export default function Navbar() {
             {/* Menu button */}
             <button
               ref={menuBtnRef}
-              onClick={() => setMenuOpen((o) => !o)}
+              onClick={() => setMenuOpen((o) => {
+                trackEvent("nav_menu_toggle", { state: o ? "close" : "open" });
+                return !o;
+              })}
               style={{
                 position: menuOpen ? "fixed" : "relative",
                 top:      menuOpen ? SP : undefined,

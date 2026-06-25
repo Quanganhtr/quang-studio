@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import Footer from "@/components/sections/Footer";
 import { PROJECTS, type Project, AI_GENERATED, type AIGeneratedItem, isVideoSrc } from "@/lib/projects";
 import { useProjectNav } from "@/lib/useProjectNav";
+import { trackEvent } from "@/lib/gtag";
 
 const EASE: [number, number, number, number] = [0.22, 1, 0.36, 1];
 
@@ -126,7 +127,10 @@ function ProjectRow({
     <div
       ref={rowRef}
       className="border-b border-ui cursor-pointer"
-      onClick={() => onOpen(project.slug)}
+      onClick={() => {
+        trackEvent("project_card_click", { slug: project.slug, location: "work_list" });
+        onOpen(project.slug);
+      }}
       onMouseEnter={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: "CLICK TO JUDGE" } }))}
       onMouseLeave={() => window.dispatchEvent(new CustomEvent("cursor-pill", { detail: { text: null } }))}
     >
@@ -169,7 +173,10 @@ function ProjectRow({
 }
 
 function AIGeneratedCard({ item }: { item: AIGeneratedItem }) {
-  const open = () => window.open(item.linkUrl, "_blank", "noopener");
+  const open = () => {
+    trackEvent("project_card_click", { title: item.title, location: "ai_generated" });
+    window.open(item.linkUrl, "_blank", "noopener");
+  };
   const pillText = item.linkUrl.includes("linkedin.com") ? "VIEW ON LINKEDIN" : "VIEW ON X";
 
   return (

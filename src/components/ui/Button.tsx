@@ -5,6 +5,7 @@ import { motion } from 'framer-motion';
 import * as React from 'react';
 
 import { clsx } from 'clsx';
+import { trackEvent } from '@/lib/gtag';
 
 export type ButtonVariant = 'solid' | 'outline' | 'ghost';
 export type ButtonSize = 'sm' | 'md' | 'lg';
@@ -52,6 +53,7 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
       hoverLabel,
       target,
       rel,
+      onClick,
       ...props
     },
     ref
@@ -106,6 +108,7 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
           className={sharedClass}
           onMouseEnter={() => setHovered(true)}
           onMouseLeave={() => setHovered(false)}
+          onClick={() => trackEvent('cta_click', { label: label ?? '', href })}
         >
           {labelContent}
         </a>
@@ -121,6 +124,10 @@ export const Button = React.forwardRef<React.ComponentRef<typeof BaseButton>, Bu
         type={type}
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
+        onClick={(e) => {
+          trackEvent('cta_click', { label: label ?? '' });
+          onClick?.(e);
+        }}
         {...props}
       >
         {labelContent}
