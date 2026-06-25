@@ -9,6 +9,7 @@ import MenuOverlay from "@/components/ui/MenuOverlay";
 import LogoAnimation from "@/components/ui/LogoAnimation";
 import ThemeButton from "@/components/ui/ThemeButton";
 import { useTheme } from "@/lib/ThemeContext";
+import { trackEvent } from "@/lib/gtag";
 import { useRef, useState, useEffect } from "react";
 
 const SP = "var(--section-padding)";
@@ -108,7 +109,10 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
     <motion.div
       className="fixed right-2 bottom-2 lg:left-2 lg:bottom-6 cursor-pointer overflow-hidden"
       style={{ width: CARD, zIndex: 9999, transformOrigin: isMobile ? "bottom right" : "bottom left" }}
-      onMouseEnter={() => setHovered(true)}
+      onMouseEnter={() => {
+        setHovered(true);
+        trackEvent("status_card_hover", { status });
+      }}
       onMouseLeave={() => setHovered(false)}
       animate={{
         height:  open ? numCards * CARD + (numCards - 1) * GAP : CARD + peekTotal,
@@ -121,7 +125,12 @@ function StatusBadge({ menuOpen }: { menuOpen: boolean }) {
         opacity: menuOpen ? 0 : 1,
       }}
       transition={{ duration: 0.5, ease: EASE }}
-      onClick={() => setOpen(o => !o)}
+      onClick={() => {
+        setOpen(o => {
+          trackEvent("status_card_click", { status, state: o ? "close" : "open" });
+          return !o;
+        });
+      }}
     >
       {STATUS_ORDER.map((s, i) => {
         const isActive   = s === status;
